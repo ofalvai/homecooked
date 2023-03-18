@@ -1,0 +1,8 @@
+default:
+    @just --list
+
+kill APP:
+    pkill -QUIT -x {{APP}}
+
+wallpaper PATH:
+    sqlite3 ~/Library/Application\ Support/Dock/desktoppicture.db "update data set value = '{{PATH}}'"

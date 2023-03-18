@@ -1,0 +1,11 @@
+default:
+    @just --list
+
+spotify:
+    npx pake-cli "https://open.spotify.com/" --name Spotify --transparent
+
+notion:
+    npx pake-cli "https://www.notion.so/ofalvai/Home-30ba541e2093480184567324fc9a6989" --name Notion --transparent
+
+todoist:
+     npx pake-cli "https://todoist.com/app/today" --name Todoist --transparent

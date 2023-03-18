@@ -1,0 +1,15 @@
+[package]
+name = "gardener"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.70"
+clap = { version = "4.1.9", features = ["derive"] }
+ignore = "0.4.20"
+obsidian-export = "22.11.0"
+percent-encoding = "2.2.0"
+pulldown-cmark = "0.9.2"
+regex = { version = "1.7.1", default-features = false }
