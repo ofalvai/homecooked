@@ -1,9 +1,13 @@
 [workspace]
 members = [
     "focus",
-    "gardener"
+    "gardener",
+    "speedtest-to-influx"
 ]
 
 [workspace.dependencies]
 anyhow = "1.0.70"
 clap = { version = "4.1.9", features = ["derive"] }
+serde = { version = "1.0.158", features = ["derive"] }
+serde_json = "1.0.94"
+owo-colors = "3.5.0"
