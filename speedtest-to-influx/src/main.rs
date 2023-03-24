@@ -40,7 +40,7 @@ enum Commands {
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     let params = ConnectionParams {
@@ -51,9 +51,11 @@ async fn main() {
     };
 
     match cli.command {
-        Commands::Run => run(params.clone()).await.unwrap(),
-        Commands::Schedule { interval } => run_scheduled(params.clone(), interval).await.unwrap(),
+        Commands::Run => run(params).await?,
+        Commands::Schedule { interval } => run_scheduled(params, interval).await?,
     }
+
+    Ok(())
 }
 
 async fn run(connection_params: ConnectionParams) -> anyhow::Result<()> {

@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
@@ -60,10 +61,9 @@ pub struct Server {
 pub fn run_measurement() -> anyhow::Result<Output> {
     let mut command = Command::new("speedtest");
     command.arg("--format").arg("json-pretty");
-    let command_output = command.output().expect("speedtest command failed");
-
+    let command_output = command.output().context("Failed to execute speedtest command")?;
     let raw_output = String::from_utf8_lossy(&command_output.stdout);
-    let output: Output = serde_json::from_str(&raw_output).unwrap();
+    let output: Output = serde_json::from_str(&raw_output).with_context(|| format!("Failed to parse JSON output: {}", raw_output))?;
 
     Ok(output)
 }
