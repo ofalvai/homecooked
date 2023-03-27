@@ -78,7 +78,6 @@ async fn run_scheduled(
         &duration_string.cyan()
     );
     println!();
-    // TODO: print timestamp
 
     let forever = task::spawn(async move {
         let mut interval =
