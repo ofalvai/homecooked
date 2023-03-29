@@ -2,18 +2,17 @@ use anyhow::Context;
 use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
-use std::str::FromStr;
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
-use crate::common::{collect_notes, Note, token_count, note_to_input};
-use crate::config;
-use crate::config::EMBEDDING_FILE;
+use crate::common::{collect_notes, note_to_input, token_count, Note};
+use crate::config::{self, Config};
 use crate::types::Embedding;
 
-pub async fn build(root: PathBuf, dry_run: bool) -> anyhow::Result<()> {
-    let notes = collect_notes(&root);
+pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
+    let notes = collect_notes(&config.notes_root);
 
-    let mut embeddings = load_embeddings().context("Failed to load embeddings")?;
+    let mut embeddings =
+        load_embeddings(&config.embedding_path).context("Failed to load embeddings")?;
 
     let client = Client::new();
 
@@ -60,12 +59,17 @@ pub async fn build(root: PathBuf, dry_run: bool) -> anyhow::Result<()> {
         }
 
         if i % 11 == 0 {
-            println!("{} {}", "Checkpoint".purple(), format!("Persisting {} note embeddings", embeddings.len()));
-            save_embeddings(&embeddings).context("Failed to save embeddings")?;
+            println!(
+                "{} {}",
+                "Checkpoint".purple(),
+                format!("Persisting {} note embeddings", embeddings.len())
+            );
+            save_embeddings(&embeddings, &config.embedding_path)
+                .context("Failed to save embeddings")?;
         }
     }
 
-    save_embeddings(&embeddings).context("Failed to save embeddings")?;
+    save_embeddings(&embeddings, &config.embedding_path).context("Failed to save embeddings")?;
 
     Ok(())
 }
@@ -88,12 +92,12 @@ fn note_to_checksum(note: &Note) -> u32 {
     crc32fast::hash(note.text_content.as_bytes())
 }
 
-fn load_embeddings() -> anyhow::Result<HashMap<PathBuf, Embedding>> {
-    if !PathBuf::from_str(EMBEDDING_FILE).unwrap().exists() {
+fn load_embeddings(path: &PathBuf) -> anyhow::Result<HashMap<PathBuf, Embedding>> {
+    if !path.exists() {
         return Ok(HashMap::new());
     }
 
-    let buf = std::fs::read(EMBEDDING_FILE)?;
+    let buf = std::fs::read(path)?;
     let embeddings: Vec<Embedding> = rmp_serde::from_slice(&buf)?;
 
     let embedding_map = embeddings
@@ -104,14 +108,14 @@ fn load_embeddings() -> anyhow::Result<HashMap<PathBuf, Embedding>> {
     Ok(embedding_map)
 }
 
-fn save_embeddings(embeddings: &HashMap<PathBuf, Embedding>) -> anyhow::Result<()> {
+fn save_embeddings(embeddings: &HashMap<PathBuf, Embedding>, path: &PathBuf) -> anyhow::Result<()> {
     let embedding_list: Vec<Embedding> = embeddings
         .iter()
         .map(|(_, embedding)| embedding.clone())
         .collect();
 
     let buf = rmp_serde::to_vec(&embedding_list)?;
-    std::fs::write(EMBEDDING_FILE, buf)?;
+    std::fs::write(path, buf)?;
 
     Ok(())
 }

@@ -1,25 +1,26 @@
 use std::time::Instant;
 
+use anyhow::Context;
 use owo_colors::OwoColorize;
 
 use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{
-    config::{self, EMBEDDING_FILE},
+    config::{self, Config},
     types::Embedding,
 };
 
-pub async fn query(query: &str) -> anyhow::Result<()> {
+pub async fn query(config: &Config, query: &str) -> anyhow::Result<()> {
     println!("Embedding query...");
     let embedding_start = Instant::now();
-    let query_embedding = get_query_embedding(query).await?;
+    let query_embedding = get_query_embedding(&config.api_key, query).await?;
     let embedding_duration = embedding_start.elapsed();
     println!("Done");
 
     let parse_start = Instant::now();
 
-    let embeddings_buf = std::fs::read(EMBEDDING_FILE)?;
+    let embeddings_buf = std::fs::read(&config.embedding_path).context("Can't read embeddings file")?;
     let mut embeddings: Vec<Embedding> = rmp_serde::from_slice(&embeddings_buf)?;
     let parse_duration = parse_start.elapsed();
 
@@ -47,8 +48,8 @@ pub async fn query(query: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn get_query_embedding(query: &str) -> anyhow::Result<Vec<f32>> {
-    let client = Client::new();
+async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f32>> {
+    let client = Client::new().with_api_key(api_key);
     let request = CreateEmbeddingRequestArgs::default()
         .model(config::EMBEDDING_MODEL)
         .input(query)

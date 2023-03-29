@@ -1,14 +1,12 @@
-use std::path::PathBuf;
-
-use anyhow::Ok;
+use anyhow::{Context, Ok};
 use clap::{Parser, Subcommand};
 
 mod builder;
+mod common;
 mod config;
+mod cost;
 mod query;
 mod types;
-mod cost;
-mod common;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -21,18 +19,12 @@ struct Cli {
 enum Commands {
     #[command(about = "Build and store embeddings of all notes")]
     Build {
-        #[arg(short, long, value_name = "PATH")]
-        notes: String,
-
         #[arg(long)]
         dry_run: bool,
     },
 
     #[command(about = "Calculate cost of embeddings")]
-    Cost {
-        #[arg(short, long, value_name = "PATH")]
-        notes: String,
-    },
+    Cost,
 
     #[command(about = "Search embeddings")]
     Query {
@@ -45,10 +37,12 @@ enum Commands {
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
+    let config = config::load_config().context("Can't load config")?;
+
     match &cli.command {
-        Commands::Build { notes, dry_run } => builder::build(PathBuf::from(notes), dry_run.to_owned()).await?,
-        Commands::Query { query } => query::query(query).await?,
-        Commands::Cost { notes } => cost::calculate_cost(PathBuf::from(notes))?,
+        Commands::Build { dry_run } => builder::build(&config, dry_run.to_owned()).await?,
+        Commands::Query { query } => query::query(&config, query).await?,
+        Commands::Cost => cost::calculate_cost(&config)?,
     }
 
     Ok(())

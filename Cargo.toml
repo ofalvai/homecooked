@@ -14,3 +14,5 @@ serde_json = "1.0.95"
 owo-colors = "3.5.0"
 ignore = "0.4.20"
 tokio = { version = "1.27.0", features = ["macros", "rt-multi-thread"] }
+directories = "5.0.0"
+configparser = "3.0.2"

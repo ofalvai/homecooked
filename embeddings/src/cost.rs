@@ -1,15 +1,13 @@
-use std::path::PathBuf;
-
 use owo_colors::OwoColorize;
 use tiktoken_rs::get_bpe_from_model;
 
 use crate::{
     common::{collect_notes, note_to_input},
-    config::{self, COST_PER_TOKEN},
+    config::{self, Config, COST_PER_TOKEN},
 };
 
-pub fn calculate_cost(root: PathBuf) -> anyhow::Result<()> {
-    let notes = collect_notes(&root);
+pub fn calculate_cost(config: &Config) -> anyhow::Result<()> {
+    let notes = collect_notes(&config.notes_root);
     let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
 
     println!(
