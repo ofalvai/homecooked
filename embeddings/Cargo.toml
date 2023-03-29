@@ -1,17 +1,20 @@
 [package]
-name = "speedtest-to-influx"
+name = "embeddings"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { workspace = true }
+clap = {workspace = true}
 anyhow = { workspace = true }
+ignore = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-owo-colors = { workspace = true }
 tokio = { workspace = true }
-influxdb = { version = "0.6", default-features = false, features = ["derive", "use-serde", "reqwest-client"] }
-chrono = { version = "0.4.24" }
-duration-string = "0.3.0"
+owo-colors = { workspace = true }
+async-openai = "0.10.1"
+rmp-serde = "1.1.1"
+tiktoken-rs = "0.3.3"
+try-partialord = "0.1.3"
+crc32fast = "1.3.2"
