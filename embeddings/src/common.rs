@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, path::PathBuf};
+use std::{ffi::OsStr, path::{PathBuf, Path}};
 
 use ignore::Walk;
 
@@ -37,7 +37,7 @@ pub fn note_to_input(note: &Note) -> String {
     format!("{}\n\n{}", note.title, note.text_content)
 }
 
-fn file_to_note(path: &PathBuf, root_path: &PathBuf) -> anyhow::Result<Note> {
+pub fn file_to_note(path: &Path, root_path: &Path) -> anyhow::Result<Note> {
     let title = path
         .file_stem()
         .expect("A file is supposed to have a name")
@@ -54,6 +54,10 @@ fn file_to_note(path: &PathBuf, root_path: &PathBuf) -> anyhow::Result<Note> {
         path: relative_path,
         text_content,
     })
+}
+
+pub fn note_to_checksum(note: &Note) -> u32 {
+    crc32fast::hash(note.text_content.as_bytes())
 }
 
 fn collect_files(root: &PathBuf) -> Vec<PathBuf> {

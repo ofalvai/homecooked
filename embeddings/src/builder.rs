@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::common::{collect_notes, note_to_input, token_count, Note};
+use crate::common::{collect_notes, note_to_input, token_count, Note, note_to_checksum};
 use crate::config::{self, Config};
 use crate::types::Embedding;
 
@@ -14,14 +14,14 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
     let mut embeddings =
         load_embeddings(&config.embedding_path).context("Failed to load embeddings")?;
 
-    let client = Client::new();
+    let client = Client::new().with_api_key(config.api_key.to_owned());
 
     for (i, note) in notes.into_iter().enumerate() {
         let checksum = note_to_checksum(&note);
         let stored_embedding = embeddings.get(&note.path);
         if let Some(stored_embedding) = stored_embedding {
             if stored_embedding.note_checksum == checksum {
-                println!("{} {}", "No change".green(), note.path.to_string_lossy());
+                // println!("{} {}", "No change".green(), note.path.to_string_lossy());
                 continue;
             }
             println!("{} {}", "Updating".yellow(), note.path.to_string_lossy());
@@ -86,10 +86,6 @@ async fn get_embedding(client: &Client, note: &Note) -> anyhow::Result<Vec<f32>>
 
     let response = client.embeddings().create(request).await?;
     Ok(response.data.get(0).unwrap().embedding.to_owned())
-}
-
-fn note_to_checksum(note: &Note) -> u32 {
-    crc32fast::hash(note.text_content.as_bytes())
 }
 
 fn load_embeddings(path: &PathBuf) -> anyhow::Result<HashMap<PathBuf, Embedding>> {

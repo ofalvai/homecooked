@@ -1,3 +1,5 @@
+use std::path::{Path};
+
 use anyhow::{Context, Ok};
 use clap::{Parser, Subcommand};
 
@@ -5,7 +7,7 @@ mod builder;
 mod common;
 mod config;
 mod cost;
-mod query;
+mod search;
 mod types;
 
 #[derive(Parser)]
@@ -27,9 +29,15 @@ enum Commands {
     Cost,
 
     #[command(about = "Search embeddings")]
-    Query {
+    Search {
         #[arg(value_name = "STRING")]
         query: String,
+    },
+
+    #[command(about = "Get related notes to a specific note")]
+    Related {
+        #[arg(value_name = "RELATIVE_PATH")]
+        path: String,
     },
 }
 
@@ -41,8 +49,12 @@ async fn main() -> anyhow::Result<()> {
 
     match &cli.command {
         Commands::Build { dry_run } => builder::build(&config, dry_run.to_owned()).await?,
-        Commands::Query { query } => query::query(&config, query).await?,
+        Commands::Search { query } => search::query(&config, query).await?,
         Commands::Cost => cost::calculate_cost(&config)?,
+        Commands::Related { path } => {
+            let path = Path::new(path);
+            search::related(&config, &path)?
+        }
     }
 
     Ok(())
