@@ -1,4 +1,4 @@
-use std::{fs, path::Path, time::Instant};
+use std::{fs, path::PathBuf, str::FromStr, time::Instant};
 
 use anyhow::Context;
 use owo_colors::OwoColorize;
@@ -7,15 +7,21 @@ use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{
-    common::{file_to_note, note_to_checksum},
+    common::{file_to_note, note_to_checksum, collect_notes},
     config::{self, Config},
+    prompt::{result_selector, prompt_query, NoteListItem, prompt_note_path},
     types::Embedding,
 };
 
-pub async fn query(config: &Config, query: &str) -> anyhow::Result<()> {
+pub async fn query(config: &Config, query: Option<&str>) -> anyhow::Result<()> {
+    let query = match query {
+        Some(q) => q.to_owned(),
+        None => prompt_query()?,
+    };
+
     println!("Embedding query...");
     let embedding_start = Instant::now();
-    let query_embedding = get_query_embedding(&config.api_key, query).await?;
+    let query_embedding = get_query_embedding(&config.api_key, &query).await?;
     let embedding_duration = embedding_start.elapsed();
     println!("Done");
 
@@ -31,25 +37,37 @@ pub async fn query(config: &Config, query: &str) -> anyhow::Result<()> {
     let sort_duration = sort_start.elapsed();
 
     println!();
-    println!("Best matches for {}:", query.yellow());
-    for embedding in &embeddings[0..10] {
-        let similarity = cosine_similarity(&embedding.embedding, &query_embedding);
-        println!(
-            "{}: {}",
-            embedding.note_path.to_string_lossy().bold(),
-            format!("{:.0}%", similarity * 100.0).green()
-        );
-    }
-
-    println!();
     println!("Query embedding time: {:?}", embedding_duration.green());
     println!("Parse time: {:?}", parse_duration.green());
     println!("Sort time: {:?}", sort_duration.green());
     println!("Note count: {}", embeddings.len().to_string().green());
+
+    println!();
+    println!("Best matches for {}:", query.yellow());
+
+    let items = embeddings
+        .iter()
+        .take(10)
+        .map(|e| NoteListItem {
+            note_path: e.note_path.clone(),
+            similarity: cosine_similarity(&e.embedding, &&query_embedding),
+        })
+        .collect();
+    result_selector(items, config, 0)?;
+
     Ok(())
 }
 
-pub fn related(config: &Config, note_path: &Path) -> anyhow::Result<()> {
+pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()> {
+    let note_path = match note_path {
+        Some(path) => PathBuf::from_str(path)?,
+        None => {
+            let notes = collect_notes(&config.notes_root);
+            let selected = prompt_note_path(&notes).context("Error while selecting note")?;
+            selected.path.to_owned()
+        }
+    };
+
     let display_path = note_path.to_str().unwrap();
     let note_path = if note_path.ends_with(".md") {
         note_path.to_path_buf()
@@ -74,17 +92,15 @@ pub fn related(config: &Config, note_path: &Path) -> anyhow::Result<()> {
 
     println!();
     println!("Best matches for {}:", display_path.yellow());
-    for embedding in &embeddings[0..10] {
-        if note_path == embedding.note_path {
-            continue;
-        }
-        let similarity = cosine_similarity(&embedding.embedding, &note_embedding.embedding);
-        println!(
-            "{}: {}",
-            embedding.note_path.to_string_lossy().bold(),
-            format!("{:.0}%", similarity * 100.0).green()
-        );
-    }
+    let items = embeddings
+        .iter()
+        .take(10)
+        .map(|e| NoteListItem {
+            note_path: e.note_path.clone(),
+            similarity: cosine_similarity(&e.embedding, &note_embedding.embedding),
+        })
+        .collect();
+    result_selector(items, config, 0)?;
 
     Ok(())
 }

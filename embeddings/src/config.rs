@@ -13,6 +13,7 @@ const EMBEDDING_FILE: &str = "embeddings.msgpack";
 pub struct Config {
     pub api_key: String,
     pub notes_root: PathBuf,
+    pub vault: String,
     pub embedding_path: PathBuf,
 }
 
@@ -24,10 +25,13 @@ pub fn load_config() -> anyhow::Result<Config> {
     let _ = config.load(config_path);
     let api_key = config
         .get("openai", "api_key")
-        .context("Can't find api_key in config.ini")?;
+        .context("Can't find api_key field in config.ini")?;
+    let vault = config
+        .get("notes", "vault")
+        .context("Can't find vault field in config.ini")?;
     let notes_root = config
         .get("notes", "root")
-        .context("Can't find notes root in config.ini")?;
+        .context("Can't find root field in config.ini")?;
     let notes_path = PathBuf::from(shellexpand::tilde(&notes_root).to_string())
         .canonicalize()
         .context("Invalid note root path")?;
@@ -35,6 +39,7 @@ pub fn load_config() -> anyhow::Result<Config> {
     Ok(Config {
         api_key,
         notes_root: notes_path,
+        vault,
         embedding_path: project_dirs.data_dir().join(EMBEDDING_FILE),
     })
 }
