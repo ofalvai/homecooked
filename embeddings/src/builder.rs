@@ -58,7 +58,7 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
             }
         }
 
-        if i % 11 == 0 {
+        if i % 10 == 0 {
             println!(
                 "{} {}",
                 "Checkpoint".purple(),

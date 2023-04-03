@@ -94,7 +94,8 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     println!("Best matches for {}:", display_path.yellow());
     let items = embeddings
         .iter()
-        .take(10)
+        .skip(1)
+        .take(50)
         .map(|e| NoteListItem {
             note_path: e.note_path.clone(),
             similarity: cosine_similarity(&e.embedding, &note_embedding.embedding),
@@ -123,15 +124,12 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
 }
 
 fn cosine_similarity(a: &Vec<f32>, b: &Vec<f32>) -> f32 {
+    // OpenAI embedding vectors are normalized to [0..1], so it's enough to just compute the dot product
     let mut dot_product = 0.0;
-    let mut a_norm = 0.0;
-    let mut b_norm = 0.0;
 
     for i in 0..a.len() {
         dot_product += a[i] * b[i];
-        a_norm += a[i] * a[i];
-        b_norm += b[i] * b[i];
     }
 
-    dot_product / (a_norm * b_norm).sqrt()
+    dot_product
 }

@@ -1,13 +1,14 @@
 use anyhow::{Context, Ok};
 use clap::{Parser, Subcommand};
+use tracing_subscriber::{EnvFilter, filter::LevelFilter};
 
 mod builder;
 mod common;
 mod config;
 mod cost;
+mod prompt;
 mod search;
 mod types;
-mod prompt;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -40,8 +41,10 @@ enum Commands {
     },
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
+    init_logging()?;
+
     let cli = Cli::parse();
 
     let config = config::load_config().context("Can't load config")?;
@@ -52,6 +55,14 @@ async fn main() -> anyhow::Result<()> {
         Commands::Cost => cost::calculate_cost(&config)?,
         Commands::Related { path } => search::related(&config, path)?,
     }
+    Ok(())
+}
 
+fn init_logging() -> anyhow::Result<()> {
+    let filter = EnvFilter::try_from_default_env()?
+        .add_directive(LevelFilter::ERROR.into())
+        .add_directive("async-openai::client=warn".parse()?); // Rate limit traces
+
+    tracing_subscriber::fmt().with_env_filter(filter).init();
     Ok(())
 }

@@ -30,11 +30,12 @@ pub fn collect_notes(root: &PathBuf) -> Vec<Note> {
 
 pub fn token_count(text: &str) -> usize {
     let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
-    bpe.encode_with_special_tokens(text).len()
+    return bpe.encode_with_special_tokens(text).len();
 }
 
 pub fn note_to_input(note: &Note) -> String {
-    format!("{}\n\n{}", note.title, note.text_content)
+    let content = note.text_content.replace("\n", " ");
+    return format!("Note title: {}. Note content: {}", note.title, content);
 }
 
 pub fn file_to_note(path: &Path, root_path: &Path) -> anyhow::Result<Note> {
