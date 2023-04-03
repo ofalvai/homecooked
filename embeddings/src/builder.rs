@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::common::{collect_notes, note_to_input, token_count, Note, note_to_checksum};
+use crate::common::{collect_notes, note_to_checksum, note_to_input, token_count, Note};
 use crate::config::{self, Config};
 use crate::types::Embedding;
 

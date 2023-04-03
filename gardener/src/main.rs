@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
-use export::run_export;
 use clean::run_clean;
+use export::run_export;
 
-mod export;
 mod clean;
+mod export;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)] // Read from `Cargo.toml`
@@ -30,8 +30,8 @@ enum Commands {
         root: String,
 
         #[arg(long)]
-        dry_run: bool
-    }
+        dry_run: bool,
+    },
 }
 
 fn main() {
@@ -45,6 +45,6 @@ fn main() {
         Commands::Clean { root, dry_run } => match run_clean(&root, *dry_run) {
             Ok(()) => println!("Success"),
             Err(e) => println!("{}", e),
-        }
+        },
     }
 }

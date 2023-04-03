@@ -1,4 +1,7 @@
-use std::{ffi::OsStr, path::{PathBuf, Path}};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
 use ignore::Walk;
 
@@ -35,7 +38,12 @@ pub fn token_count(text: &str) -> usize {
 
 pub fn note_to_input(note: &Note) -> String {
     let content = note.text_content.replace("\n", " ");
-    return format!("Note title: {}. Note content: {}", note.title, content);
+    let content = content.trim();
+    if content.is_empty() {
+        format!("{}", note.title)
+    } else {
+        format!("Note title: {}. Note content: {}", note.title, content)
+    }
 }
 
 pub fn file_to_note(path: &Path, root_path: &Path) -> anyhow::Result<Note> {

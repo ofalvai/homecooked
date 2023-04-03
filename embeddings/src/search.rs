@@ -7,9 +7,9 @@ use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{
-    common::{file_to_note, note_to_checksum, collect_notes},
+    common::{collect_notes, file_to_note, note_to_checksum},
     config::{self, Config},
-    prompt::{result_selector, prompt_query, NoteListItem, prompt_note_path},
+    prompt::{prompt_note_path, prompt_query, result_selector, NoteListItem},
     types::Embedding,
 };
 

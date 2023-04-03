@@ -82,7 +82,10 @@ pub async fn store(params: ConnectionParams, output: Output) -> anyhow::Result<(
     let client =
         Client::new(params.url, params.database).with_auth(params.username, params.password);
 
-    let _ = client.query(queries).await.context("InfluxDB insert query failed");
+    let _ = client
+        .query(queries)
+        .await
+        .context("InfluxDB insert query failed");
 
     Ok(())
 }

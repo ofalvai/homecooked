@@ -1,6 +1,6 @@
 use anyhow::{Context, Ok};
 use clap::{Parser, Subcommand};
-use tracing_subscriber::{EnvFilter, filter::LevelFilter};
+use tracing_subscriber::{filter::LevelFilter, EnvFilter};
 
 mod builder;
 mod common;
@@ -43,7 +43,7 @@ enum Commands {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
-    init_logging()?;
+    init_logging().context("Failed to init logging")?;
 
     let cli = Cli::parse();
 
@@ -59,9 +59,9 @@ async fn main() -> anyhow::Result<()> {
 }
 
 fn init_logging() -> anyhow::Result<()> {
-    let filter = EnvFilter::try_from_default_env()?
-        .add_directive(LevelFilter::ERROR.into())
-        .add_directive("async-openai::client=warn".parse()?); // Rate limit traces
+    let filter = EnvFilter::builder()
+        .with_default_directive(LevelFilter::ERROR.into())
+        .parse("async-openai::client=warn")?; // Rate limit traces
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
     Ok(())

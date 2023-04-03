@@ -1,12 +1,12 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::Context;
-use dialoguer::{theme::ColorfulTheme, Input, Select, FuzzySelect};
+use dialoguer::{theme::ColorfulTheme, FuzzySelect, Input, Select};
 
 use owo_colors::OwoColorize;
 use urlencoding::encode;
 
-use crate::{config::Config, common::Note};
+use crate::{common::Note, config::Config};
 
 pub struct NoteListItem {
     pub note_path: PathBuf,
@@ -30,15 +30,15 @@ impl ToString for NoteListItem {
 impl ToString for Note {
     fn to_string(&self) -> String {
         let path = self.path.parent().unwrap_or(Path::new("."));
-        format!(
-            "{} - {}",
-            self.title,
-            path.display(),
-        )
+        format!("{} - {}", self.title, path.display(),)
     }
 }
 
-pub fn result_selector(notes: Vec<NoteListItem>, config: &Config, selection_index: usize) -> anyhow::Result<()> {
+pub fn result_selector(
+    notes: Vec<NoteListItem>,
+    config: &Config,
+    selection_index: usize,
+) -> anyhow::Result<()> {
     let prompt = format!("Select note to open or {} to quit", "ESC".green());
     let selection = Select::with_theme(&ColorfulTheme::default())
         .items(&notes)
@@ -53,7 +53,7 @@ pub fn result_selector(notes: Vec<NoteListItem>, config: &Config, selection_inde
             open_note(&config.vault, path)?;
 
             result_selector(notes, config, index)?;
-        },
+        }
         None => println!("Exiting"),
     }
 
@@ -61,9 +61,7 @@ pub fn result_selector(notes: Vec<NoteListItem>, config: &Config, selection_inde
 }
 
 pub fn prompt_query() -> anyhow::Result<String> {
-    let input: String = Input::new()
-        .with_prompt("Search query")
-        .interact_text()?;
+    let input: String = Input::new().with_prompt("Search query").interact_text()?;
 
     return Ok(input);
 }

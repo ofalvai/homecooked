@@ -61,9 +61,12 @@ pub struct Server {
 pub fn run_measurement() -> anyhow::Result<Output> {
     let mut command = Command::new("speedtest");
     command.arg("--format").arg("json-pretty");
-    let command_output = command.output().context("Failed to execute speedtest command")?;
+    let command_output = command
+        .output()
+        .context("Failed to execute speedtest command")?;
     let raw_output = String::from_utf8_lossy(&command_output.stdout);
-    let output: Output = serde_json::from_str(&raw_output).with_context(|| format!("Failed to parse JSON output: {}", raw_output))?;
+    let output: Output = serde_json::from_str(&raw_output)
+        .with_context(|| format!("Failed to parse JSON output: {}", raw_output))?;
 
     Ok(output)
 }
