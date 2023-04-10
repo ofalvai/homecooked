@@ -1,14 +1,19 @@
 use std::{
     ffi::OsStr,
+    fs,
     path::{Path, PathBuf},
 };
 
+use anyhow::Context;
 use ignore::Walk;
 
 use owo_colors::OwoColorize;
 use tiktoken_rs::get_bpe_from_model;
 
-use crate::config;
+use crate::{
+    config::{self, Config},
+    types::Embedding,
+};
 
 pub struct Note {
     pub title: String,
@@ -89,4 +94,10 @@ fn collect_files(root: &PathBuf) -> Vec<PathBuf> {
             extension == "md"
         })
         .collect()
+}
+
+pub fn load_embeddings(config: &Config) -> anyhow::Result<Vec<Embedding>> {
+    let embeddings_buf = fs::read(&config.embedding_path).context("Can't read embeddings file")?;
+    let embeddings: Vec<Embedding> = rmp_serde::from_slice(&embeddings_buf)?;
+    Ok(embeddings)
 }

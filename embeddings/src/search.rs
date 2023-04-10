@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, str::FromStr, time::Instant};
+use std::{path::PathBuf, str::FromStr, time::Instant};
 
 use anyhow::Context;
 use owo_colors::OwoColorize;
@@ -7,7 +7,7 @@ use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{
-    common::{collect_notes, file_to_note, note_to_checksum},
+    common::{collect_notes, file_to_note, load_embeddings, note_to_checksum},
     config::{self, Config},
     prompt::{prompt_note_path, prompt_query, result_selector, NoteListItem},
     types::Embedding,
@@ -104,12 +104,6 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     result_selector(items, config, 0)?;
 
     Ok(())
-}
-
-fn load_embeddings(config: &Config) -> anyhow::Result<Vec<Embedding>> {
-    let embeddings_buf = fs::read(&config.embedding_path).context("Can't read embeddings file")?;
-    let embeddings: Vec<Embedding> = rmp_serde::from_slice(&embeddings_buf)?;
-    Ok(embeddings)
 }
 
 async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f32>> {

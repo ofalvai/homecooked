@@ -2,4 +2,9 @@
 api_key=
 
 [notes]
-root=
+root= # path to your notes directory
+vault= # vault name in Obsidian
+
+[plot_colors]
+Resources/Entities = Gold # https://www.w3schools.com/cssref/css_colors.asp
+Areas/Weekly reflection = #333333

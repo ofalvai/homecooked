@@ -1,3 +1,4 @@
+use anyhow::Context;
 use owo_colors::OwoColorize;
 use tiktoken_rs::get_bpe_from_model;
 
@@ -8,7 +9,7 @@ use crate::{
 
 pub fn calculate_cost(config: &Config) -> anyhow::Result<()> {
     let notes = collect_notes(&config.notes_root);
-    let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
+    let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).context("Failed to load tokenizer")?;
 
     println!(
         "Estimating cost of embedding {} notes...",

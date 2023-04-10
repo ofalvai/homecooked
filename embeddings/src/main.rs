@@ -6,6 +6,7 @@ mod builder;
 mod common;
 mod config;
 mod cost;
+mod plot;
 mod prompt;
 mod search;
 mod types;
@@ -39,6 +40,9 @@ enum Commands {
         #[arg(value_name = "RELATIVE_PATH")]
         path: Option<String>,
     },
+
+    #[command(about = "Plot embeddings and open result in browser")]
+    Plot,
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -54,6 +58,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::Search { query } => search::query(&config, query.as_deref()).await?,
         Commands::Cost => cost::calculate_cost(&config)?,
         Commands::Related { path } => search::related(&config, path)?,
+        Commands::Plot => plot::plot(&config)?,
     }
     Ok(())
 }

@@ -25,3 +25,5 @@ dialoguer = { version = "0.10.3", default_features = false, features = ["fuzzy-s
 urlencoding = "2.1.2"
 open = "4.0.1"
 tracing-subscriber = { version = "0.3.16", features = ["fmt", "env-filter"] }
+bhtsne = { version = "0.5.1", default_features = false }
+plotly = "0.8.3"
