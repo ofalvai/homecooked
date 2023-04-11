@@ -20,7 +20,7 @@ pub struct Config {
 }
 
 pub fn load_config() -> anyhow::Result<Config> {
-    let project_dirs = ProjectDirs::from("com.ofalvai.homecooked", "", "embeddings")
+    let project_dirs = ProjectDirs::from("com.oliverfalvai.homecooked", "", "embeddings")
         .context("Can't find config directory")?;
     let config_path = project_dirs.config_dir().join("config.ini");
     let mut config = Ini::new_cs(); // case sensitive because of plot colors and paths

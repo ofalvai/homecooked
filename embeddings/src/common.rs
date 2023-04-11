@@ -11,7 +11,7 @@ use owo_colors::OwoColorize;
 use tiktoken_rs::get_bpe_from_model;
 
 use crate::{
-    config::{self, Config},
+    config::{self, Config, MAX_TOKENS},
     types::Embedding,
 };
 
@@ -19,7 +19,6 @@ pub struct Note {
     pub title: String,
     pub path: PathBuf,
     pub text_content: String,
-    // TODO: how to handle metadata, such as tags?
 }
 
 pub fn collect_notes(root: &PathBuf) -> Vec<Note> {
@@ -41,7 +40,45 @@ pub fn token_count(text: &str) -> usize {
     return bpe.encode_with_special_tokens(text).len();
 }
 
-pub fn note_to_input(note: &Note) -> String {
+pub fn note_to_inputs(note: &Note) -> Vec<String> {
+    let whole_note_input = note_to_input(note);
+    let token_count = token_count(&whole_note_input);
+    if token_count <= MAX_TOKENS {
+        return vec![whole_note_input];
+    }
+
+    // No fancy algorithm, just split in two 🤷
+    // I shouldn't have such long notes anyway...
+    println!(
+        "Splitting {} in two as it exceeds the token limit",
+        note.path.to_string_lossy().blue()
+    );
+    let input_paragraphs = note.text_content.split("\n");
+    let mid_index = input_paragraphs.clone().count() / 2;
+    let first_half = Note {
+        title: note.title.clone(),
+        path: note.path.clone(),
+        text_content: input_paragraphs
+            .clone()
+            .take(mid_index)
+            .collect::<Vec<&str>>()
+            .join("\n"),
+    };
+    let second_half = Note {
+        title: note.title.clone(),
+        path: note.path.clone(),
+        text_content: input_paragraphs
+            .clone()
+            .skip(mid_index)
+            .collect::<Vec<&str>>()
+            .join("\n"),
+    };
+
+    return vec![note_to_input(&first_half), note_to_input(&second_half)];
+}
+
+fn note_to_input(note: &Note) -> String {
+    // Language model has better performance on continuous text
     let content = note.text_content.replace("\n", " ");
     let content = content.trim();
     if content.is_empty() {
@@ -75,7 +112,6 @@ pub fn note_to_checksum(note: &Note) -> u32 {
 }
 
 fn collect_files(root: &PathBuf) -> Vec<PathBuf> {
-    // TODO: configure ignore rules
     Walk::new(root)
         .filter_map(|result| {
             let entry = result.expect("Error iterating over files");

@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::common::{collect_notes, note_to_checksum, note_to_input, token_count, Note};
+use crate::common::{collect_notes, note_to_checksum, note_to_inputs, Note};
 use crate::config::{self, Config};
 use crate::types::Embedding;
 
@@ -21,7 +21,6 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
         let stored_embedding = embeddings.get(&note.path);
         if let Some(stored_embedding) = stored_embedding {
             if stored_embedding.note_checksum == checksum {
-                // println!("{} {}", "No change".green(), note.path.to_string_lossy());
                 continue;
             }
             println!("{} {}", "Updating".yellow(), note.path.to_string_lossy());
@@ -32,21 +31,22 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
         if dry_run {
             println!("Note: {}", note.path.to_string_lossy().yellow());
             println!("Checksum: {}", note_to_checksum(&note).yellow());
-            // println!("{}", note_to_input(&note));
             println!();
             continue;
         }
 
-        match get_embedding(&client, &note).await {
+        match build_embeddings(&client, &note).await {
             Ok(result) => {
-                embeddings.insert(
-                    note.path.clone(),
-                    Embedding {
-                        note_path: note.path.to_owned(),
-                        embedding: result,
-                        note_checksum: checksum,
-                    },
-                );
+                for embedding in result {
+                    embeddings.insert(
+                        note.path.clone(),
+                        Embedding {
+                            note_path: note.path.to_owned(),
+                            embedding: embedding,
+                            note_checksum: checksum,
+                        },
+                    );
+                }
             }
             Err(err) => {
                 println!(
@@ -58,7 +58,7 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
             }
         }
 
-        if i % 10 == 0 {
+        if (i + 1) % 10 == 0 {
             println!(
                 "{} {}",
                 "Checkpoint".purple(),
@@ -74,14 +74,19 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn get_embedding(client: &Client, note: &Note) -> anyhow::Result<Vec<f32>> {
-    if token_count(&note.text_content) > config::MAX_TOKENS {
-        return Err(anyhow::anyhow!("Note is too long"));
+async fn build_embeddings(client: &Client, note: &Note) -> anyhow::Result<Vec<Vec<f32>>> {
+    let mut embeddings = vec![];
+    for input in note_to_inputs(note) {
+        let embedding = get_embedding(client, input).await?;
+        embeddings.push(embedding);
     }
+    Ok(embeddings)
+}
 
+async fn get_embedding(client: &Client, input: String) -> anyhow::Result<Vec<f32>> {
     let request = CreateEmbeddingRequestArgs::default()
         .model(config::EMBEDDING_MODEL)
-        .input(note_to_input(note))
+        .input(input)
         .build()?;
 
     let response = client.embeddings().create(request).await?;
