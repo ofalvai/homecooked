@@ -6,6 +6,10 @@ members = [
     "embeddings"
 ]
 
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+lto = true  # Enable link-time optimization.
+
 [workspace.dependencies]
 anyhow = "1.0.70"
 clap = { version = "4.2.0", features = ["derive"] }
