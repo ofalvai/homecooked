@@ -27,7 +27,7 @@ pub fn collect_notes(root: &Path) -> Vec<Note> {
         .filter_map(|file| match file_to_note(&file, root) {
             Ok(note) => Some(note),
             Err(err) => {
-                println!("Failed to parse note: {}", file.clone().to_string_lossy());
+                println!("Failed to parse note: {:?}", file);
                 println!("Error: {}", err.red());
                 None
             }
@@ -56,8 +56,8 @@ pub fn note_to_inputs(note: &Note) -> Vec<String> {
     let input_paragraphs = note.text_content.split('\n');
     let mid_index = input_paragraphs.clone().count() / 2;
     let first_half = Note {
-        title: note.title.clone(),
-        path: note.path.clone(),
+        title: note.title.to_owned(),
+        path: note.path.to_owned(),
         text_content: input_paragraphs
             .clone()
             .take(mid_index)
@@ -65,8 +65,8 @@ pub fn note_to_inputs(note: &Note) -> Vec<String> {
             .join("\n"),
     };
     let second_half = Note {
-        title: note.title.clone(),
-        path: note.path.clone(),
+        title: note.title.to_owned(),
+        path: note.path.to_owned(),
         text_content: input_paragraphs
             .clone()
             .skip(mid_index)

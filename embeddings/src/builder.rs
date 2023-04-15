@@ -39,7 +39,7 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
             Ok(result) => {
                 for embedding in result {
                     embeddings.insert(
-                        note.path.clone(),
+                        note.path.to_owned(),
                         Embedding {
                             note_path: note.path.to_owned(),
                             embedding,

@@ -37,7 +37,7 @@ pub fn plot(config: &Config) -> anyhow::Result<()> {
             Ok(Note {
                 x: vec[0],
                 y: vec[1],
-                path: path.clone(),
+                path: path.to_path_buf(),
             })
         })
         .collect::<anyhow::Result<Vec<Note>>>()

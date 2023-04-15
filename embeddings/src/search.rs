@@ -50,7 +50,7 @@ pub async fn query(config: &Config, query: Option<&str>) -> anyhow::Result<()> {
         .iter()
         .take(10)
         .map(|e| NoteListItem {
-            note_path: e.note_path.clone(),
+            note_path: e.note_path.to_path_buf(),
             similarity: cosine_similarity(&e.embedding, &query_embedding),
         })
         .collect();
@@ -75,7 +75,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     } else {
         note_path.with_extension("md")
     };
-    let abs_path = config.notes_root.join(note_path.clone());
+    let abs_path = config.notes_root.join(note_path.to_path_buf());
     let note = file_to_note(&abs_path, &config.notes_root)?;
 
     let mut embeddings: Vec<Embedding> =
@@ -99,7 +99,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
         .skip(1)
         .take(50)
         .map(|e| NoteListItem {
-            note_path: e.note_path.clone(),
+            note_path: e.note_path.to_path_buf(),
             similarity: cosine_similarity(&e.embedding, &note_embedding.embedding),
         })
         .collect();
