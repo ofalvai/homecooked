@@ -21,10 +21,10 @@ pub struct Note {
     pub text_content: String,
 }
 
-pub fn collect_notes(root: &PathBuf) -> Vec<Note> {
-    collect_files(&root)
+pub fn collect_notes(root: &Path) -> Vec<Note> {
+    collect_files(root)
         .into_iter()
-        .filter_map(|file| match file_to_note(&file, &root) {
+        .filter_map(|file| match file_to_note(&file, root) {
             Ok(note) => Some(note),
             Err(err) => {
                 println!("Failed to parse note: {}", file.clone().to_string_lossy());
@@ -37,7 +37,7 @@ pub fn collect_notes(root: &PathBuf) -> Vec<Note> {
 
 pub fn token_count(text: &str) -> usize {
     let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
-    return bpe.encode_with_special_tokens(text).len();
+    bpe.encode_with_special_tokens(text).len()
 }
 
 pub fn note_to_inputs(note: &Note) -> Vec<String> {
@@ -53,7 +53,7 @@ pub fn note_to_inputs(note: &Note) -> Vec<String> {
         "Splitting {} in two as it exceeds the token limit",
         note.path.to_string_lossy().blue()
     );
-    let input_paragraphs = note.text_content.split("\n");
+    let input_paragraphs = note.text_content.split('\n');
     let mid_index = input_paragraphs.clone().count() / 2;
     let first_half = Note {
         title: note.title.clone(),
@@ -74,15 +74,15 @@ pub fn note_to_inputs(note: &Note) -> Vec<String> {
             .join("\n"),
     };
 
-    return vec![note_to_input(&first_half), note_to_input(&second_half)];
+    vec![note_to_input(&first_half), note_to_input(&second_half)]
 }
 
 fn note_to_input(note: &Note) -> String {
     // Language model has better performance on continuous text
-    let content = note.text_content.replace("\n", " ");
+    let content = note.text_content.replace('\n', " ");
     let content = content.trim();
     if content.is_empty() {
-        format!("{}", note.title)
+        note.title.to_owned()
     } else {
         format!("Note title: {}. Note content: {}", note.title, content)
     }
@@ -93,7 +93,7 @@ pub fn file_to_note(path: &Path, root_path: &Path) -> anyhow::Result<Note> {
         .file_stem()
         .expect("A file is supposed to have a name")
         .to_string_lossy();
-    let text_content = std::fs::read_to_string(&path)?;
+    let text_content = std::fs::read_to_string(path)?;
     let canonical_root = root_path.canonicalize()?;
     let relative_path = path
         .canonicalize()?
@@ -111,7 +111,7 @@ pub fn note_to_checksum(note: &Note) -> u32 {
     crc32fast::hash(note.text_content.as_bytes())
 }
 
-fn collect_files(root: &PathBuf) -> Vec<PathBuf> {
+fn collect_files(root: &Path) -> Vec<PathBuf> {
     Walk::new(root)
         .filter_map(|result| {
             let entry = result.expect("Error iterating over files");

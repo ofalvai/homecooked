@@ -62,11 +62,10 @@ pub fn result_selector(
 
 pub fn prompt_query() -> anyhow::Result<String> {
     let input: String = Input::new().with_prompt("Search query").interact_text()?;
-
-    return Ok(input);
+    Ok(input)
 }
 
-pub fn prompt_note_path(notes: &Vec<Note>) -> anyhow::Result<&Note> {
+pub fn prompt_note_path(notes: &[Note]) -> anyhow::Result<&Note> {
     let selection = FuzzySelect::with_theme(&ColorfulTheme::default())
         .items(notes)
         .default(0)

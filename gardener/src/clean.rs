@@ -20,11 +20,12 @@ pub fn run_clean(root: &str, dry_run: bool) -> anyhow::Result<()> {
     let mut referenced_files = vec![];
 
     for note in &notes_set {
-        let mut files = collect_referenced_files(&note).with_context(|| {
+        let mut files = collect_referenced_files(note).with_context(|| {
             format!("Failed to collect referenced files in {}", &note.display())
         })?;
         referenced_files.append(&mut files);
     }
+    let referenced_files = referenced_files;
 
     if referenced_files.is_empty() {
         println!("No file references found in notes");
@@ -80,6 +81,7 @@ fn collect_referenced_files(path: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
     let content = fs::read_to_string(path).context("Failed to read file contents")?;
 
     let parser = Parser::new_ext(&content, Options::empty());
+    let mut errors: Vec<anyhow::Error> = vec![];
     let files: Vec<PathBuf> = parser
         .filter_map(|e| match e {
             Event::Start(Tag::Image(_linktype, dest, _title)) => Some(dest.to_string()),
@@ -89,13 +91,19 @@ fn collect_referenced_files(path: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
         .filter(|dest| !is_web_link(dest))
         .filter(|dest| !dest.ends_with(".md"))
         .map(|dest| {
-            let parent = path.parent().expect("Note should have a parent folder");
+            let parent = path.parent().context("Note should have a parent folder")?;
             let dest_decoded = percent_decode_str(&dest).decode_utf8_lossy();
             let joined = parent.join(dest_decoded.as_ref());
-            fs::canonicalize(joined.clone())
-                .expect(format!("Problem with path: {}", &joined.display()).as_str())
+            let canonical = fs::canonicalize(joined.clone())
+                .context(format!("Problem with path: {:?}", &joined))?;
+            Ok(canonical)
         })
+        .filter_map(|result| result.map_err(|e| errors.push(e)).ok())
         .collect();
+
+    if !errors.is_empty() {
+        println!("Errors: {:?}", errors);
+    }
 
     Ok(files)
 }

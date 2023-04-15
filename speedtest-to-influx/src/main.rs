@@ -118,7 +118,7 @@ fn print_output(output: &Output) {
     };
     println!(
         "Packet loss:\t\t{}",
-        format!("{}", packet_loss_value.yellow())
+        packet_loss_value.yellow()
     );
     println!(
         "Idle latency:\t\t{} ({}/{}) {}",

@@ -28,12 +28,13 @@ pub async fn query(config: &Config, query: Option<&str>) -> anyhow::Result<()> {
     let parse_start = Instant::now();
 
     let mut embeddings: Vec<Embedding> =
-        load_embeddings(&config).context("Failed to load embeddings from file")?;
+        load_embeddings(config).context("Failed to load embeddings from file")?;
     let parse_duration = parse_start.elapsed();
 
     let sort_start = Instant::now();
     embeddings
         .try_sort_by_cached_key(|e| Some(-cosine_similarity(&e.embedding, &query_embedding)))?;
+    let embeddings = embeddings;
     let sort_duration = sort_start.elapsed();
 
     println!();
@@ -50,7 +51,7 @@ pub async fn query(config: &Config, query: Option<&str>) -> anyhow::Result<()> {
         .take(10)
         .map(|e| NoteListItem {
             note_path: e.note_path.clone(),
-            similarity: cosine_similarity(&e.embedding, &&query_embedding),
+            similarity: cosine_similarity(&e.embedding, &query_embedding),
         })
         .collect();
     result_selector(items, config, 0)?;
@@ -78,7 +79,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     let note = file_to_note(&abs_path, &config.notes_root)?;
 
     let mut embeddings: Vec<Embedding> =
-        load_embeddings(&config).context("Failed to load embeddings from file")?;
+        load_embeddings(config).context("Failed to load embeddings from file")?;
 
     let note_embedding = embeddings
         .iter()
@@ -89,6 +90,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     embeddings.try_sort_by_cached_key(|e| {
         Some(-cosine_similarity(&e.embedding, &note_embedding.embedding))
     })?;
+    let embeddings = embeddings;
 
     println!();
     println!("Best matches for {}:", display_path.yellow());
@@ -117,7 +119,7 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
     return Ok(response.data.get(0).unwrap().embedding.to_owned());
 }
 
-fn cosine_similarity(a: &Vec<f32>, b: &Vec<f32>) -> f32 {
+fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
     // OpenAI embedding vectors are normalized to [0..1], so it's enough to just compute the dot product
     let mut dot_product = 0.0;
 

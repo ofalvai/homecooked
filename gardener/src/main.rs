@@ -38,11 +38,11 @@ fn main() {
     let cli = Cli::parse();
 
     match &cli.command {
-        Commands::Export { root, destination } => match run_export(&root, &destination) {
+        Commands::Export { root, destination } => match run_export(root, destination) {
             Ok(()) => println!("Success!"),
             Err(e) => println!("{}", e),
         },
-        Commands::Clean { root, dry_run } => match run_clean(&root, *dry_run) {
+        Commands::Clean { root, dry_run } => match run_clean(root, *dry_run) {
             Ok(()) => println!("Success"),
             Err(e) => println!("{}", e),
         },

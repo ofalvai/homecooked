@@ -19,7 +19,7 @@ pub fn calculate_cost(config: &Config) -> anyhow::Result<()> {
     println!("Cost per token: ${:.7}", COST_PER_TOKEN.green());
     let mut cost = 0.0;
     for note in &notes {
-        for input in note_to_inputs(&note) {
+        for input in note_to_inputs(note) {
             let token_count = bpe.encode_with_special_tokens(&input).len();
             cost += token_count as f64 * COST_PER_TOKEN;
         }

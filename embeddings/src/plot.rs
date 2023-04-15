@@ -48,7 +48,7 @@ pub fn plot(config: &Config) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn t_sne(embeddings: &Vec<Embedding>) -> Vec<[f32; 2]> {
+fn t_sne(embeddings: &[Embedding]) -> Vec<[f32; 2]> {
     let vectors: Vec<[f32; EMBEDDING_DIM]> = embeddings
         .iter()
         .map(|e| e.embedding.as_slice().try_into().unwrap())
@@ -73,7 +73,7 @@ fn t_sne(embeddings: &Vec<Embedding>) -> Vec<[f32; 2]> {
         .collect()
 }
 
-fn show_plot(notes: &Vec<Note>, color_map: &HashMap<String, String>) {
+fn show_plot(notes: &[Note], color_map: &HashMap<String, String>) {
     let ((x, y), label): ((Vec<f32>, Vec<f32>), Vec<String>) = notes
         .iter()
         .map(|n| ((n.x, n.y), n.path.to_string_lossy().into_owned()))

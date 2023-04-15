@@ -42,7 +42,7 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
                         note.path.clone(),
                         Embedding {
                             note_path: note.path.to_owned(),
-                            embedding: embedding,
+                            embedding,
                             note_checksum: checksum,
                         },
                     );
@@ -60,9 +60,9 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
 
         if (i + 1) % 10 == 0 {
             println!(
-                "{} {}",
+                "{} Persisting {} note embeddings",
                 "Checkpoint".purple(),
-                format!("Persisting {} note embeddings", embeddings.len())
+                embeddings.len()
             );
             save_embeddings(&embeddings, &config.embedding_path)
                 .context("Failed to save embeddings")?;
