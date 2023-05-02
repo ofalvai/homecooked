@@ -43,6 +43,9 @@ enum Commands {
 
     #[command(about = "Plot embeddings and open result in browser")]
     Plot,
+
+    #[command(about = "Prune embeddings of no longer existing notes")]
+    Prune,
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -59,6 +62,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::Cost => cost::calculate_cost(&config)?,
         Commands::Related { path } => search::related(&config, path)?,
         Commands::Plot => plot::plot(&config)?,
+        Commands::Prune => builder::prune(&config)?,
     }
     Ok(())
 }

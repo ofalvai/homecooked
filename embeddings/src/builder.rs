@@ -120,3 +120,40 @@ fn save_embeddings(embeddings: &HashMap<PathBuf, Embedding>, path: &PathBuf) -> 
 
     Ok(())
 }
+
+pub fn prune(config: &Config) -> anyhow::Result<()> {
+    let notes: HashMap<PathBuf, Note> = collect_notes(&config.notes_root)
+        .into_iter()
+        .map(|note| (note.path.clone(), note))
+        .collect();
+
+    let mut embeddings =
+        load_embeddings(&config.embedding_path).context("Failed to load embeddings")?;
+
+    let mut removed_count = 0;
+
+    embeddings.retain(|embedding_path, embedding| {
+        if !notes.contains_key(embedding_path) {
+            println!(
+                "{} {}",
+                "Remove".red(),
+                embedding.note_path.to_string_lossy()
+            );
+            removed_count += 1;
+            false
+        } else {
+            true
+        }
+    });
+
+    save_embeddings(&embeddings, &config.embedding_path).context("Failed to save embeddings")?;
+
+    println!();
+    if removed_count > 0 {
+        println!("Sucessfully pruned {} embeddings", removed_count);
+    } else {
+        println!("There is nothing to prune at the moment.")
+    }
+
+    Ok(())
+}
