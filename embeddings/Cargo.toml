@@ -27,3 +27,4 @@ open = "4.0.1"
 tracing-subscriber = { version = "0.3.16", features = ["fmt", "env-filter"] }
 bhtsne = { version = "0.5.2", default-features = false }
 plotly = "0.8.3"
+lazy_static = "1.4.0"

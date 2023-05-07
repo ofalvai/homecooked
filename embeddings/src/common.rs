@@ -7,13 +7,18 @@ use std::{
 use anyhow::Context;
 use ignore::Walk;
 
+use lazy_static::lazy_static;
 use owo_colors::OwoColorize;
-use tiktoken_rs::get_bpe_from_model;
+use tiktoken_rs::{get_bpe_from_model, CoreBPE};
 
 use crate::{
     config::{self, Config, MAX_TOKENS},
     types::Embedding,
 };
+
+lazy_static! {
+    pub static ref TOKENIZER: CoreBPE = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
+}
 
 pub struct Note {
     pub title: String,
@@ -36,8 +41,7 @@ pub fn collect_notes(root: &Path) -> Vec<Note> {
 }
 
 pub fn token_count(text: &str) -> usize {
-    let bpe = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
-    bpe.encode_with_special_tokens(text).len()
+    TOKENIZER.encode_with_special_tokens(text).len()
 }
 
 pub fn note_to_inputs(note: &Note) -> Vec<String> {

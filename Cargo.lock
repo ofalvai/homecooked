@@ -607,6 +607,7 @@ dependencies = [
  "dialoguer",
  "directories",
  "ignore",
+ "lazy_static",
  "open",
  "owo-colors",
  "plotly",
