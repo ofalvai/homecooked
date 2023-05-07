@@ -64,12 +64,12 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
         Some(path) => PathBuf::from_str(path)?,
         None => {
             let notes = collect_notes(&config.notes_root);
-            let selected = prompt_note_path(&notes).context("Error while selecting note")?;
+            let selected = prompt_note_path(&notes).context("Error selecting note")?;
             selected.path.to_owned()
         }
     };
 
-    let display_path = note_path.to_str().unwrap();
+    let display_path = note_path.to_string_lossy();
     let note_path = if note_path.ends_with(".md") {
         note_path.to_path_buf()
     } else {
@@ -116,7 +116,8 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
         .build()?;
 
     let response = client.embeddings().create(request).await?;
-    return Ok(response.data.get(0).unwrap().embedding.to_owned());
+    let embedding = response.data.get(0).context("No embedding returned")?.embedding.to_owned();
+    return Ok(embedding);
 }
 
 fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {

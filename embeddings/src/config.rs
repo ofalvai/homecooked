@@ -24,7 +24,9 @@ pub fn load_config() -> anyhow::Result<Config> {
         .context("Can't find config directory")?;
     let config_path = project_dirs.config_dir().join("config.ini");
     let mut config = Ini::new_cs(); // case sensitive because of plot colors and paths
-    let config_map = config.load(config_path).unwrap();
+    let config_map = config.load(config_path).map_err(|err| {
+        anyhow::anyhow!("Failed to load config file: {}", err)
+    })?;
     let api_key = config
         .get("openai", "api_key")
         .context("Can't find api_key field in config.ini")?;

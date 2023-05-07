@@ -119,7 +119,7 @@ fn collect_files(root: &Path) -> Vec<PathBuf> {
     Walk::new(root)
         .filter_map(|result| {
             let entry = result.expect("Error iterating over files");
-            let metadata = entry.metadata().unwrap();
+            let metadata = entry.metadata().expect("Error reading file metadata");
             match metadata.is_dir() {
                 true => None,
                 false => Some(entry.path().to_path_buf()),
@@ -128,9 +128,7 @@ fn collect_files(root: &Path) -> Vec<PathBuf> {
         .filter(|entry| {
             let extension = entry
                 .extension()
-                .unwrap_or(OsStr::new(""))
-                .to_str()
-                .unwrap();
+                .unwrap_or(OsStr::new(""));
             extension == "md"
         })
         .collect()

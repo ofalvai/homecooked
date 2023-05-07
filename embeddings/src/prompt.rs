@@ -71,10 +71,12 @@ pub fn prompt_note_path(notes: &[Note]) -> anyhow::Result<&Note> {
         .default(0)
         .with_prompt("Select note from vault")
         .max_length(10)
-        .interact_opt()?
-        .unwrap();
+        .interact_opt()?;
 
-    Ok(&notes[selection])
+    match selection {
+        Some(index) => Ok(&notes[index]),
+        None => anyhow::bail!("No note selected"),
+    }
 }
 
 fn open_note(vault_name: &str, note_path: &Path) -> anyhow::Result<()> {

@@ -90,7 +90,8 @@ async fn get_embedding(client: &Client, input: String) -> anyhow::Result<Vec<f32
         .build()?;
 
     let response = client.embeddings().create(request).await?;
-    Ok(response.data.get(0).unwrap().embedding.to_owned())
+    let embedding = response.data.get(0).context("No embedding returned")?.embedding.to_owned();
+    Ok(embedding)
 }
 
 fn load_embeddings(path: &PathBuf) -> anyhow::Result<HashMap<PathBuf, Embedding>> {
