@@ -24,7 +24,7 @@ shellexpand = "3.1.0"
 dialoguer = { version = "0.10.4", default-features = false, features = ["fuzzy-select"] }
 urlencoding = "2.1.2"
 open = "4.0.1"
-tracing-subscriber = { version = "0.3.16", features = ["fmt", "env-filter"] }
+tracing-subscriber = { version = "0.3.17", features = ["fmt", "env-filter"] }
 bhtsne = { version = "0.5.2", default-features = false }
 plotly = "0.8.3"
 lazy_static = "1.4.0"
