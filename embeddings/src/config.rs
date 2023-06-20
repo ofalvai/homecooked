@@ -7,7 +7,7 @@ use directories::ProjectDirs;
 pub const EMBEDDING_MODEL: &str = "text-embedding-ada-002";
 pub const MAX_TOKENS: usize = 8191;
 pub const EMBEDDING_DIM: usize = 1536;
-pub const COST_PER_TOKEN: f64 = 0.0004 / 1000.0;
+pub const COST_PER_TOKEN: f64 = 0.0001 / 1000.0;
 
 const EMBEDDING_FILE: &str = "embeddings.msgpack";
 
