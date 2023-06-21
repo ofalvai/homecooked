@@ -10,6 +10,6 @@ anyhow = { workspace = true }
 clap = { workspace = true }
 ignore = { workspace = true }
 obsidian-export = "22.11.0"
-percent-encoding = "2.2.0"
+percent-encoding = "2.3.0"
 pulldown-cmark = "0.9.3"
 regex = { version = "1.8.4", default-features = false }
