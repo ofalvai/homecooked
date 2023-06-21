@@ -1,5 +1,7 @@
 # Home-cooked software
 
+Inspired by [Robin Sloan](https://www.robinsloan.com/notes/home-cooked-app/).
+
 What do I mean by [home-cooked software](https://oliverfalvai.com/notes/home-cooked-software/)?
 
 > Unlike general-purpose software appealing to the widest audience, home-cooked software is purpose-built to solve my own niche problems. It's not designed to scale or solve everyone's problem and that's okay!
