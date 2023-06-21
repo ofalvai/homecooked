@@ -20,16 +20,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    #[command(about = "Build and store embeddings of all notes")]
+    #[command(about = "Create or update embeddings for all notes")]
     Build {
         #[arg(long)]
         dry_run: bool,
     },
 
-    #[command(about = "Calculate cost of embeddings")]
+    #[command(about = "Calculate the cost of creating embeddings for all notes")]
     Cost,
 
-    #[command(about = "Search embeddings")]
+    #[command(about = "Search relevant notes for a query string")]
     Search {
         #[arg(value_name = "STRING")]
         query: Option<String>,
@@ -41,7 +41,7 @@ enum Commands {
         path: Option<String>,
     },
 
-    #[command(about = "Plot embeddings and open result in browser")]
+    #[command(about = "Plot embeddings in 2D and open result in browser")]
     Plot,
 
     #[command(about = "Prune embeddings of no longer existing notes")]
