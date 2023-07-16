@@ -1,0 +1,26 @@
+# .github/workflows/ci.yml
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - name: Install Earthly
+        uses: earthly/actions-setup@v1
+        with:
+          version: latest
+          use-cache: "true"
+
+      - uses: actions/checkout@v2
+
+      - name: Run build
+        run: earthly --ci +build-all
