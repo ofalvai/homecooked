@@ -3,7 +3,8 @@ members = [
     "focus",
     "gardener",
     "speedtest-to-influx",
-    "embeddings"
+    "embeddings",
+    "llm-assistant"
 ]
 
 [profile.release]
