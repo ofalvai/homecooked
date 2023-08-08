@@ -5,7 +5,7 @@ use std::pin::Pin;
 use self::openai::CompletionArgs;
 use crate::prompt::Message;
 
-pub(crate) mod openai;
+pub mod openai;
 
 #[async_trait]
 pub trait Client {

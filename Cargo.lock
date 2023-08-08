@@ -1625,12 +1625,22 @@ name = "llm-assistant"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
+ "futures",
+ "llm-toolkit",
+ "owo-colors",
+ "serde",
+ "tokio",
+]
+
+[[package]]
+name = "llm-toolkit"
+version = "0.1.0"
+dependencies = [
  "article_scraper",
  "async-openai 0.12.2",
  "async-trait",
- "clap",
  "futures",
- "owo-colors",
  "reqwest",
  "serde",
  "thiserror",

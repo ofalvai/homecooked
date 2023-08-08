@@ -1,13 +1,9 @@
 use clap::{Parser, Subcommand};
 
 mod completion;
-mod document;
 mod models;
 mod output;
-mod prompt;
-mod provider;
 mod summary;
-mod template;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]

@@ -1,5 +1,6 @@
-use crate::{
-    output::stream_to_stdout,
+use crate::output::stream_to_stdout;
+
+use llm_toolkit::{
     prompt,
     provider::{
         openai::{CompletionArgs, OpenAIClient, OpenAIConfig},

@@ -6,7 +6,7 @@ use std::{
 
 use futures::Stream;
 
-use crate::provider::{CompletionError, CompletionResponseDelta};
+use llm_toolkit::provider::{CompletionError, CompletionResponseDelta};
 
 pub async fn stream_to_stdout(
     mut stream: Pin<

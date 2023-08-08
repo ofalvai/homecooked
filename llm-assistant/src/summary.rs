@@ -1,12 +1,14 @@
-use crate::{
+use crate::output::stream_to_stdout;
+
+use anyhow::Context;
+use llm_toolkit::{
     document::loader::web_article::WebArticleLoader,
-    output::stream_to_stdout,
     prompt,
     provider::{
         openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
         Client,
     },
-    template::{render_prompt, TemplateContext},
+    template::{render_prompt, TemplateContext}
 };
 
 const DEFAULT_PROMPT: &str = r#"
@@ -38,5 +40,5 @@ pub async fn summarize(input: String, prompt: Option<String>) -> anyhow::Result<
 fn create_prompt(html: String, prompt: Option<String>) -> anyhow::Result<String> {
     let prompt = prompt.unwrap_or(DEFAULT_PROMPT.to_string());
     let ctx = TemplateContext { input: html };
-    render_prompt(&prompt, &ctx)
+    render_prompt(&prompt, &ctx).context("prompt error")
 }
