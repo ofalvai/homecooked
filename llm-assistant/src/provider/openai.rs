@@ -23,6 +23,7 @@ pub struct CompletionArgs {
 }
 pub enum Model {
     Gpt35Turbo,
+    Gpt35Turbo16K,
     Gpt4,
 }
 
@@ -30,6 +31,7 @@ impl Model {
     fn model_id(&self) -> &str {
         match self {
             Model::Gpt35Turbo => "gpt-3.5-turbo",
+            Model::Gpt35Turbo16K => "gpt-3.5-turbo-16k",
             Model::Gpt4 => "gpt-4",
         }
     }
@@ -100,7 +102,7 @@ impl Client for OpenAIClient {
 
         Ok(CompletionResponse {
             id: response.id,
-            content: content,
+            content,
         })
     }
 

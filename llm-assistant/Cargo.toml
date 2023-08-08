@@ -6,11 +6,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = {workspace = true}
+clap = { workspace = true }
 anyhow = { workspace = true }
 owo-colors = { workspace = true }
 tokio = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
 async-openai = "0.12.2"
 futures = "0.3.28"
 async-trait = "0.1.72"
 thiserror = "1.0.44"
+article_scraper = "2.0.0"
+url = "2.4.0"
+tinytemplate = "1.2.1"

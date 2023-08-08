@@ -1,9 +1,13 @@
 use clap::{Parser, Subcommand};
 
 mod completion;
+mod document;
 mod models;
+mod output;
 mod prompt;
 mod provider;
+mod summary;
+mod template;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -20,6 +24,12 @@ enum Commands {
         prompt: String,
     },
 
+    #[command(about = "Summarize input like a file, web URL or string")]
+    Summary {
+        input: String,
+        prompt: Option<String>,
+    },
+
     #[command(about = "Manage available models")]
     Models,
 }
@@ -27,8 +37,9 @@ enum Commands {
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    return match &cli.command {
-        Commands::Completion { prompt} => completion::completion(prompt).await,
+    return match cli.command {
+        Commands::Completion { prompt } => completion::completion(prompt).await,
+        Commands::Summary { input, prompt } => summary::summarize(input, prompt).await,
         Commands::Models => models::models(),
     };
 }

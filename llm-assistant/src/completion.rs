@@ -1,8 +1,5 @@
-use std::io::{stdout, Write};
-
-use futures::StreamExt;
-
 use crate::{
+    output::stream_to_stdout,
     prompt,
     provider::{
         openai::{CompletionArgs, OpenAIClient, OpenAIConfig},
@@ -10,26 +7,14 @@ use crate::{
     },
 };
 
-pub async fn completion(user_prompt: &str) -> anyhow::Result<()> {
+pub async fn completion(user_prompt: String) -> anyhow::Result<()> {
     let config = OpenAIConfig::default();
     let client = OpenAIClient::with_config(config);
 
     let conv = prompt::with_user(user_prompt.into());
     let args = CompletionArgs::default();
-    let mut stream = client.completion_stream(conv.messages, args).await?;
+    let stream = client.completion_stream(conv.messages, args).await?;
+    stream_to_stdout(stream).await?;
 
-    let mut lock = stdout().lock();
-    let mut full_completion = String::new();
-
-    while let Some(result) = stream.next().await {
-        match result {
-            Ok(resp) => {
-                full_completion.push_str(&resp.content);
-                write!(lock, "{}", resp.content).unwrap();
-            }
-            Err(e) => eprintln!("{}", e),
-        }
-        stdout().flush()?;
-    }
     Ok(())
 }

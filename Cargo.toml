@@ -21,3 +21,4 @@ ignore = "0.4.20"
 tokio = { version = "1.29.1", features = ["macros", "rt-multi-thread"] }
 directories = "5.0.1"
 configparser = "3.0.2"
+reqwest = "0.11.18"
