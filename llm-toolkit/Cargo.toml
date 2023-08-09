@@ -16,3 +16,5 @@ thiserror = "1.0.44"
 article_scraper = "2.0.0"
 url = "2.4.0"
 tinytemplate = "1.2.1"
+rs-llama-cpp = "0.1.66"
+lazy_static = { workspace = true }

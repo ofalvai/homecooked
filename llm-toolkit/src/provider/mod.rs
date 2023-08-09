@@ -2,9 +2,9 @@ use async_trait::async_trait;
 use futures::Stream;
 use std::pin::Pin;
 
-use self::openai::CompletionArgs;
 use crate::prompt::Message;
 
+pub mod llama;
 pub mod openai;
 
 #[async_trait]
@@ -14,13 +14,13 @@ pub trait Client {
     async fn completion(
         &self,
         messages: Vec<Message>,
-        args: CompletionArgs,
+        args: Self::CompletionArgs,
     ) -> Result<CompletionResponse, CompletionError>;
 
     async fn completion_stream(
         &self,
         messages: Vec<Message>,
-        args: CompletionArgs,
+        args: Self::CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError>;
 }
 
@@ -41,6 +41,8 @@ pub enum CompletionError {
     #[error("unknown error: {0}")]
     UnknownError(String),
 }
+
+#[derive(Debug)]
 pub struct CompletionResponse {
     pub id: String,
     pub content: String,
@@ -53,4 +55,3 @@ pub struct CompletionResponseDelta {
 
 pub type CompletionResponseStream =
     Pin<Box<dyn Stream<Item = Result<CompletionResponseDelta, CompletionError>> + Send>>;
-
