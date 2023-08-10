@@ -18,6 +18,9 @@ enum Commands {
     Completion {
         #[arg(value_name = "STRING", short, long)]
         prompt: String,
+
+        #[arg(value_name = "TEMPLATE", short, long)]
+        template: Option<String>
     },
 
     #[command(about = "Summarize input like a file, web URL or string")]
@@ -34,7 +37,7 @@ enum Commands {
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     return match cli.command {
-        Commands::Completion { prompt } => completion::completion(prompt).await,
+        Commands::Completion { prompt, template} => completion::completion(prompt, template).await,
         Commands::Summary { input, prompt } => summary::summarize(input, prompt).await,
         Commands::Models => models::models(),
     };

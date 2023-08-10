@@ -1,5 +1,7 @@
 #![allow(dead_code, unused)]
 
+use std::str::FromStr;
+
 use async_openai::{
     error::OpenAIError,
     types::{
@@ -33,6 +35,19 @@ impl Model {
             Model::Gpt35Turbo => "gpt-3.5-turbo",
             Model::Gpt35Turbo16K => "gpt-3.5-turbo-16k",
             Model::Gpt4 => "gpt-4",
+        }
+    }
+}
+
+impl FromStr for Model {
+    type Err = OpenAIError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "gpt-3.5-turbo" => Ok(Model::Gpt35Turbo),
+            "gpt-3.5-turbo-16k" => Ok(Model::Gpt35Turbo16K),
+            "gpt-4" => Ok(Model::Gpt4),
+            _ => Err(OpenAIError::InvalidArgument(format!("model {} is not recognized", s))),
         }
     }
 }
