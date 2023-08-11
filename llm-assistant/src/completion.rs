@@ -9,8 +9,8 @@ use llm_toolkit::{
     },
     template::{render_prompt, TemplateContext},
 };
-use serde::Deserialize;
 use owo_colors::OwoColorize;
+use serde::Deserialize;
 
 pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow::Result<()> {
     let mut args = CompletionArgs::default();

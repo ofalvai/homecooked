@@ -1,9 +1,10 @@
 use clap::{Parser, Subcommand};
-use simplelog::{TermLogger, LevelFilter, TerminalMode, ColorChoice, ConfigBuilder};
+use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
 mod completion;
 mod models;
 mod output;
+mod readwise;
 mod summary;
 
 #[derive(Parser)]
@@ -13,7 +14,7 @@ struct Cli {
     command: Commands,
 
     #[arg(value_name = "LEVEL", short, long, default_value_t = LevelFilter::Warn)]
-    log_level: LevelFilter
+    log_level: LevelFilter,
 }
 
 #[derive(Subcommand)]
@@ -24,13 +25,19 @@ enum Commands {
         prompt: String,
 
         #[arg(value_name = "TEMPLATE", short, long)]
-        template: Option<String>
+        template: Option<String>,
     },
 
     #[command(about = "Summarize input like a file, web URL or string")]
     Summary {
         input: String,
         prompt: Option<String>,
+    },
+
+    #[command(about = "Ask questions about a Readwise document list")]
+    Readwise {
+        #[arg(short, long)]
+        prompt: String,
     },
 
     #[command(about = "Manage available models")]
@@ -47,11 +54,18 @@ async fn main() -> anyhow::Result<()> {
         .set_target_level(LevelFilter::Debug)
         .set_level_padding(simplelog::LevelPadding::Right)
         .build();
-    TermLogger::init(cli.log_level, term_config, TerminalMode::Mixed, ColorChoice::Auto).unwrap();
+    TermLogger::init(
+        cli.log_level,
+        term_config,
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    )
+    .unwrap();
 
     return match cli.command {
-        Commands::Completion { prompt, template} => completion::completion(prompt, template).await,
+        Commands::Completion { prompt, template } => completion::completion(prompt, template).await,
         Commands::Summary { input, prompt } => summary::summarize(input, prompt).await,
         Commands::Models => models::models(),
+        Commands::Readwise { prompt } => readwise::ask(prompt).await,
     };
 }

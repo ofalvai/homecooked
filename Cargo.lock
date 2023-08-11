@@ -1726,6 +1726,7 @@ dependencies = [
  "serde_yaml",
  "simplelog",
  "tokio",
+ "url",
 ]
 
 [[package]]

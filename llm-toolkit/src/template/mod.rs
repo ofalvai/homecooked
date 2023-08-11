@@ -17,12 +17,17 @@ pub enum TemplateError {
 }
 
 pub fn render_prompt(template: &str, ctx: &TemplateContext) -> Result<String, TemplateError> {
+    render(template, ctx, "prompt")
+}
+
+pub fn render<C>(template: &str, ctx: C, name: &str) -> Result<String, TemplateError> where C: Serialize {
     let mut tt = TinyTemplate::new();
-    if let Err(err) = tt.add_template("prompt", template) {
+
+    if let Err(err) = tt.add_template(name, template) {
         return Err(TemplateError::RenderError(err.to_string()));
     };
     tt.set_default_formatter(&format_unescaped);
-    match tt.render("prompt", ctx) {
+    match tt.render(name, &ctx) {
         Ok(value) => Ok(value),
         Err(err) => Err(TemplateError::RenderError(err.to_string())),
     }

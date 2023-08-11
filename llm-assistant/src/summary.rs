@@ -8,7 +8,7 @@ use llm_toolkit::{
         openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
         Client,
     },
-    template::{render_prompt, TemplateContext}
+    template::{render_prompt, TemplateContext},
 };
 
 const DEFAULT_PROMPT: &str = r#"Summarize an article extracted from a web page. Your response should match the language of the article.

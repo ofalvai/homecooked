@@ -1,3 +1,4 @@
+pub mod readwise;
 pub mod web_article;
 
 #[derive(Debug, thiserror::Error)]
