@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use simplelog::{TermLogger, LevelFilter, TerminalMode, ColorChoice, ConfigBuilder};
 
 mod completion;
 mod models;
@@ -10,6 +11,9 @@ mod summary;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+
+    #[arg(value_name = "LEVEL", short, long, default_value_t = LevelFilter::Warn)]
+    log_level: LevelFilter
 }
 
 #[derive(Subcommand)]
@@ -36,6 +40,15 @@ enum Commands {
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
+
+    let term_config = ConfigBuilder::new()
+        .set_time_level(LevelFilter::Off)
+        .set_thread_level(LevelFilter::Off)
+        .set_target_level(LevelFilter::Debug)
+        .set_level_padding(simplelog::LevelPadding::Right)
+        .build();
+    TermLogger::init(cli.log_level, term_config, TerminalMode::Mixed, ColorChoice::Auto).unwrap();
+
     return match cli.command {
         Commands::Completion { prompt, template} => completion::completion(prompt, template).await,
         Commands::Summary { input, prompt } => summary::summarize(input, prompt).await,

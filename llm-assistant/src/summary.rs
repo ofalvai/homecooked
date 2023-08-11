@@ -11,8 +11,7 @@ use llm_toolkit::{
     template::{render_prompt, TemplateContext}
 };
 
-const DEFAULT_PROMPT: &str = r#"
-Summarize an article extracted from a web page. Your response should match the language of the article.
+const DEFAULT_PROMPT: &str = r#"Summarize an article extracted from a web page. Your response should match the language of the article.
 Article content:
 {input}
 "#;

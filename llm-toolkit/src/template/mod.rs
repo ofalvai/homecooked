@@ -1,5 +1,5 @@
 use serde::Serialize;
-use tinytemplate::TinyTemplate;
+use tinytemplate::{TinyTemplate, format_unescaped};
 
 #[derive(Serialize)]
 pub struct TemplateContext {
@@ -21,6 +21,7 @@ pub fn render_prompt(template: &str, ctx: &TemplateContext) -> Result<String, Te
     if let Err(err) = tt.add_template("prompt", template) {
         return Err(TemplateError::RenderError(err.to_string()));
     };
+    tt.set_default_formatter(&format_unescaped);
     match tt.render("prompt", ctx) {
         Ok(value) => Ok(value),
         Err(err) => Err(TemplateError::RenderError(err.to_string())),

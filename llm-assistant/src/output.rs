@@ -1,4 +1,5 @@
 use futures::StreamExt;
+use owo_colors::OwoColorize;
 use std::{
     io::{stdout, Write},
     pin::Pin,
@@ -18,7 +19,7 @@ pub async fn stream_to_stdout(
     while let Some(result) = stream.next().await {
         match result {
             Ok(resp) => {
-                write!(lock, "{}", resp.content)?;
+                write!(lock, "{}", resp.content.yellow())?;
             }
             Err(e) => eprintln!("{}", e),
         }

@@ -1,6 +1,6 @@
 #![allow(dead_code, unused)]
 
-use std::str::FromStr;
+use std::{str::FromStr, fmt::Display};
 
 use async_openai::{
     error::OpenAIError,
@@ -12,6 +12,7 @@ use async_openai::{
 };
 use async_trait::async_trait;
 use futures::StreamExt;
+use log::{info, warn};
 
 use crate::prompt::{Message, Role};
 
@@ -23,10 +24,20 @@ pub struct CompletionArgs {
     pub model: Model,
     pub max_tokens: u16,
 }
+#[derive(Debug)]
 pub enum Model {
     Gpt35Turbo,
     Gpt35Turbo16K,
     Gpt4,
+}
+
+pub struct OpenAIConfig {
+    api_key: String,
+    api_base: String,
+}
+
+pub struct OpenAIClient {
+    config: OpenAIConfig,
 }
 
 impl Model {
@@ -52,6 +63,16 @@ impl FromStr for Model {
     }
 }
 
+impl Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Model::Gpt35Turbo => write!(f, "gpt-3.5-turbo"),
+            Model::Gpt35Turbo16K => write!(f, "gpt-3.5-turbo-16k"),
+            Model::Gpt4 => write!(f, "gpt-4"),
+        }
+    }
+}
+
 impl Default for CompletionArgs {
     fn default() -> Self {
         Self {
@@ -61,14 +82,6 @@ impl Default for CompletionArgs {
     }
 }
 
-pub struct OpenAIConfig {
-    api_key: String,
-    api_base: String,
-}
-
-pub struct OpenAIClient {
-    config: OpenAIConfig,
-}
 
 impl OpenAIClient {
     pub fn with_config(config: OpenAIConfig) -> OpenAIClient {
@@ -101,6 +114,9 @@ impl Client for OpenAIClient {
 
         let request = completion_request(messages, args, false)?;
         let response = client.chat().create(request).await.unwrap(); // only error is a stream arg validation, we take care of that
+
+        let usage = response.usage.ok_or(CompletionError::InvalidResponse("no usage info returned".to_string()))?;
+        info!("Token usage: {} prompt + {} completion = {} total", usage.prompt_tokens, usage.completion_tokens, usage.total_tokens);
 
         let content = response
             .choices
@@ -149,6 +165,11 @@ impl Client for OpenAIClient {
 fn map_stream_response(
     resp: CreateChatCompletionStreamResponse,
 ) -> Result<CompletionResponseDelta, CompletionError> {
+    if let Some(usage) = resp.usage {
+        // https://community.openai.com/t/usage-info-in-api-responses/18862/3?u=ofalvai
+        info!("Token usage: {} prompt + {} completion = {} total", usage.prompt_tokens, usage.completion_tokens, usage.total_tokens);
+    }
+
     let choice = resp
         .choices
         .first()
@@ -200,6 +221,11 @@ fn completion_request(
             }
         })
         .collect();
+
+    mapped_messages.iter().for_each(|m| {
+        let role = m.role.to_string();
+        info!("{}: {}", m.role.to_string(), m.content.as_ref().unwrap());
+    });
 
     let request = CreateChatCompletionRequestArgs::default()
         .messages(mapped_messages)

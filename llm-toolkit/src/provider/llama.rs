@@ -82,8 +82,8 @@ impl Client for LlamaClient {
 
     async fn completion_stream(
         &self,
-        messages: Vec<Message>,
-        args: CompletionArgs,
+        _messages: Vec<Message>,
+        _args: CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!(); // need to figure out token_callback closure variable capturing
     }

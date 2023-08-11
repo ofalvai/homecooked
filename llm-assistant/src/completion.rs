@@ -4,12 +4,13 @@ use anyhow::Context;
 use llm_toolkit::{
     prompt,
     provider::{
-        openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
+        openai::{CompletionArgs, OpenAIClient, OpenAIConfig},
         Client,
     },
     template::{render_prompt, TemplateContext},
 };
 use serde::Deserialize;
+use owo_colors::OwoColorize;
 
 pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow::Result<()> {
     let mut args = CompletionArgs::default();
@@ -24,6 +25,9 @@ pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow
             if let Some(model_id) = template.model {
                 args.model = model_id.parse()?;
             }
+
+            println!("{}", format!("Model: {}", args.model.cyan()));
+            println!("Prompt: {}", user_prompt.dimmed());
         }
         None => {}
     };
@@ -33,7 +37,11 @@ pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow
     let client = OpenAIClient::with_config(config);
 
     let stream = client.completion_stream(conv.messages, args).await?;
+    println!();
     stream_to_stdout(stream).await?;
+
+    // let resp = client.completion(conv.messages, args).await?;
+    // println!("{}", resp.content);
 
     // let config = LlamaConfig {
     //     model_path: "/Users/oliverfalvai/.cache/lm-studio/models/TheBloke/StableBeluga-7B-GGML/stablebeluga-7b.ggmlv3.q4_K_M.bin".to_string(),
