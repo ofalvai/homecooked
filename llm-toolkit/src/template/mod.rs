@@ -1,5 +1,5 @@
 use serde::Serialize;
-use tinytemplate::{TinyTemplate, format_unescaped};
+use tinytemplate::{format_unescaped, TinyTemplate};
 
 #[derive(Serialize)]
 pub struct TemplateContext {
@@ -13,14 +13,17 @@ pub enum TemplateError {
     ValidationError(String),
 
     #[error("render error: {0}")]
-    RenderError(String)
+    RenderError(String),
 }
 
 pub fn render_prompt(template: &str, ctx: &TemplateContext) -> Result<String, TemplateError> {
     render(template, ctx, "prompt")
 }
 
-pub fn render<C>(template: &str, ctx: C, name: &str) -> Result<String, TemplateError> where C: Serialize {
+pub fn render<C>(template: &str, ctx: C, name: &str) -> Result<String, TemplateError>
+where
+    C: Serialize,
+{
     let mut tt = TinyTemplate::new();
 
     if let Err(err) = tt.add_template(name, template) {

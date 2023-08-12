@@ -16,6 +16,8 @@ use crate::output::stream_to_stdout;
 
 const PROMPT: &str = r#"You are given a list of articles from a reading list.
 Your task is to choose 3 articles to recommend reading based on a question from me.
+If an article is irrelevant to the question, feel free to respond with less than 3 articles or no articles at all.
+Do not make up facts about the article contents, accuracy is more important than recommending an article at all costs.
 Think step by step why you chose the article. Respond with 3 fields:
 1. Title
 2. Your reasoning

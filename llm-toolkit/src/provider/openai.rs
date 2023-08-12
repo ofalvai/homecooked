@@ -1,6 +1,6 @@
 #![allow(dead_code, unused)]
 
-use std::{str::FromStr, fmt::Display};
+use std::{fmt::Display, str::FromStr};
 
 use async_openai::{
     error::OpenAIError,
@@ -58,7 +58,10 @@ impl FromStr for Model {
             "gpt-3.5-turbo" => Ok(Model::Gpt35Turbo),
             "gpt-3.5-turbo-16k" => Ok(Model::Gpt35Turbo16K),
             "gpt-4" => Ok(Model::Gpt4),
-            _ => Err(OpenAIError::InvalidArgument(format!("model {} is not recognized", s))),
+            _ => Err(OpenAIError::InvalidArgument(format!(
+                "model {} is not recognized",
+                s
+            ))),
         }
     }
 }
@@ -81,7 +84,6 @@ impl Default for CompletionArgs {
         }
     }
 }
-
 
 impl OpenAIClient {
     pub fn with_config(config: OpenAIConfig) -> OpenAIClient {
@@ -115,8 +117,13 @@ impl Client for OpenAIClient {
         let request = completion_request(messages, args, false)?;
         let response = client.chat().create(request).await.unwrap(); // only error is a stream arg validation, we take care of that
 
-        let usage = response.usage.ok_or(CompletionError::InvalidResponse("no usage info returned".to_string()))?;
-        info!("Token usage: {} prompt + {} completion = {} total", usage.prompt_tokens, usage.completion_tokens, usage.total_tokens);
+        let usage = response.usage.ok_or(CompletionError::InvalidResponse(
+            "no usage info returned".to_string(),
+        ))?;
+        info!(
+            "Token usage: {} prompt + {} completion = {} total",
+            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
+        );
 
         let content = response
             .choices
@@ -167,7 +174,10 @@ fn map_stream_response(
 ) -> Result<CompletionResponseDelta, CompletionError> {
     if let Some(usage) = resp.usage {
         // https://community.openai.com/t/usage-info-in-api-responses/18862/3?u=ofalvai
-        info!("Token usage: {} prompt + {} completion = {} total", usage.prompt_tokens, usage.completion_tokens, usage.total_tokens);
+        info!(
+            "Token usage: {} prompt + {} completion = {} total",
+            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
+        );
     }
 
     let choice = resp

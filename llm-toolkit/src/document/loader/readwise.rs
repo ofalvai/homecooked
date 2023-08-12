@@ -11,7 +11,7 @@ pub enum Location {
     Later,
     Shortlist,
     Archive,
-    Feed
+    Feed,
 }
 
 #[derive(Debug, Deserialize)]
@@ -57,10 +57,14 @@ impl ReadwiseClient {
 }
 
 impl ReadwiseClient {
-    pub async fn fetch_documents(&self, updated_after: Option<String>, location: Option<Location>) -> Result<Vec<Document>, reqwest::Error> {
+    pub async fn fetch_documents(
+        &self,
+        updated_after: Option<String>,
+        location: Option<Location>,
+    ) -> Result<Vec<Document>, reqwest::Error> {
         let mut documents = Vec::new();
         let mut next_page_cursor: Option<String> = None;
-    
+
         loop {
             let mut query_params = HashMap::new();
             if let Some(cursor) = next_page_cursor {
@@ -72,23 +76,24 @@ impl ReadwiseClient {
             if let Some(loc) = &location {
                 query_params.insert("location", loc.to_string());
             }
-    
+
             let response = reqwest::Client::new()
                 .get(LIST_URL)
                 .query(&query_params)
-                .header(reqwest::header::AUTHORIZATION, format!("Token {}", self.token))
+                .header(
+                    reqwest::header::AUTHORIZATION,
+                    format!("Token {}", self.token),
+                )
                 .send()
                 .await?;
 
             debug!("GET list: {}", response.status());
             // debug!("Response body: {}", response.text().await?);
 
-            let json = response
-                .json::<DocumentListResponse>()
-                .await?;
-    
+            let json = response.json::<DocumentListResponse>().await?;
+
             documents.extend(json.results);
-    
+
             next_page_cursor = json.next_page_cursor;
             if next_page_cursor.is_none() {
                 break;
@@ -96,6 +101,4 @@ impl ReadwiseClient {
         }
         Ok(documents)
     }
-    
 }
-
