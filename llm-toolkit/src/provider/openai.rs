@@ -68,11 +68,7 @@ impl FromStr for Model {
 
 impl Display for Model {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Model::Gpt35Turbo => write!(f, "gpt-3.5-turbo"),
-            Model::Gpt35Turbo16K => write!(f, "gpt-3.5-turbo-16k"),
-            Model::Gpt4 => write!(f, "gpt-4"),
-        }
+        write!(f, "{}", self.model_id())
     }
 }
 
@@ -95,7 +91,7 @@ impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
             api_base: "https://api.openai.com/v1".to_string(),
-            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
+            api_key: std::env::var("OPENAI_API_KEY").unwrap_or_default(),
         }
     }
 }

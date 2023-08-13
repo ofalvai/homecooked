@@ -6,6 +6,7 @@ use crate::prompt::Message;
 
 pub mod llama;
 pub mod openai;
+pub mod anthropic;
 
 #[async_trait]
 pub trait Client {
@@ -29,7 +30,7 @@ pub enum CompletionError {
     #[error("invalid argument: {0}")]
     InvalidArgument(String),
 
-    #[error("API returned error: {0}")]
+    #[error("API error: {0}")]
     ApiError(String),
 
     #[error("response stream failed: {0}")]
