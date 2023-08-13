@@ -4,9 +4,9 @@ use std::pin::Pin;
 
 use crate::prompt::Message;
 
+pub mod anthropic;
 pub mod llama;
 pub mod openai;
-pub mod anthropic;
 
 #[async_trait]
 pub trait Client {

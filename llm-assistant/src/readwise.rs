@@ -1,32 +1,41 @@
 use anyhow::Context;
 use llm_toolkit::{
-    document::loader::readwise::{Location, ReadwiseClient},
-    prompt,
+    document::loader::readwise::{Document, Location, ReadwiseClient},
+    prompt::{self},
     provider::{
-        openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
+        anthropic::{AnthropicClient, AnthropicConfig, CompletionArgs, Model},
         Client,
     },
-    template::render,
+    template::{render, render_prompt, TemplateContext},
 };
 use owo_colors::OwoColorize;
 use serde::Serialize;
 use url::Url;
 
-use crate::output::stream_to_stdout;
+const DESCRIPTION_PROMPT: &str = r#"<request>{input}</request>
+What are the common characteristics of such online articles? Focus on the content only.
+Respond with 5 examples where each item is a short and concise description.
+You do not need to look up articles.
+Do not provide any commentary, just the 5 items.
+"#;
 
-const PROMPT: &str = r#"You are given a list of articles from a reading list.
-Your task is to choose 3 articles to recommend reading based on a question from me.
+const FINAL_PROMPT: &str = r#"Your task is choosing articles to recommend reading.
+You are given a list of articles from a reading list. You are also given a description of what I'm looking for in the recommendations.
+Think step by step why one article matches the criteria.
 If an article is irrelevant to the question, feel free to respond with less than 3 articles or no articles at all.
 Do not make up facts about the article contents, accuracy is more important than recommending an article at all costs.
-Think step by step why you chose the article. Respond with 3 fields:
+Limit your response to 3 choices.
+For each choice, the output should should be:
 1. Title
-2. Your reasoning
-3. URL
+2. Author
+3. Your reasoning
+4. URL
+
+Description of what I'm looking for:
+{ description }
 
 Articles:
-{ context }
-
-Question from me: { question }
+{ articles }
 "#;
 
 const DOCUMENT_CONTEXT: &str = r#"{{ if title }}Title: { title }{{ endif }}
@@ -38,9 +47,9 @@ URL: { url }
 "#;
 
 #[derive(Serialize)]
-struct ReadwisePromptContext {
-    question: String,
-    context: String,
+struct FinalPromptContext {
+    description: String,
+    articles: String,
 }
 
 #[derive(Serialize, Clone)]
@@ -54,10 +63,38 @@ struct DocumentContext {
 }
 
 pub async fn ask(question: String) -> anyhow::Result<()> {
+    let description = create_description(question).await?;
+    println!("{}", description.dimmed());
+
     let token = std::env::var("READWISE_TOKEN").context("Missing READWISE_TOKEN")?;
     let client = ReadwiseClient::new(token);
     let documents = client.fetch_documents(None, Some(Location::New)).await?;
+    let document_ctx = create_document_context(documents)?;
 
+    let ctx = FinalPromptContext {
+        description: description,
+        articles: document_ctx,
+    };
+
+    let final_prompt = render(FINAL_PROMPT, ctx, "readwise")?;
+
+    create_final_response(final_prompt).await
+}
+
+async fn create_description(question: String) -> anyhow::Result<String> {
+    let config = AnthropicConfig::default();
+    let client = AnthropicClient::with_config(config);
+    let args = CompletionArgs {
+        model: Model::ClaudeInstant1,
+        max_tokens: 200,
+    };
+    let prompt = render_prompt(DESCRIPTION_PROMPT, &TemplateContext { input: question })?;
+    let conv = prompt::with_user(prompt);
+    let resp = client.completion(conv.messages, args).await?;
+    Ok(resp.content)
+}
+
+fn create_document_context(documents: Vec<Document>) -> anyhow::Result<String> {
     let context: String = documents
         .into_iter()
         .map(|d| {
@@ -90,26 +127,25 @@ pub async fn ask(question: String) -> anyhow::Result<()> {
         )
         .collect::<Vec<String>>()
         .join("\n");
+    Ok(context)
+}
 
-    let ctx = ReadwisePromptContext {
-        question,
-        context: context,
-    };
-
-    let prompt = render(PROMPT, ctx, "readwise")?;
-    println!("{}", prompt.dimmed());
-
+async fn create_final_response(prompt: String) -> anyhow::Result<()> {
     let conv = prompt::with_user(prompt);
-    let config = OpenAIConfig::default();
-    let client = OpenAIClient::with_config(config);
+
+    let config = AnthropicConfig::default();
+    let client = AnthropicClient::with_config(config);
     let args = CompletionArgs {
-        model: Model::Gpt35Turbo16K,
-        max_tokens: 300,
+        model: Model::Claude2,
+        max_tokens: 500,
     };
 
-    let stream = client.completion_stream(conv.messages, args).await?;
-    println!();
-    stream_to_stdout(stream).await?;
+    // let stream = client.completion_stream(conv.messages, args).await?;
+    // println!();
+    // stream_to_stdout(stream).await?;
+
+    let resp = client.completion(conv.messages, args).await?;
+    println!("{}", resp.content.yellow());
 
     Ok(())
 }

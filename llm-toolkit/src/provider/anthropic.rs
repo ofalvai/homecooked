@@ -124,8 +124,8 @@ impl Client for AnthropicClient {
 
     async fn completion_stream(
         &self,
-        messages: Vec<Message>,
-        args: CompletionArgs,
+        _messages: Vec<Message>,
+        _args: CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!()
     }
