@@ -1,7 +1,7 @@
 use anyhow::Context;
 use llm_toolkit::{
+    conversation::Conversation,
     document::loader::readwise::{Document, Location, ReadwiseClient},
-    prompt::{self},
     provider::{
         anthropic::{AnthropicClient, AnthropicConfig, CompletionArgs, Model},
         Client,
@@ -89,8 +89,8 @@ async fn create_description(question: String) -> anyhow::Result<String> {
         max_tokens: 200,
     };
     let prompt = render_prompt(DESCRIPTION_PROMPT, &TemplateContext { input: question })?;
-    let conv = prompt::with_user(prompt);
-    let resp = client.completion(conv.messages, args).await?;
+    let conv = Conversation::new(prompt);
+    let resp = client.completion(conv, args).await?;
     Ok(resp.content)
 }
 
@@ -131,7 +131,7 @@ fn create_document_context(documents: Vec<Document>) -> anyhow::Result<String> {
 }
 
 async fn create_final_response(prompt: String) -> anyhow::Result<()> {
-    let conv = prompt::with_user(prompt);
+    let conv = Conversation::new(prompt);
 
     let config = AnthropicConfig::default();
     let client = AnthropicClient::with_config(config);
@@ -140,11 +140,11 @@ async fn create_final_response(prompt: String) -> anyhow::Result<()> {
         max_tokens: 500,
     };
 
-    // let stream = client.completion_stream(conv.messages, args).await?;
+    // let stream = client.completion_stream(conv, args).await?;
     // println!();
     // stream_to_stdout(stream).await?;
 
-    let resp = client.completion(conv.messages, args).await?;
+    let resp = client.completion(conv, args).await?;
     println!("{}", resp.content.yellow());
 
     Ok(())

@@ -2,17 +2,19 @@ use std::{fmt::Display, str::FromStr};
 
 use anthropic::error::AnthropicError;
 use async_trait::async_trait;
-use log::info;
+use log::warn;
+use serde::{Deserialize, Serialize};
 
-use crate::prompt::Message;
+use crate::conversation::{Conversation, Message, Role};
 
 use super::{Client, CompletionError, CompletionResponse, CompletionResponseStream};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub enum Model {
     Claude1,
     Claude2,
     ClaudeInstant1,
+    Custom(String),
 }
 
 pub struct AnthropicConfig {
@@ -57,6 +59,7 @@ impl Model {
             Model::Claude1 => "claude-1",
             Model::Claude2 => "claude-2",
             Model::ClaudeInstant1 => "claude-instant-1",
+            Model::Custom(model) => model,
         }
     }
 }
@@ -75,10 +78,7 @@ impl FromStr for Model {
             "claude-1" => Ok(Model::Claude1),
             "claude-2" => Ok(Model::Claude2),
             "claude-instant-1" => Ok(Model::ClaudeInstant1),
-            _ => Err(AnthropicError::InvalidArgument(format!(
-                "model {} is not recognized",
-                s
-            ))),
+            model => Ok(Model::Custom(model.to_string())),
         }
     }
 }
@@ -89,7 +89,7 @@ impl Client for AnthropicClient {
 
     async fn completion(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: CompletionArgs,
     ) -> Result<CompletionResponse, CompletionError> {
         let client = match anthropic::client::ClientBuilder::default()
@@ -100,7 +100,7 @@ impl Client for AnthropicClient {
             Err(err) => return Err(CompletionError::InvalidArgument(err.to_string())),
         };
         let request = match anthropic::types::CompleteRequestBuilder::default()
-            .prompt(make_prompt(messages))
+            .prompt(make_prompt(conversation.messages))
             .model(args.model.model_id())
             .stream_response(false)
             .max_tokens_to_sample(args.max_tokens)
@@ -113,7 +113,7 @@ impl Client for AnthropicClient {
 
         let result = match client.complete(request).await {
             Ok(res) => res,
-            Err(err) => return Err(CompletionError::ApiError(err.to_string())),
+            Err(err) => return Err(CompletionError::ApiError("Anthropic".to_string(), err.to_string())),
         };
 
         Ok(CompletionResponse {
@@ -124,7 +124,7 @@ impl Client for AnthropicClient {
 
     async fn completion_stream(
         &self,
-        _messages: Vec<Message>,
+        _conversation: Conversation,
         _args: CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!()
@@ -132,13 +132,80 @@ impl Client for AnthropicClient {
 }
 
 fn make_prompt(messages: Vec<Message>) -> String {
-    // TODO: rethink all of this
-    let prompt = format!(
-        "{}{}{}",
-        anthropic::HUMAN_PROMPT,
-        messages.first().unwrap().content,
-        anthropic::AI_PROMPT
-    );
-    info!("{prompt}");
-    prompt
+    let mut str_chunks: Vec<String> = messages
+        .into_iter()
+        .map(|m| {
+            let prefix = match m.role {
+                Role::System => {
+                    warn!("The system role is not supported by Anthropic. The message is going to be converted to a human prompt.");
+                    anthropic::HUMAN_PROMPT
+                },
+                Role::User => anthropic::HUMAN_PROMPT,
+                Role::Assistant => anthropic::AI_PROMPT,
+            };
+            format!("{}{}", prefix, m.content)
+        })
+        .collect();
+
+    // String must end with AI prompt
+    if !str_chunks.is_empty() {
+        str_chunks.push(anthropic::AI_PROMPT.to_string());
+    }
+
+    str_chunks.join("") // linebreaks are already included in the prompt variables
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_make_prompt_basic() {
+        let messages: Vec<Message> = vec![Message {
+            role: Role::User,
+            content: "Tell me a joke".to_string(),
+        }];
+        let expected_output = format!(
+            "{}Tell me a joke{}",
+            anthropic::HUMAN_PROMPT,
+            anthropic::AI_PROMPT,
+        );
+        assert_eq!(make_prompt(messages), expected_output);
+    }
+
+    #[test]
+    fn test_make_prompt_empty() {
+        // Test case 1: Empty messages vector
+        let messages: Vec<Message> = vec![];
+        assert_eq!(make_prompt(messages), "");
+    }
+
+    #[test]
+    fn test_make_prompt_conversation() {
+        let messages: Vec<Message> = vec![
+            Message {
+                role: Role::User,
+                content: "Tell me a joke".to_string(),
+            },
+            Message {
+                role: Role::Assistant,
+                content: "Here's a silly joke for you:\n\nWhy was the math book sad? Because it had too many problems!".to_string(),
+            },
+            Message {
+                role: Role::User,
+                content: "Tell me another".to_string(),
+            }
+        ];
+        let expected_output = format!(
+            "{}{}{}{}{}{}{}",
+            anthropic::HUMAN_PROMPT,
+            "Tell me a joke",
+            anthropic::AI_PROMPT,
+            "Here's a silly joke for you:\n\nWhy was the math book sad? Because it had too many problems!",
+            anthropic::HUMAN_PROMPT,
+            "Tell me another",
+            anthropic::AI_PROMPT,
+        );
+        assert_eq!(make_prompt(messages), expected_output);
+    }
 }

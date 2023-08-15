@@ -2,7 +2,7 @@ use crate::output::stream_to_stdout;
 
 use anyhow::Context;
 use llm_toolkit::{
-    prompt,
+    conversation::Conversation,
     provider::{
         openai::{CompletionArgs, OpenAIClient, OpenAIConfig},
         Client,
@@ -32,11 +32,11 @@ pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow
         None => {}
     };
 
-    let conv = prompt::with_user(user_prompt.into());
+    let conv = Conversation::new(user_prompt);
     let config = OpenAIConfig::default();
     let client = OpenAIClient::with_config(config);
 
-    let stream = client.completion_stream(conv.messages, args).await?;
+    let stream = client.completion_stream(conv, args).await?;
     println!();
     stream_to_stdout(stream).await?;
 

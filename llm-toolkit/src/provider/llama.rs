@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use lazy_static::lazy_static;
 use rs_llama_cpp::{gpt_params_c, run_inference, str_to_mut_i8};
 
-use crate::prompt::Message;
+use crate::conversation::{Conversation, Message};
 
 use super::{Client, CompletionError, CompletionResponse, CompletionResponseStream};
 
@@ -54,11 +54,11 @@ impl Client for LlamaClient {
 
     async fn completion(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: CompletionArgs,
     ) -> Result<CompletionResponse, CompletionError> {
         COMPLETION_TOKENS.lock().unwrap().clear();
-        let params = self.make_gpt_params_c(messages, args);
+        let params = self.make_gpt_params_c(conversation.messages, args);
         run_inference(params, |token| {
             if token.ends_with("\"") {
                 print!("{}", token.replace("\"", ""));
@@ -82,7 +82,7 @@ impl Client for LlamaClient {
 
     async fn completion_stream(
         &self,
-        _messages: Vec<Message>,
+        _conversation: Conversation,
         _args: CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!(); // need to figure out token_callback closure variable capturing

@@ -14,7 +14,7 @@ use async_trait::async_trait;
 use futures::StreamExt;
 use log::{info, warn};
 
-use crate::prompt::{Message, Role};
+use crate::conversation::{Conversation, Message, Role};
 
 use super::{
     Client, CompletionError, CompletionResponse, CompletionResponseDelta, CompletionResponseStream,
@@ -29,6 +29,7 @@ pub enum Model {
     Gpt35Turbo,
     Gpt35Turbo16K,
     Gpt4,
+    Custom(String),
 }
 
 pub struct OpenAIConfig {
@@ -46,6 +47,7 @@ impl Model {
             Model::Gpt35Turbo => "gpt-3.5-turbo",
             Model::Gpt35Turbo16K => "gpt-3.5-turbo-16k",
             Model::Gpt4 => "gpt-4",
+            Model::Custom(model) => model,
         }
     }
 }
@@ -58,10 +60,7 @@ impl FromStr for Model {
             "gpt-3.5-turbo" => Ok(Model::Gpt35Turbo),
             "gpt-3.5-turbo-16k" => Ok(Model::Gpt35Turbo16K),
             "gpt-4" => Ok(Model::Gpt4),
-            _ => Err(OpenAIError::InvalidArgument(format!(
-                "model {} is not recognized",
-                s
-            ))),
+            model => Ok(Model::Custom(model.to_string())),
         }
     }
 }
@@ -102,7 +101,7 @@ impl Client for OpenAIClient {
 
     async fn completion(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: CompletionArgs,
     ) -> Result<CompletionResponse, CompletionError> {
         let config = async_openai::config::OpenAIConfig::new()
@@ -110,7 +109,7 @@ impl Client for OpenAIClient {
             .with_api_key(self.config.api_key.clone());
         let client = async_openai::Client::with_config(config);
 
-        let request = completion_request(messages, args, false)?;
+        let request = completion_request(conversation.messages, args, false)?;
         let response = client.chat().create(request).await.unwrap(); // only error is a stream arg validation, we take care of that
 
         let usage = response.usage.ok_or(CompletionError::InvalidResponse(
@@ -142,7 +141,7 @@ impl Client for OpenAIClient {
 
     async fn completion_stream(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError> {
         let config = async_openai::config::OpenAIConfig::new()
@@ -150,7 +149,7 @@ impl Client for OpenAIClient {
             .with_api_key(self.config.api_key.clone());
         let client = async_openai::Client::with_config(config);
 
-        let request = completion_request(messages, args, true)?;
+        let request = completion_request(conversation.messages, args, true)?;
         let stream = client
             .chat()
             .create_stream(request)
@@ -194,7 +193,7 @@ fn map_stream_error(err: OpenAIError) -> CompletionError {
         OpenAIError::InvalidArgument(e) => CompletionError::InvalidArgument(e),
         OpenAIError::ApiError(e) => {
             let error_str = format!("{}: {}", e.r#type, e.message);
-            CompletionError::ApiError(error_str)
+            CompletionError::ApiError("OpenAI".to_string(), error_str)
         }
         OpenAIError::StreamError(e) => CompletionError::StreamError(e),
         _ => CompletionError::UnknownError(format!("unknown error: {}", err)),

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use futures::Stream;
 use std::pin::Pin;
 
-use crate::prompt::Message;
+use crate::conversation::Conversation;
 
 pub mod anthropic;
 pub mod llama;
@@ -14,13 +14,13 @@ pub trait Client {
 
     async fn completion(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: Self::CompletionArgs,
     ) -> Result<CompletionResponse, CompletionError>;
 
     async fn completion_stream(
         &self,
-        messages: Vec<Message>,
+        conversation: Conversation,
         args: Self::CompletionArgs,
     ) -> Result<CompletionResponseStream, CompletionError>;
 }
@@ -30,8 +30,8 @@ pub enum CompletionError {
     #[error("invalid argument: {0}")]
     InvalidArgument(String),
 
-    #[error("API error: {0}")]
-    ApiError(String),
+    #[error("{0} API error: {1}")]
+    ApiError(String, String),
 
     #[error("response stream failed: {0}")]
     StreamError(String),

@@ -2,8 +2,8 @@ use crate::output::stream_to_stdout;
 
 use anyhow::Context;
 use llm_toolkit::{
+    conversation::Conversation,
     document::loader::web_article::WebArticleLoader,
-    prompt,
     provider::{
         openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
         Client,
@@ -25,12 +25,12 @@ pub async fn summarize(input: String, prompt: Option<String>) -> anyhow::Result<
 
     let user_prompt = create_prompt(html, prompt)?;
 
-    let conv = prompt::with_user(user_prompt);
+    let conv = Conversation::new(user_prompt);
     let args = CompletionArgs {
         model: Model::Gpt35Turbo16K,
         max_tokens: 500,
     };
-    let stream = client.completion_stream(conv.messages, args).await?;
+    let stream = client.completion_stream(conv, args).await?;
     stream_to_stdout(stream).await?;
 
     Ok(())
