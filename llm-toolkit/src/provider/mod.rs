@@ -8,20 +8,32 @@ pub mod anthropic;
 pub mod llama;
 pub mod openai;
 
+pub struct CompletionParams {
+    pub temp: f32,
+    pub max_tokens: u16,
+}
+
+impl Default for CompletionParams {
+    fn default() -> Self {
+        Self {
+            max_tokens: 256,
+            temp: 0.8,
+        }
+    }
+}
+
 #[async_trait]
 pub trait Client {
-    type CompletionArgs;
-
     async fn completion(
         &self,
         conversation: Conversation,
-        args: Self::CompletionArgs,
+        params: CompletionParams,
     ) -> Result<CompletionResponse, CompletionError>;
 
     async fn completion_stream(
         &self,
         conversation: Conversation,
-        args: Self::CompletionArgs,
+        params: CompletionParams,
     ) -> Result<CompletionResponseStream, CompletionError>;
 }
 

@@ -10,23 +10,23 @@ use rs_llama_cpp::{gpt_params_c, run_inference, str_to_mut_i8};
 
 use crate::conversation::{Conversation, Message};
 
-use super::{Client, CompletionError, CompletionResponse, CompletionResponseStream};
+use super::{
+    Client, CompletionError, CompletionParams, CompletionResponse, CompletionResponseStream,
+};
 
 lazy_static! {
     // Ugly hack because `run_completion` expects a closure callback, not Fn
     static ref COMPLETION_TOKENS: Mutex<Vec<String>> = Mutex::new(vec![]);
 }
 
-pub struct CompletionArgs {
-    pub temp: f32,
-    pub context_length: u16,
+pub enum Model {
+    Todo,
 }
 
-impl Default for CompletionArgs {
-    fn default() -> Self {
-        Self {
-            temp: 0.8,
-            context_length: 1500,
+impl From<Model> for String {
+    fn from(model: Model) -> Self {
+        match model {
+            Model::Todo => "todo".to_string(),
         }
     }
 }
@@ -50,15 +50,13 @@ impl LlamaClient {
 
 #[async_trait]
 impl Client for LlamaClient {
-    type CompletionArgs = CompletionArgs;
-
     async fn completion(
         &self,
         conversation: Conversation,
-        args: CompletionArgs,
+        params: CompletionParams,
     ) -> Result<CompletionResponse, CompletionError> {
         COMPLETION_TOKENS.lock().unwrap().clear();
-        let params = self.make_gpt_params_c(conversation.messages, args);
+        let params = self.make_gpt_params_c(conversation.messages, params);
         run_inference(params, |token| {
             if token.ends_with("\"") {
                 print!("{}", token.replace("\"", ""));
@@ -83,24 +81,25 @@ impl Client for LlamaClient {
     async fn completion_stream(
         &self,
         _conversation: Conversation,
-        _args: CompletionArgs,
+        _params: CompletionParams,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!(); // need to figure out token_callback closure variable capturing
     }
 }
 
 impl LlamaClient {
-    fn make_gpt_params_c(&self, messages: Vec<Message>, args: CompletionArgs) -> gpt_params_c {
+    fn make_gpt_params_c(&self, messages: Vec<Message>, params: CompletionParams) -> gpt_params_c {
         // TODO: better prompt template
         let prompt = messages.first().unwrap().content.as_ref();
 
         gpt_params_c {
             n_threads: self.config.n_threads.into(),
-            n_ctx: args.context_length.into(),
             n_gpu_layers: self.config.n_gpu_layers.into(),
             use_mlock: self.config.mlock,
-
+            
             model: str_to_mut_i8(&self.config.model_path),
+            n_ctx: params.max_tokens.into(),
+            temp: params.temp,
 
             input_prefix: str_to_mut_i8(""), // TODO
             input_suffix: str_to_mut_i8(""), // TODO

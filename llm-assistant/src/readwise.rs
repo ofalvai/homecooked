@@ -3,8 +3,8 @@ use llm_toolkit::{
     conversation::Conversation,
     document::loader::readwise::{Document, Location, ReadwiseClient},
     provider::{
-        anthropic::{AnthropicClient, AnthropicConfig, CompletionArgs, Model},
-        Client,
+        anthropic::{AnthropicClient, AnthropicConfig, Model},
+        Client, CompletionParams,
     },
     template::{render, render_prompt, TemplateContext},
 };
@@ -82,15 +82,15 @@ pub async fn ask(question: String) -> anyhow::Result<()> {
 }
 
 async fn create_description(question: String) -> anyhow::Result<String> {
-    let config = AnthropicConfig::default();
-    let client = AnthropicClient::with_config(config);
-    let args = CompletionArgs {
+    let config = AnthropicConfig {
         model: Model::ClaudeInstant1,
-        max_tokens: 200,
+        ..Default::default()
     };
+    let client = AnthropicClient::with_config(config);
+    let params = CompletionParams { max_tokens: 200, temp: 1.0 };
     let prompt = render_prompt(DESCRIPTION_PROMPT, &TemplateContext { input: question })?;
     let conv = Conversation::new(prompt);
-    let resp = client.completion(conv, args).await?;
+    let resp = client.completion(conv, params).await?;
     Ok(resp.content)
 }
 
@@ -133,18 +133,18 @@ fn create_document_context(documents: Vec<Document>) -> anyhow::Result<String> {
 async fn create_final_response(prompt: String) -> anyhow::Result<()> {
     let conv = Conversation::new(prompt);
 
-    let config = AnthropicConfig::default();
-    let client = AnthropicClient::with_config(config);
-    let args = CompletionArgs {
+    let config = AnthropicConfig {
         model: Model::Claude2,
-        max_tokens: 500,
+        ..Default::default()
     };
+    let client = AnthropicClient::with_config(config);
+    let params = CompletionParams { max_tokens: 500, temp: 0.5 };
 
     // let stream = client.completion_stream(conv, args).await?;
     // println!();
     // stream_to_stdout(stream).await?;
 
-    let resp = client.completion(conv, args).await?;
+    let resp = client.completion(conv, params).await?;
     println!("{}", resp.content.yellow());
 
     Ok(())

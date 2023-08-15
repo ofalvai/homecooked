@@ -1,20 +1,22 @@
-use crate::output::stream_to_stdout;
+use crate::{models::get_client, output::stream_to_stdout};
 
 use anyhow::Context;
+use llm_toolkit::provider::CompletionParams;
 use llm_toolkit::{
     conversation::Conversation,
-    provider::{
-        openai::{CompletionArgs, OpenAIClient, OpenAIConfig},
-        Client,
-    },
     template::{render_prompt, TemplateContext},
 };
 use owo_colors::OwoColorize;
 use serde::Deserialize;
 
-pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow::Result<()> {
-    let mut args = CompletionArgs::default();
+pub async fn completion(
+    user_prompt: String,
+    template: Option<String>,
+    model: Option<String>,
+) -> anyhow::Result<()> {
+    let params = CompletionParams::default();
     let mut user_prompt = user_prompt;
+    let mut model = model.unwrap_or("gpt-3.5-turbo".to_string());
 
     match template {
         Some(template_name) => {
@@ -23,20 +25,19 @@ pub async fn completion(user_prompt: String, template: Option<String>) -> anyhow
             user_prompt = render_prompt(&template.prompt, &ctx).context("Cannot render prompt")?;
 
             if let Some(model_id) = template.model {
-                args.model = model_id.parse()?;
+                model = model_id;
             }
 
-            println!("{}", format!("Model: {}", args.model.cyan()));
+            println!("{}", format!("Model: {}", model.cyan()));
             println!("Prompt: {}", user_prompt.dimmed());
         }
         None => {}
     };
 
     let conv = Conversation::new(user_prompt);
-    let config = OpenAIConfig::default();
-    let client = OpenAIClient::with_config(config);
+    let client = get_client(model.as_str())?;
 
-    let stream = client.completion_stream(conv, args).await?;
+    let stream = client.completion_stream(conv, params).await?;
     println!();
     stream_to_stdout(stream).await?;
 

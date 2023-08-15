@@ -7,7 +7,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::conversation::{Conversation, Message, Role};
 
-use super::{Client, CompletionError, CompletionResponse, CompletionResponseStream};
+use super::{
+    Client, CompletionError, CompletionParams, CompletionResponse, CompletionResponseStream,
+};
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub enum Model {
@@ -18,16 +20,12 @@ pub enum Model {
 }
 
 pub struct AnthropicConfig {
-    api_key: String,
+    pub api_key: String,
+    pub model: Model,
 }
 
 pub struct AnthropicClient {
     config: AnthropicConfig,
-}
-
-pub struct CompletionArgs {
-    pub model: Model,
-    pub max_tokens: u16,
 }
 
 impl AnthropicClient {
@@ -40,15 +38,7 @@ impl Default for AnthropicConfig {
     fn default() -> Self {
         Self {
             api_key: std::env::var("ANTHROPIC_API_KEY").unwrap_or_default(),
-        }
-    }
-}
-
-impl Default for CompletionArgs {
-    fn default() -> Self {
-        Self {
             model: Model::ClaudeInstant1,
-            max_tokens: 256,
         }
     }
 }
@@ -83,14 +73,18 @@ impl FromStr for Model {
     }
 }
 
+impl From<Model> for String {
+    fn from(model: Model) -> Self {
+        model.model_id().to_string()
+    }
+}
+
 #[async_trait]
 impl Client for AnthropicClient {
-    type CompletionArgs = CompletionArgs;
-
     async fn completion(
         &self,
         conversation: Conversation,
-        args: CompletionArgs,
+        params: CompletionParams,
     ) -> Result<CompletionResponse, CompletionError> {
         let client = match anthropic::client::ClientBuilder::default()
             .api_key(self.config.api_key.clone())
@@ -101,9 +95,10 @@ impl Client for AnthropicClient {
         };
         let request = match anthropic::types::CompleteRequestBuilder::default()
             .prompt(make_prompt(conversation.messages))
-            .model(args.model.model_id())
+            .model(self.config.model.to_string())
+            // TODO: set temp
             .stream_response(false)
-            .max_tokens_to_sample(args.max_tokens)
+            .max_tokens_to_sample(params.max_tokens)
             .stop_sequences(vec![anthropic::HUMAN_PROMPT.to_string()]) // https://github.com/abdelhamidbakhta/anthropic-rs/issues/1
             .build()
         {
@@ -113,7 +108,12 @@ impl Client for AnthropicClient {
 
         let result = match client.complete(request).await {
             Ok(res) => res,
-            Err(err) => return Err(CompletionError::ApiError("Anthropic".to_string(), err.to_string())),
+            Err(err) => {
+                return Err(CompletionError::ApiError(
+                    "Anthropic".to_string(),
+                    err.to_string(),
+                ))
+            }
         };
 
         Ok(CompletionResponse {
@@ -125,7 +125,7 @@ impl Client for AnthropicClient {
     async fn completion_stream(
         &self,
         _conversation: Conversation,
-        _args: CompletionArgs,
+        _params: CompletionParams,
     ) -> Result<CompletionResponseStream, CompletionError> {
         todo!()
     }

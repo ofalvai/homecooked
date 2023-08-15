@@ -5,8 +5,8 @@ use llm_toolkit::{
     conversation::Conversation,
     document::loader::web_article::WebArticleLoader,
     provider::{
-        openai::{CompletionArgs, Model, OpenAIClient, OpenAIConfig},
-        Client,
+        openai::{Model, OpenAIClient, OpenAIConfig},
+        Client, CompletionParams,
     },
     template::{render_prompt, TemplateContext},
 };
@@ -20,17 +20,17 @@ pub async fn summarize(input: String, prompt: Option<String>) -> anyhow::Result<
     let loader = WebArticleLoader {};
     let html = loader.load(&input).await.unwrap();
 
-    let config = OpenAIConfig::default();
+    let config = OpenAIConfig {
+        model: Model::Gpt35Turbo16K,
+        ..Default::default()
+    };
     let client = OpenAIClient::with_config(config);
 
     let user_prompt = create_prompt(html, prompt)?;
 
     let conv = Conversation::new(user_prompt);
-    let args = CompletionArgs {
-        model: Model::Gpt35Turbo16K,
-        max_tokens: 500,
-    };
-    let stream = client.completion_stream(conv, args).await?;
+    let params = CompletionParams { max_tokens: 500, temp: 0.6 };
+    let stream = client.completion_stream(conv, params).await?;
     stream_to_stdout(stream).await?;
 
     Ok(())

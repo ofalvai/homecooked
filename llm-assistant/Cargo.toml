@@ -14,6 +14,6 @@ owo-colors = { workspace = true }
 tokio = { workspace = true }
 futures = { workspace = true }
 serde = { workspace = true }
-url = { worksapace = true }
+url = { workspace = true }
 serde_yaml = "0.9.25"
 simplelog = { version = "^0.11.0", features = ["paris"] }
