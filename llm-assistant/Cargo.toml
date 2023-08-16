@@ -1,17 +1,19 @@
 [package]
-name = "speedtest-to-influx"
+name = "llm-assistant"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+llm-toolkit = { path = "../llm-toolkit" }
+
 clap = { workspace = true }
 anyhow = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
 owo-colors = { workspace = true }
 tokio = { workspace = true }
-influxdb = { version = "0.7", default-features = false, features = ["reqwest-client", "derive"] }
-chrono = { version = "0.4.26" , default-features = false }
-duration-string = "0.3.0"
+futures = { workspace = true }
+serde = { workspace = true }
+url = { workspace = true }
+serde_yaml = "0.9.25"
+simplelog = { version = "^0.11.0"}

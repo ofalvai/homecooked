@@ -1,0 +1,8 @@
+model: gpt-4
+prompt: >
+  Give me 10 alternative versions of the concept. Ensure that the alternatives are all distinct from one another.
+
+  Concept: {input}
+
+  Alternatives:
+

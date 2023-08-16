@@ -3,7 +3,9 @@ members = [
     "focus",
     "gardener",
     "speedtest-to-influx",
-    "embeddings"
+    "embeddings",
+    "llm-toolkit",
+    "llm-assistant",
 ]
 
 [profile.release]
@@ -18,5 +20,9 @@ serde_json = "1.0.103"
 owo-colors = "3.5.0"
 ignore = "0.4.20"
 tokio = { version = "1.29.1", features = ["macros", "rt-multi-thread"] }
+futures = "0.3.28"
 directories = "5.0.1"
 configparser = "3.0.2"
+reqwest = "0.11.18"
+lazy_static = "1.4.0"
+url = "2.4.0"

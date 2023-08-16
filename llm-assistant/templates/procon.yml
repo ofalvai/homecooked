@@ -1,0 +1,10 @@
+model: gpt-4
+prompt: >
+  List pros and cons for the text based on the topics mentioned.
+  Format the response as a markdown list of pros and cons.
+  Do not provide any other commentary.
+
+  Text: {input}
+
+  Pros and cons:
+  

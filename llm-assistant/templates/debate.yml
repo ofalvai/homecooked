@@ -1,0 +1,12 @@
+model: gpt-4
+defaults:
+  argument: for
+prompt: >
+  Take a stance on the topic and argue for it.
+
+  Construct a convincing argument and provide evidence to support your stance.
+
+  Topic: {input}
+
+  Argument:
+
