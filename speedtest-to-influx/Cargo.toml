@@ -12,6 +12,6 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 owo-colors = { workspace = true }
 tokio = { workspace = true }
-influxdb = { version = "0.7", default-features = false, features = ["derive", "use-serde", "reqwest-client"] }
-chrono = { version = "0.4.26" }
+influxdb = { version = "0.7", default-features = false, features = ["reqwest-client", "derive"] }
+chrono = { version = "0.4.26" , default-features = false }
 duration-string = "0.3.0"
