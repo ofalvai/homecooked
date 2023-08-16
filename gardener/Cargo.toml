@@ -12,4 +12,4 @@ ignore = { workspace = true }
 obsidian-export = "22.11.0"
 percent-encoding = { default-features = false, version = "2.3.0" }
 pulldown-cmark = { default-features = false, version = "0.9.3" }
-regex = { version = "1.9.1", default-features = false }
+regex = { version = "1.9.3", default-features = false }
