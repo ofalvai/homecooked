@@ -10,7 +10,7 @@ tokio = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
-async-openai = "0.12.2"
+async-openai = "0.13.1"
 async-trait = "0.1.72"
 thiserror = "1.0.44"
 article_scraper = "2.0.0"

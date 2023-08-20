@@ -3,7 +3,7 @@ use std::{path::PathBuf, str::FromStr, time::Instant};
 use anyhow::Context;
 use owo_colors::OwoColorize;
 
-use async_openai::{types::CreateEmbeddingRequestArgs, Client};
+use async_openai::{types::CreateEmbeddingRequestArgs, Client, config::OpenAIConfig};
 use try_partialord::TrySort;
 
 use crate::{
@@ -109,7 +109,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
 }
 
 async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f32>> {
-    let client = Client::new().with_api_key(api_key);
+    let client = Client::with_config(OpenAIConfig::new().with_api_key(api_key));
     let request = CreateEmbeddingRequestArgs::default()
         .model(config::EMBEDDING_MODEL)
         .input(query)

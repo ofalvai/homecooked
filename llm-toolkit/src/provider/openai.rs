@@ -21,10 +21,6 @@ use super::{
     CompletionResponseStream,
 };
 
-pub struct OpenAIArgs {
-    pub model: Model,
-    pub max_tokens: u16,
-}
 #[derive(Debug)]
 pub enum Model {
     Gpt35Turbo,
@@ -76,15 +72,6 @@ impl Display for Model {
 impl From<Model> for String {
     fn from(model: Model) -> Self {
         model.model_id().to_string()
-    }
-}
-
-impl Default for OpenAIArgs {
-    fn default() -> Self {
-        Self {
-            model: Model::Gpt35Turbo,
-            max_tokens: 256,
-        }
     }
 }
 
@@ -174,13 +161,13 @@ impl Client for OpenAIClient {
 fn map_stream_response(
     resp: CreateChatCompletionStreamResponse,
 ) -> Result<CompletionResponseDelta, CompletionError> {
-    if let Some(usage) = resp.usage {
-        // https://community.openai.com/t/usage-info-in-api-responses/18862/3?u=ofalvai
-        info!(
-            "Token usage: {} prompt + {} completion = {} total",
-            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
-        );
-    }
+    // https://community.openai.com/t/usage-info-in-api-responses/18862/3?u=ofalvai
+    // if let Some(usage) = resp.usage {
+    //     info!(
+    //         "Token usage: {} prompt + {} completion = {} total",
+    //         usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
+    //     );
+    // }
 
     let choice = resp
         .choices
@@ -190,7 +177,7 @@ fn map_stream_response(
         ))?;
     let delta = choice.delta.content.clone().unwrap_or_default();
     Ok(CompletionResponseDelta {
-        id: resp.id.unwrap_or("no-id".to_string()),
+        id: resp.id,
         content: delta,
     })
 }
@@ -199,7 +186,7 @@ fn map_stream_error(err: OpenAIError) -> CompletionError {
     match err {
         OpenAIError::InvalidArgument(e) => CompletionError::InvalidArgument(e),
         OpenAIError::ApiError(e) => {
-            let error_str = format!("{}: {}", e.r#type, e.message);
+            let error_str = format!("{}: {}", e.r#type.unwrap_or("unknown".to_string()), e.message);
             CompletionError::ApiError("OpenAI".to_string(), error_str)
         }
         OpenAIError::StreamError(e) => CompletionError::StreamError(e),

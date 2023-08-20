@@ -1,4 +1,5 @@
 use anyhow::Context;
+use async_openai::config::OpenAIConfig;
 use async_openai::{types::CreateEmbeddingRequestArgs, Client};
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
@@ -14,7 +15,7 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
     let mut embeddings =
         load_embeddings(&config.embedding_path).context("Failed to load embeddings")?;
 
-    let client = Client::new().with_api_key(config.api_key.to_owned());
+    let client = Client::with_config(OpenAIConfig::new().with_api_key(config.api_key.clone()));
 
     for (i, note) in notes.into_iter().enumerate() {
         let checksum = note_to_checksum(&note);
@@ -74,7 +75,10 @@ pub async fn build(config: &Config, dry_run: bool) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn build_embeddings(client: &Client, note: &Note) -> anyhow::Result<Vec<Vec<f32>>> {
+async fn build_embeddings(
+    client: &Client<OpenAIConfig>,
+    note: &Note,
+) -> anyhow::Result<Vec<Vec<f32>>> {
     let mut embeddings = vec![];
     for input in note_to_inputs(note) {
         let embedding = get_embedding(client, input).await?;
@@ -83,14 +87,19 @@ async fn build_embeddings(client: &Client, note: &Note) -> anyhow::Result<Vec<Ve
     Ok(embeddings)
 }
 
-async fn get_embedding(client: &Client, input: String) -> anyhow::Result<Vec<f32>> {
+async fn get_embedding(client: &Client<OpenAIConfig>, input: String) -> anyhow::Result<Vec<f32>> {
     let request = CreateEmbeddingRequestArgs::default()
         .model(config::EMBEDDING_MODEL)
         .input(input)
         .build()?;
 
     let response = client.embeddings().create(request).await?;
-    let embedding = response.data.get(0).context("No embedding returned")?.embedding.to_owned();
+    let embedding = response
+        .data
+        .get(0)
+        .context("No embedding returned")?
+        .embedding
+        .to_owned();
     Ok(embedding)
 }
 
