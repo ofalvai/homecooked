@@ -16,7 +16,7 @@ thiserror = "1.0.44"
 article_scraper = "2.0.0"
 url = { workspace = true }
 tinytemplate = "1.2.1"
-rs-llama-cpp = "0.1.66"
+rs-llama-cpp = "0.1.67"
 lazy_static = { workspace = true }
 log = "0.4.19"
 anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", branch = "main" }
