@@ -19,5 +19,4 @@ tinytemplate = "1.2.1"
 rs-llama-cpp = "0.1.66"
 lazy_static = { workspace = true }
 log = "0.4.19"
-# https://github.com/abdelhamidbakhta/anthropic-rs/pull/2
-anthropic = { git = "https://github.com/ofalvai/anthropic-rs.git", branch = "ofalvai/fix-enum-case" }
+anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", branch = "main" }

@@ -2,10 +2,14 @@ use std::{fmt::Display, str::FromStr};
 
 use anthropic::error::AnthropicError;
 use async_trait::async_trait;
+use futures::{future, StreamExt};
 use log::warn;
 use serde::{Deserialize, Serialize};
 
-use crate::conversation::{Conversation, Message, Role};
+use crate::{
+    conversation::{Conversation, Message, Role},
+    provider::CompletionResponseDelta,
+};
 
 use super::{
     Client, CompletionError, CompletionParams, CompletionResponse, CompletionResponseStream,
@@ -97,7 +101,7 @@ impl Client for AnthropicClient {
             .prompt(make_prompt(conversation.messages))
             .model(self.config.model.to_string())
             // TODO: set temp
-            .stream_response(false)
+            .stream(false)
             .max_tokens_to_sample(params.max_tokens)
             .stop_sequences(vec![anthropic::HUMAN_PROMPT.to_string()]) // https://github.com/abdelhamidbakhta/anthropic-rs/issues/1
             .build()
@@ -124,10 +128,56 @@ impl Client for AnthropicClient {
 
     async fn completion_stream(
         &self,
-        _conversation: Conversation,
-        _params: CompletionParams,
+        conversation: Conversation,
+        params: CompletionParams,
     ) -> Result<CompletionResponseStream, CompletionError> {
-        todo!()
+        let client = match anthropic::client::ClientBuilder::default()
+            .api_key(self.config.api_key.clone())
+            .build()
+        {
+            Ok(client) => client,
+            Err(err) => return Err(CompletionError::InvalidArgument(err.to_string())),
+        };
+        let request = match anthropic::types::CompleteRequestBuilder::default()
+            .prompt(make_prompt(conversation.messages))
+            .model(self.config.model.to_string())
+            // TODO: set temp
+            .stream(true)
+            .max_tokens_to_sample(params.max_tokens)
+            .stop_sequences(vec![anthropic::HUMAN_PROMPT.to_string()]) // https://github.com/abdelhamidbakhta/anthropic-rs/issues/1
+            .build()
+        {
+            Ok(req) => req,
+            Err(err) => return Err(CompletionError::InvalidArgument(err.to_string())),
+        };
+
+        let stream = match client.complete_stream(request).await {
+            Ok(s) => s,
+            Err(e) => {
+                return Err(CompletionError::ApiError(
+                    "Anthropic".to_string(),
+                    e.to_string(),
+                ))
+            }
+        };
+
+        let mapped_stream = stream
+            .take_while(|item| {
+                future::ready(match item {
+                    Ok(resp) => resp.stop_reason.is_none(),
+                    Err(_) => true,
+                })
+            })
+            .map(|item| match item {
+                Ok(resp) => Ok(CompletionResponseDelta {
+                    // TODO: reconsider ID field
+                    id: "no-id".to_string(),
+                    content: resp.completion,
+                }),
+                Err(err) => Err(CompletionError::StreamError(err.to_string())),
+            });
+
+        Ok(Box::pin(mapped_stream))
     }
 }
 
