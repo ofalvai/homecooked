@@ -1,13 +1,10 @@
-use crate::output::stream_to_stdout;
+use crate::{output::stream_to_stdout, models::get_client};
 
 use anyhow::Context;
 use llm_toolkit::{
     conversation::Conversation,
     document::loader::web_article::WebArticleLoader,
-    provider::{
-        openai::{Model, OpenAIClient, OpenAIConfig},
-        Client, CompletionParams,
-    },
+    provider::CompletionParams,
     template::{render_prompt, TemplateContext},
 };
 
@@ -16,15 +13,12 @@ Article content:
 {input}
 "#;
 
-pub async fn summarize(input: String, prompt: Option<String>) -> anyhow::Result<()> {
+pub async fn summarize(input: String, prompt: Option<String>, model: Option<String>) -> anyhow::Result<()> {
     let loader = WebArticleLoader {};
     let html = loader.load(&input).await.unwrap();
 
-    let config = OpenAIConfig {
-        model: Model::Gpt35Turbo16K,
-        ..Default::default()
-    };
-    let client = OpenAIClient::with_config(config);
+    let model = model.unwrap_or("claude-2".to_string());
+    let client = get_client(model.as_str())?;
 
     let user_prompt = create_prompt(html, prompt)?;
 

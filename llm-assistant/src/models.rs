@@ -9,6 +9,13 @@ pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
             };
             Box::new(openai::OpenAIClient::with_config(config))
         }
+        "16k" | "gpt-3.5-turbo-16k" => {
+            let config = openai::OpenAIConfig {
+                model: openai::Model::Gpt35Turbo16K,
+                ..Default::default()
+            };
+            Box::new(openai::OpenAIClient::with_config(config))
+        }
         "gpt4" | "gpt-4" => {
             let config = openai::OpenAIConfig {
                 model: openai::Model::Gpt4,

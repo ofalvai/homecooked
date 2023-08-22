@@ -34,7 +34,12 @@ enum Commands {
     #[command(about = "Summarize input like a file, web URL or string")]
     Summary {
         input: String,
+
+        #[arg(short, long)]
         prompt: Option<String>,
+
+        #[arg(short, long)]
+        model: Option<String>
     },
 
     #[command(about = "Ask questions about a Readwise document list")]
@@ -71,7 +76,7 @@ async fn main() -> anyhow::Result<()> {
             template,
             model,
         } => completion::completion(prompt, template, model).await,
-        Commands::Summary { input, prompt } => summary::summarize(input, prompt).await,
+        Commands::Summary { input, prompt, model } => summary::summarize(input, prompt, model).await,
         Commands::Models => models::models(),
         Commands::Readwise { prompt } => readwise::ask(prompt).await,
     };
