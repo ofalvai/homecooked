@@ -1,7 +1,7 @@
 VERSION 0.7
 FROM rust:1.71-alpine
 WORKDIR /homecooked
-RUN apk add --no-cache musl-dev pkgconfig openssl-dev
+RUN apk add --no-cache musl-dev pkgconfig openssl-dev libxml2-dev
 
 install-chef:
    RUN cargo install --debug cargo-chef
