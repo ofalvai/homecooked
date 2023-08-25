@@ -5,6 +5,7 @@ use std::pin::Pin;
 use crate::conversation::Conversation;
 
 pub mod anthropic;
+#[cfg(feature = "llama-cpp")]
 pub mod llama;
 pub mod openai;
 
