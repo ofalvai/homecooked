@@ -19,7 +19,6 @@ jobs:
         uses: earthly/actions-setup@v1
         with:
           version: latest
-          use-cache: 'true'
 
       - uses: actions/checkout@v3
 
