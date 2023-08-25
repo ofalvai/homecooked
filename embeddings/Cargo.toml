@@ -15,7 +15,7 @@ tokio = { workspace = true }
 owo-colors = { workspace = true }
 directories = { workspace = true }
 configparser = { workspace = true }
-async-openai = "0.13.1"
+async-openai = "0.14.0"
 rmp-serde = "1.1.2"
 tiktoken-rs = { version = "0.5.1", default-features = false }
 try-partialord = "0.1.3"
