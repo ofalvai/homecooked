@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM rust:1.71-alpine
+FROM rust:1.72-alpine
 WORKDIR /homecooked
 RUN apk add --no-cache musl-dev pkgconfig openssl-dev libxml2-dev
 
