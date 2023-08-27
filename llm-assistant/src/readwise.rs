@@ -12,6 +12,8 @@ use owo_colors::OwoColorize;
 use serde::Serialize;
 use url::Url;
 
+use crate::output::stream_to_stdout;
+
 const DESCRIPTION_PROMPT: &str = r#"<request>{input}</request>
 What are the common characteristics of such online articles? Focus on the content only.
 Respond with 5 examples where each item is a short and concise description.
@@ -87,7 +89,10 @@ async fn create_description(question: String) -> anyhow::Result<String> {
         ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
-    let params = CompletionParams { max_tokens: 200, temp: 1.0 };
+    let params = CompletionParams {
+        max_tokens: 200,
+        temp: 1.0,
+    };
     let prompt = render_prompt(DESCRIPTION_PROMPT, &TemplateContext { input: question })?;
     let conv = Conversation::new(prompt);
     let resp = client.completion(conv, params).await?;
@@ -138,14 +143,14 @@ async fn create_final_response(prompt: String) -> anyhow::Result<()> {
         ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
-    let params = CompletionParams { max_tokens: 500, temp: 0.5 };
+    let params = CompletionParams {
+        max_tokens: 500,
+        temp: 0.5,
+    };
 
-    // let stream = client.completion_stream(conv, args).await?;
-    // println!();
-    // stream_to_stdout(stream).await?;
-
-    let resp = client.completion(conv, params).await?;
-    println!("{}", resp.content.yellow());
+    let stream = client.completion_stream(conv, params).await?;
+    println!();
+    stream_to_stdout(stream).await?;
 
     Ok(())
 }

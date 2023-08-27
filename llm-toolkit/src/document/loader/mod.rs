@@ -1,5 +1,6 @@
 pub mod readwise;
 pub mod web_article;
+pub mod youtube;
 
 #[derive(Debug, thiserror::Error)]
 pub enum LoadError {

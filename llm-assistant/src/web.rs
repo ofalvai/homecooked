@@ -1,4 +1,4 @@
-use crate::{output::stream_to_stdout, models::get_client};
+use crate::{models::get_client, output::stream_to_stdout};
 
 use anyhow::Context;
 use llm_toolkit::{
@@ -13,17 +13,26 @@ Article content:
 {input}
 "#;
 
-pub async fn summarize(input: String, prompt: Option<String>, model: Option<String>) -> anyhow::Result<()> {
+const DEFAULT_MODEL: &str = "claude-2";
+
+pub async fn prompt(
+    input: String,
+    prompt: Option<String>,
+    model: Option<String>,
+) -> anyhow::Result<()> {
     let loader = WebArticleLoader {};
     let html = loader.load(&input).await.unwrap();
 
-    let model = model.unwrap_or("claude-2".to_string());
+    let model = model.unwrap_or(DEFAULT_MODEL.to_string());
     let client = get_client(model.as_str())?;
 
     let user_prompt = create_prompt(html, prompt)?;
 
     let conv = Conversation::new(user_prompt);
-    let params = CompletionParams { max_tokens: 500, temp: 0.6 };
+    let params = CompletionParams {
+        max_tokens: 500,
+        temp: 0.6,
+    };
     let stream = client.completion_stream(conv, params).await?;
     stream_to_stdout(stream).await?;
 

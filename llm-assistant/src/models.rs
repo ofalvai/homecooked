@@ -39,7 +39,7 @@ pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
         }
         // "llama" | "llama-cpp" | "llamacpp" | "llama.cpp" => {
         //     let config = llama::LlamaConfig {
-        //         // TODO 
+        //         // TODO
         //         model_path: "/Users/oliverfalvai/.cache/lm-studio/models/TheBloke/StableBeluga-7B-GGML/stablebeluga-7b.ggmlv3.q4_K_M.bin".to_string(),
         //         n_threads: 6,
         //         mlock: false,

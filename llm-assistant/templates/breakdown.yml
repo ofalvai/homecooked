@@ -1,0 +1,3 @@
+prompt: >
+  Make the following task more actionable by breaking down into subtasks: {input}
+  Respond with Markdown-formatted checkbox list items.

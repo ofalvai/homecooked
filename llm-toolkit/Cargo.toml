@@ -21,3 +21,5 @@ rs-llama-cpp = { version = "0.1.67", optional = true }
 lazy_static = { workspace = true }
 log = "0.4.20"
 anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", branch = "main" }
+youtube-transcript = { git = "https://github.com/akhildevelops/summarizer", branch = "main" }
+html-escape = "0.2.13"

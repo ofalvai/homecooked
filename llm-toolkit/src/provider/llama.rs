@@ -96,7 +96,7 @@ impl LlamaClient {
             n_threads: self.config.n_threads.into(),
             n_gpu_layers: self.config.n_gpu_layers.into(),
             use_mlock: self.config.mlock,
-            
+
             model: str_to_mut_i8(&self.config.model_path),
             n_ctx: params.max_tokens.into(),
             temp: params.temp,

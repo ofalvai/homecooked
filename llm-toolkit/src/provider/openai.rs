@@ -186,7 +186,11 @@ fn map_stream_error(err: OpenAIError) -> CompletionError {
     match err {
         OpenAIError::InvalidArgument(e) => CompletionError::InvalidArgument(e),
         OpenAIError::ApiError(e) => {
-            let error_str = format!("{}: {}", e.r#type.unwrap_or("unknown".to_string()), e.message);
+            let error_str = format!(
+                "{}: {}",
+                e.r#type.unwrap_or("unknown".to_string()),
+                e.message
+            );
             CompletionError::ApiError("OpenAI".to_string(), error_str)
         }
         OpenAIError::StreamError(e) => CompletionError::StreamError(e),

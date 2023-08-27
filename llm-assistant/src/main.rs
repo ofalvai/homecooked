@@ -5,7 +5,8 @@ mod completion;
 mod models;
 mod output;
 mod readwise;
-mod summary;
+mod web;
+mod youtube;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -31,21 +32,38 @@ enum Commands {
         model: Option<String>,
     },
 
-    #[command(about = "Summarize input like a file, web URL or string")]
-    Summary {
-        input: String,
+    #[command(
+        about = "Work with the contents of a web page. If no prompt is provided, it summarizes the page."
+    )]
+    Web {
+        #[arg(value_name = "URL", short, long)]
+        url: String,
 
         #[arg(short, long)]
         prompt: Option<String>,
 
         #[arg(short, long)]
-        model: Option<String>
+        model: Option<String>,
     },
 
     #[command(about = "Ask questions about a Readwise document list")]
     Readwise {
         #[arg(short, long)]
         prompt: String,
+    },
+
+    #[command(
+        about = "Ask questions about a Youtube video transcription. If no prompt is provided, it summarizes the transcription."
+    )]
+    Youtube {
+        #[arg(short, long)]
+        url: String,
+
+        #[arg(short, long)]
+        prompt: Option<String>,
+
+        #[arg(short, long)]
+        model: Option<String>,
     },
 
     #[command(about = "Manage available models")]
@@ -76,8 +94,9 @@ async fn main() -> anyhow::Result<()> {
             template,
             model,
         } => completion::completion(prompt, template, model).await,
-        Commands::Summary { input, prompt, model } => summary::summarize(input, prompt, model).await,
+        Commands::Web { url, prompt, model } => web::prompt(url, prompt, model).await,
         Commands::Models => models::models(),
         Commands::Readwise { prompt } => readwise::ask(prompt).await,
+        Commands::Youtube { url, prompt, model } => youtube::ask(url, prompt, model).await,
     };
 }
