@@ -16,10 +16,14 @@ pub enum TemplateError {
     RenderError(String),
 }
 
+// Render a prompt template with the given context.
+// Template syntax is [TinyTemplate](https://docs.rs/tinytemplate/latest/tinytemplate/syntax/index.html).
 pub fn render_prompt(template: &str, ctx: &TemplateContext) -> Result<String, TemplateError> {
     render(template, ctx, "prompt")
 }
 
+// Render a prompt template with a generic context object.
+// Template syntax is [TinyTemplate](https://docs.rs/tinytemplate/latest/tinytemplate/syntax/index.html).
 pub fn render<C>(template: &str, ctx: C, name: &str) -> Result<String, TemplateError>
 where
     C: Serialize,
