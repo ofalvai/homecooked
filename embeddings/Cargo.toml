@@ -11,10 +11,10 @@ anyhow = { workspace = true }
 ignore = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tokio = { workspace = true }
 owo-colors = { workspace = true }
 directories = { workspace = true }
 configparser = { workspace = true }
+tokio = { version = "1.32.0", features = ["macros", "rt-multi-thread"] }
 async-openai = "0.14.0"
 rmp-serde = "1.1.2"
 tiktoken-rs = { version = "0.5.1", default-features = false }

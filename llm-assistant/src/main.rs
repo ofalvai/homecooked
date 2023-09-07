@@ -8,6 +8,7 @@ mod readwise;
 mod web;
 mod youtube;
 mod smartgpt;
+mod server;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -76,6 +77,12 @@ enum Commands {
         model: Option<String>,
     },
 
+    #[command(about = "Start the web server")]
+    Server {
+        #[arg(short, long)]
+        port: Option<u16>,
+    },
+
     #[command(about = "Manage available models")]
     Models,
 }
@@ -109,5 +116,6 @@ async fn main() -> anyhow::Result<()> {
         Commands::Readwise { prompt } => readwise::ask(prompt).await,
         Commands::Youtube { url, prompt, model } => youtube::ask(url, prompt, model).await,
         Commands::SmartGPT { prompt , model } => smartgpt::prompt(prompt, model).await,
+        Commands::Server { port } => server::start(port).await,
     };
 }

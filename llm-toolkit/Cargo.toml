@@ -7,7 +7,6 @@ edition = "2021"
 llama-cpp = ["dep:rs-llama-cpp"]
 
 [dependencies]
-tokio = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
