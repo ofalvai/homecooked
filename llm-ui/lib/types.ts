@@ -24,3 +24,15 @@ export interface ChatParams {
   temp: Temp
   systemPrompt: string
 }
+
+export interface Persona {
+  id: string
+  display_name: string
+  prompt: string
+  color: string
+}
+
+export interface Personas {
+  default: string
+  personas: Persona[]
+}

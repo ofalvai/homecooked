@@ -3,7 +3,7 @@ module.exports = {
   endOfLine: 'lf',
   semi: false,
   useTabs: false,
-  singleQuote: true,
+  singleQuote: false,
   arrowParens: 'avoid',
   tabWidth: 2,
   trailingComma: 'none',

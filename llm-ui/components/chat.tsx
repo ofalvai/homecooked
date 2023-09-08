@@ -68,7 +68,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
   return (
     <>
       <div className={cn('flex flex-row', className)}>
-        <div className={cn('flex-1 pb-[200px] pt-4 md:pt-10', className)}>
+        <div className={cn('flex-1 pb-[200px] pr-80 pt-4 md:pt-10', className)}>
           {messages.length ? (
             <>
               <ChatList messages={messages} model={chatParams.model} />
@@ -90,7 +90,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         </div>
         <div
           className={cn(
-            'bg-background border-l w-64 fixed inset-y-0 right-0 top-16',
+            'bg-background fixed inset-y-0 right-0 top-16 w-80 border-l',
             className
           )}
         >

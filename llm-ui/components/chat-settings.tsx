@@ -1,7 +1,7 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Label } from './ui/label'
+import { useState } from "react"
+import { Label } from "./ui/label"
 import {
   Select,
   SelectContent,
@@ -9,22 +9,46 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue
-} from './ui/select'
-import { Slider } from './ui/sliders'
-import { ChatParams, Temp } from '@/lib/types'
-import { Separator } from '@radix-ui/react-separator'
-import { SelectGroup, SelectSeparator } from '@radix-ui/react-select'
-import { Textarea } from './ui/textarea'
+} from "./ui/select"
+import { Slider } from "./ui/sliders"
+import { ChatParams, Persona, Personas, Temp } from "@/lib/types"
+import { Separator } from "@radix-ui/react-separator"
+import { SelectGroup } from "@radix-ui/react-select"
+import { Textarea } from "./ui/textarea"
+import { parse } from "yaml"
+import useSWR from "swr"
 
 export interface ChatSettingsProps {
   params: ChatParams
   setParams: (p: ChatParams) => void
 }
 
+async function personaFetcher(url: string): Promise<Personas> {
+  return fetch(url).then(async res => {
+    const text = await res.text()
+    return parse(text) as Personas
+  })
+}
+
 export function ChatSettings({
   params: params,
   setParams: setParams
 }: ChatSettingsProps) {
+  const { data, error, isLoading } = useSWR(
+    "http://localhost:8080/config/personas.yml",
+    personaFetcher,
+    {
+      onSuccess: (data: Personas) => {
+        const persona = data.personas.find(p => p.id === data.default)
+        if (persona) {
+          setPersonaId(data.default)
+          setParams({ ...params, systemPrompt: persona.prompt })
+        }
+      }
+    }
+  )
+  const [personaId, setPersonaId] = useState<string | "manual">("manual")
+
   return (
     <div className="p-4">
       <Label>Model</Label>
@@ -86,12 +110,39 @@ export function ChatSettings({
       <Separator className="my-8" />
 
       <div className="grid w-full gap-1.5">
-        <Label htmlFor="system-prompt">System prompt</Label>
+        <Label>Persona</Label>
+        <Select
+          value={personaId ?? data?.default ?? "manual"}
+          onValueChange={(v: string) => {
+            setPersonaId(v)
+            const persona = data?.personas.find(p => p.id === v)
+            if (persona) {
+              setParams({ ...params, systemPrompt: persona.prompt })
+            }
+          }}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {data?.personas.map((persona: Persona) => (
+              <SelectItem value={persona.id} key={persona.id}>
+                <div className="flex flex-row items-center">
+                  <div
+                    className="border-foreground/50 mr-2 h-3 w-3 rounded-full border"
+                    style={{ backgroundColor: persona.color }}
+                  ></div>
+                  {persona.display_name}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Textarea
           id="system-prompt"
           value={params.systemPrompt}
           onChange={e => setParams({ ...params, systemPrompt: e.target.value })}
-          className="text-xs"
+          className="mt-2 h-64 text-xs"
         />
       </div>
     </div>

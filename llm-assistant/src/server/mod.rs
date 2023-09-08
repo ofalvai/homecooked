@@ -3,10 +3,12 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
+use actix_cors::Cors;
+use actix_files::Files;
 use actix_web::{post, web, App, HttpServer, Responder};
 use actix_web_lab::sse::{self};
 use anyhow::Context;
-use futures::{StreamExt, stream};
+use futures::{stream, StreamExt};
 use llm_toolkit::{
     conversation::{Conversation, Message, Role},
     provider::CompletionParams,
@@ -24,11 +26,16 @@ mod errors;
 mod openai_types;
 
 pub async fn start(port: Option<u16>) -> anyhow::Result<()> {
-    HttpServer::new(|| App::new().service(completion))
-        .bind(("127.0.0.1", port.unwrap_or(8080)))?
-        .run()
-        .await
-        .context("Server error")
+    HttpServer::new(|| {
+        App::new()
+            .wrap(Cors::permissive())
+            .service(completion)
+            .service(Files::new("/config", "./src/config"))
+    })
+    .bind(("127.0.0.1", port.unwrap_or(8080)))?
+    .run()
+    .await
+    .context("Server error")
     // TODO: print listening message
 }
 
@@ -57,15 +64,16 @@ async fn completion(
     let client = get_client(&model)?;
 
     let end_event = sse::Event::Data(sse::Data::new_json(new_stop_chunk(model.clone())).unwrap());
-    let stream1 = client.completion_stream(conv, params)
+    let stream1 = client
+        .completion_stream(conv, params)
         .await
         .unwrap()
-        .map(move |resp|{
+        .map(move |resp| {
             let content = resp.unwrap().content;
             let chunk = new_chunk(content, model.clone());
             Ok::<_, Infallible>(sse::Event::Data(sse::Data::new_json(chunk).unwrap()))
         });
-    
+
     let stream2 = stream::iter(vec![Ok(end_event)]);
     let stream = stream1.chain(stream2);
 
