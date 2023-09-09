@@ -1,11 +1,8 @@
-use std::{
-    convert::Infallible,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_web::{post, web, App, HttpServer, Responder};
+use actix_web::{middleware::Logger, post, web, App, HttpServer, Responder};
 use actix_web_lab::sse::{self};
 use anyhow::Context;
 use futures::{stream, StreamExt};
@@ -13,6 +10,7 @@ use llm_toolkit::{
     conversation::{Conversation, Message, Role},
     provider::CompletionParams,
 };
+use log::error;
 use uuid::Uuid;
 
 use crate::{
@@ -28,6 +26,7 @@ mod openai_types;
 pub async fn start(port: Option<u16>) -> anyhow::Result<()> {
     HttpServer::new(|| {
         App::new()
+            .wrap(Logger::default())
             .wrap(Cors::permissive())
             .service(completion)
             .service(Files::new("/config", "./src/config"))
@@ -36,7 +35,6 @@ pub async fn start(port: Option<u16>) -> anyhow::Result<()> {
     .run()
     .await
     .context("Server error")
-    // TODO: print listening message
 }
 
 #[post("/v1/chat/completions")]
@@ -55,7 +53,11 @@ async fn completion(
                 openai_types::Role::System => Role::System,
                 openai_types::Role::User => Role::User,
                 openai_types::Role::Assistant => Role::Assistant,
-                openai_types::Role::Function => todo!("Function role not implemented"),
+                openai_types::Role::Function => {
+                    return Err(LlmError::InvalidInput(
+                        "Function role is not supported".to_string(),
+                    ))
+                }
             },
             content: msg.content.clone().unwrap_or_default(),
         })
@@ -63,15 +65,25 @@ async fn completion(
     let model = req.model.clone();
     let client = get_client(&model)?;
 
-    let end_event = sse::Event::Data(sse::Data::new_json(new_stop_chunk(model.clone())).unwrap());
+    let end_event = sse::Event::Data(
+        sse::Data::new_json(new_stop_chunk(model.clone())).context("serialization error")?,
+    );
     let stream1 = client
         .completion_stream(conv, params)
-        .await
-        .unwrap()
+        .await?
         .map(move |resp| {
-            let content = resp.unwrap().content;
+            let content = match resp {
+                Ok(resp) => resp.content,
+                Err(err) => {
+                    error!("Error in stream: {}", err);
+                    let event = sse::Event::Data(sse::Data::new(err.to_string()).event("error"));
+                    return Ok(event);
+                }
+            };
             let chunk = new_chunk(content, model.clone());
-            Ok::<_, Infallible>(sse::Event::Data(sse::Data::new_json(chunk).unwrap()))
+            Ok::<_, LlmError>(sse::Event::Data(
+                sse::Data::new_json(chunk).context("serialization error")?,
+            ))
         });
 
     let stream2 = stream::iter(vec![Ok(end_event)]);

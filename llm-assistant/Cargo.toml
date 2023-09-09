@@ -24,3 +24,5 @@ serde_json.workspace = true
 derive_more = "0.99.17"
 actix-files = "0.6.2"
 actix-cors = "0.6.4"
+thiserror = "1.0.48"
+log = "0.4.20"

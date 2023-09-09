@@ -62,6 +62,7 @@ pub struct CompletionResponse {
     pub content: String,
 }
 
+#[derive(Debug)]
 pub struct CompletionResponseDelta {
     pub id: String,
     pub content: String,

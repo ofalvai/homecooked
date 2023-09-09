@@ -1,42 +1,47 @@
-'use client'
+"use client"
 
-import { useChat, type Message } from 'ai/react'
+import { useChat, type Message } from "ai/react"
 
-import { cn, nanoid } from '@/lib/utils'
-import { ChatList } from '@/components/chat-list'
-import { ChatPanel } from '@/components/chat-panel'
-import { EmptyScreen } from '@/components/empty-screen'
-import { ChatScrollAnchor } from '@/components/chat-scroll-anchor'
-import { useState } from 'react'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { toast } from 'react-hot-toast'
-import { ChatSettings } from './chat-settings'
-import { ChatParams } from '@/lib/types'
-import { addChat } from '@/app/actions'
-import { Chat as ChatType } from '@/lib/types'
+import { cn, nanoid } from "@/lib/utils"
+import { ChatList } from "@/components/chat-list"
+import { ChatPanel } from "@/components/chat-panel"
+import { EmptyScreen } from "@/components/empty-screen"
+import { ChatScrollAnchor } from "@/components/chat-scroll-anchor"
+import { useState } from "react"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { toast } from "react-hot-toast"
+import { ChatSettings } from "./chat-settings"
+import { ChatParams } from "@/lib/types"
+import { addChat } from "@/app/actions"
+import { Chat as ChatType } from "@/lib/types"
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert"
+import { AlertCircle } from "lucide-react"
 
-export interface ChatProps extends React.ComponentProps<'div'> {
+export interface ChatProps extends React.ComponentProps<"div"> {
   initialMessages?: Message[]
   id?: string
 }
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
   const defaultParams: ChatParams = {
-    model: 'claude-instant',
+    model: "claude-instant",
     maxLength: 512,
-    temp: 'medium',
+    temp: "medium",
     systemPrompt: "You are a helpful assistant."
   }
   const [chatParams, setChatParams] = useState(defaultParams)
 
-  const { messages, append, reload, stop, isLoading, input, setInput } =
+  const { messages, append, reload, stop, isLoading, input, setInput, error } =
     useChat({
-      api: '/api/chat',
+      api: "/api/chat",
       initialMessages,
       id,
       body: {
         params: chatParams
+      },
+      onError(error) {
+        toast.error(`${error.name}\n${error.message}`)
       },
       onResponse(response) {
         if (response.status === 401) {
@@ -49,7 +54,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         const path = `/chat/${id}`
         const mappedMessages = messages.map(message => ({
           id: nanoid(),
-          content: message.content ?? '',
+          content: message.content ?? "",
           role: message.role
         }))
         const payload: ChatType = {
@@ -57,18 +62,24 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
           title,
           createdAt,
           path,
-          messages: [
-            ...mappedMessages,
-            message
-          ]
+          messages: [...mappedMessages, message]
         }
         addChat(payload)
       }
     })
   return (
     <>
-      <div className={cn('flex flex-row', className)}>
-        <div className={cn('flex-1 pb-[200px] pr-80 pt-4 md:pt-10', className)}>
+      <div className={cn("flex flex-row", className)}>
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {error.name}: {error.message}
+            </AlertDescription>
+          </Alert>
+        )}
+        <div className={cn("flex-1 pb-[200px] pr-80 pt-4 md:pt-10", className)}>
           {messages.length ? (
             <>
               <ChatList messages={messages} model={chatParams.model} />
@@ -90,7 +101,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         </div>
         <div
           className={cn(
-            'bg-background fixed inset-y-0 right-0 top-16 w-80 border-l',
+            "bg-background fixed inset-y-0 right-0 top-16 w-80 border-l",
             className
           )}
         >
