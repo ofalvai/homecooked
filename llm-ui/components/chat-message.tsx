@@ -2,7 +2,6 @@
 // @see https://github.com/mckaywrigley/chatbot-ui/blob/main/components/Chat/ChatMessage.tsx
 
 import { Message } from 'ai'
-import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
 import { cn } from '@/lib/utils'
@@ -32,7 +31,7 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
       <div className="ml-4 flex-1 space-y-2 overflow-hidden px-1">
         <MemoizedReactMarkdown
           className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 break-words"
-          remarkPlugins={[remarkGfm, remarkMath]}
+          remarkPlugins={[remarkMath]}
           components={{
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>

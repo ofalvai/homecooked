@@ -23,7 +23,11 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png"
-  }
+  },
+  twitter: {
+    title: "LLM UI",
+    card: "summary",
+  },
 }
 
 interface RootLayoutProps {
