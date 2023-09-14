@@ -9,6 +9,7 @@ mod web;
 mod youtube;
 mod smartgpt;
 mod server;
+mod tools;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
