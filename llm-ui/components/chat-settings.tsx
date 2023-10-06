@@ -35,7 +35,7 @@ export function ChatSettings({
   setParams: setParams
 }: ChatSettingsProps) {
   const { data, error, isLoading } = useSWR(
-    "http://localhost:8080/config/personas.yml",
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/config/personas.yml`,
     personaFetcher,
     {
       onSuccess: (data: Personas) => {

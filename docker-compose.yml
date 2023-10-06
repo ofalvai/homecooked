@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  llm-assistant:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.llm-assistant
+    volumes:
+      - ./llm-assistant/config:/data/config
+    ports:
+      - "8080:8080"
+
+  llm-ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.llm-ui
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=${LLM_UI_API_BASE_URL}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - llm-assistant

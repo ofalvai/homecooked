@@ -6,7 +6,7 @@ import { ChatParams, Temp } from '@/lib/types'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
-  baseURL: 'http://localhost:8080/v1'
+  baseURL: `${process.env.LLM_API_BASE_URL}/v1`
 })
 
 interface ChatRequest {
