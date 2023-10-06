@@ -10,7 +10,7 @@ members = [
 resolver = "2"
 
 [profile.release]
-lto = true  # Enable link-time optimization.
+# lto = true  # Enable link-time optimization.
 
 [workspace.dependencies]
 anyhow = "1.0.75"
