@@ -396,7 +396,7 @@ dependencies = [
 [[package]]
 name = "anthropic"
 version = "0.0.7"
-source = "git+https://github.com/abdelhamidbakhta/anthropic-rs.git?branch=main#4c03ddfecde3209ed873b6cc007ff6fd35b68b97"
+source = "git+https://github.com/ofalvai/anthropic-rs.git?branch=ofalvai/handle-runtime-version-failure#f0c24e64de1c1bccf85aae6ae8ff9512e8418afb"
 dependencies = [
  "backoff",
  "config",

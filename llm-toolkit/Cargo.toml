@@ -19,6 +19,6 @@ tinytemplate = "1.2.1"
 rs-llama-cpp = { version = "0.1.67", optional = true }
 lazy_static = { workspace = true }
 log = "0.4.20"
-anthropic = { git = "https://github.com/abdelhamidbakhta/anthropic-rs.git", branch = "main" }
+anthropic = { git = "https://github.com/ofalvai/anthropic-rs.git", branch = "ofalvai/handle-runtime-version-failure" }
 youtube-transcript = { git = "https://github.com/akhildevelops/summarizer", branch = "main" }
 html-escape = "0.2.13"
