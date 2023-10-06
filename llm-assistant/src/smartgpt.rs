@@ -1,13 +1,13 @@
 use anyhow::{Context, Ok};
 use llm_toolkit::{
     conversation::Conversation,
-    provider::CompletionParams,
+    provider::{Client, CompletionParams},
     template::{render, render_prompt, TemplateContext},
 };
 use owo_colors::OwoColorize;
 use serde::Serialize;
 
-use crate::models::get_client;
+use crate::{config::Config, models::get_client};
 
 const DEFAULT_MODEL: &str = "claude-instant-1";
 const N_OPTION: usize = 3;
@@ -68,38 +68,39 @@ struct ReflectionContext {
 struct ResolverContext {
     n_option: usize,
     prompt: String,
-    
+
     // index-option pairs
     options: Vec<(usize, String)>,
     critique: String,
 }
 
-pub async fn prompt(prompt: String, model: Option<String>) -> anyhow::Result<()> {
+pub async fn prompt(config: Config, prompt: String, model: Option<String>) -> anyhow::Result<()> {
+    let model = model.unwrap_or(DEFAULT_MODEL.to_string());
+    let client = get_client(&model, &config)?;
+
     let mut options = Vec::<String>::new();
     for i in 0..N_OPTION {
-        let option = generate_option(prompt.clone(), model.as_deref()).await?;
+        let option = generate_option(&client, prompt.clone()).await?;
         println!("{}", format!("Option {}:", i + 1).green());
         println!("{}", option.yellow());
         options.push(option);
     }
 
-    let reflection = generate_reflection(prompt.clone(), options.clone(), model.as_deref()).await?;
+    let reflection = generate_reflection(&client, prompt.clone(), options.clone()).await?;
     println!("\n\n{}", "Reflection:".green());
     println!("{}", reflection.yellow());
 
-    let resolver = generate_resolver_response(prompt, options.clone(), reflection, model.as_deref()).await?;
+    let resolver = generate_resolver_response(&client, prompt, options.clone(), reflection).await?;
     println!("\n\n{}", "Final answer:".green());
     println!("{}", resolver.yellow());
 
     Ok(())
 }
 
-async fn generate_option(prompt: String, model: Option<&str>) -> anyhow::Result<String> {
+async fn generate_option(client: &Box<dyn Client>, prompt: String) -> anyhow::Result<String> {
     let ctx = TemplateContext { input: prompt };
     let rendered_prompt = render_prompt(&PROMPT_OPTION, &ctx).context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());
-    let model = model.unwrap_or(DEFAULT_MODEL);
-    let client = get_client(model)?;
     let conversation = Conversation::new(rendered_prompt);
     let params = CompletionParams {
         max_tokens: 1000,
@@ -113,9 +114,9 @@ async fn generate_option(prompt: String, model: Option<&str>) -> anyhow::Result<
 }
 
 async fn generate_reflection(
+    client: &Box<dyn Client>,
     prompt: String,
     options: Vec<String>,
-    model: Option<&str>,
 ) -> anyhow::Result<String> {
     let ctx = ReflectionContext {
         n_option: options.len(),
@@ -124,8 +125,6 @@ async fn generate_reflection(
     };
     let rendered_prompt = render(PROMPT_REFLECTION, ctx, "reflection").context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());
-    let model = model.unwrap_or(DEFAULT_MODEL);
-    let client = get_client(model)?;
     let conversation = Conversation::new(rendered_prompt);
     let params = CompletionParams {
         max_tokens: 1500,
@@ -140,12 +139,13 @@ async fn generate_reflection(
 }
 
 async fn generate_resolver_response(
+    client: &Box<dyn Client>,
     prompt: String,
     options: Vec<String>,
     critique: String,
-    model: Option<&str>
 ) -> anyhow::Result<String> {
-    let options: Vec<(usize, String)> = options.into_iter()
+    let options: Vec<(usize, String)> = options
+        .into_iter()
         .enumerate()
         .map(|(i, option)| (i + 1, option))
         .collect();
@@ -157,8 +157,6 @@ async fn generate_resolver_response(
     };
     let rendered_prompt = render(PROMPT_RESOLVER, ctx, "resolver").context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());
-    let model = model.unwrap_or(DEFAULT_MODEL);
-    let client = get_client(model)?;
     let conversation = Conversation::new(rendered_prompt);
     let params = CompletionParams {
         max_tokens: 800,

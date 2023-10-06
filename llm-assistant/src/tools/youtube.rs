@@ -8,7 +8,7 @@ use llm_toolkit::{
 };
 use owo_colors::OwoColorize;
 
-use crate::models::get_client;
+use crate::{models::get_client, config::Config};
 
 const DEFAULT_PROMPT: &str = r#"Summarize a video based on a transcript.
 Your response should match the spoken language of the video, but your response style should not mimic the speakers.
@@ -21,6 +21,7 @@ Video transcript:
 pub const DEFAULT_MODEL: &str = "claude-instant-1";
 
 pub async fn run(
+    config: &Config,
     url: String,
     prompt: Option<String>,
     model: Option<&str>,
@@ -37,7 +38,7 @@ pub async fn run(
     let rendered_prompt = render_prompt(&prompt, &ctx).context("prompt error")?;
     write!(msg_writer, "{}", rendered_prompt.dimmed())?;
 
-    let client = get_client(model.unwrap_or(DEFAULT_MODEL))?;
+    let client = get_client(model.unwrap_or(DEFAULT_MODEL), config)?;
     let conversation = Conversation::new(rendered_prompt);
     let params = CompletionParams {
         max_tokens: 500,

@@ -1,7 +1,9 @@
+use anyhow::Context;
 use clap::{Parser, Subcommand};
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
 mod completion;
+mod config;
 mod models;
 mod output;
 mod readwise;
@@ -19,6 +21,9 @@ struct Cli {
 
     #[arg(value_name = "LEVEL", short, long, default_value_t = LevelFilter::Warn)]
     log_level: LevelFilter,
+
+    #[arg(value_name = "FILE", short, long)]
+    config: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -106,17 +111,19 @@ async fn main() -> anyhow::Result<()> {
     )
     .unwrap();
 
+    let config = config::load_config(cli.config).context("Load config")?;
+
     return match cli.command {
         Commands::Completion {
             prompt,
             template,
             model,
-        } => completion::completion(prompt, template, model).await,
-        Commands::Web { url, prompt, model } => web::prompt(url, prompt, model).await,
+        } => completion::completion(config, prompt, template, model).await,
+        Commands::Web { url, prompt, model } => web::prompt(config, url, prompt, model).await,
         Commands::Models => models::models(),
-        Commands::Readwise { prompt } => readwise::ask(prompt).await,
-        Commands::Youtube { url, prompt, model } => youtube::ask(url, prompt, model).await,
-        Commands::SmartGPT { prompt , model } => smartgpt::prompt(prompt, model).await,
-        Commands::Server { port } => server::start(port).await,
+        Commands::Readwise { prompt } => readwise::ask(config, prompt).await,
+        Commands::Youtube { url, prompt, model } => youtube::ask(config, url, prompt, model).await,
+        Commands::SmartGPT { prompt , model } => smartgpt::prompt(config, prompt, model).await,
+        Commands::Server { port } => server::start(config, port).await,
     };
 }

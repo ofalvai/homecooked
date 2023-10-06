@@ -1,4 +1,4 @@
-use crate::{models::get_client, output::stream_to_stdout};
+use crate::{models::get_client, output::stream_to_stdout, config::Config};
 
 use anyhow::Context;
 use llm_toolkit::{
@@ -16,6 +16,7 @@ Article content:
 const DEFAULT_MODEL: &str = "claude-2";
 
 pub async fn prompt(
+    config: Config,
     input: String,
     prompt: Option<String>,
     model: Option<String>,
@@ -24,7 +25,7 @@ pub async fn prompt(
     let html = loader.load(&input).await.unwrap();
 
     let model = model.unwrap_or(DEFAULT_MODEL.to_string());
-    let client = get_client(model.as_str())?;
+    let client = get_client(model.as_str(), &config)?;
 
     let user_prompt = create_prompt(html, prompt)?;
 

@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::{models::get_client, output::stream_to_stdout};
 
 use anyhow::Context;
@@ -10,6 +11,7 @@ use owo_colors::OwoColorize;
 use serde::Deserialize;
 
 pub async fn completion(
+    config: Config,
     user_prompt: String,
     template: Option<String>,
     model: Option<String>,
@@ -35,7 +37,7 @@ pub async fn completion(
     };
 
     let conv = Conversation::new(user_prompt);
-    let client = get_client(model.as_str())?;
+    let client = get_client(model.as_str(), &config)?;
 
     let stream = client.completion_stream(conv, params).await?;
     println!();

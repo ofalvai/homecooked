@@ -1,0 +1,8 @@
+[keys]
+openai_api_key=TODO
+anthropic_api_key=TODO
+readwise_api_key=TODO
+
+[content]
+persona_file=relative/path/personas.yml
+template_dir=/absolute/path/

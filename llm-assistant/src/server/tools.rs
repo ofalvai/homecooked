@@ -2,7 +2,7 @@ use actix_web::{post, web, Responder};
 use serde::Deserialize;
 
 use crate::{
-    server::{errors::LlmError, openai_adapter},
+    server::{errors::LlmError, openai_adapter, AppState},
     tools,
 };
 
@@ -13,13 +13,19 @@ struct YoutubeRequest {
 }
 
 #[post("/v1/tools/youtube")]
-async fn youtube(req: web::Json<YoutubeRequest>) -> Result<impl Responder, LlmError> {
+async fn youtube(
+    req: web::Json<YoutubeRequest>,
+    data: web::Data<AppState>,
+) -> Result<impl Responder, LlmError> {
     let model = tools::youtube::DEFAULT_MODEL.to_string();
-    let stream =
-        tools::youtube::run(req.url.clone(), req.prompt.clone(), Some(&model), std::io::sink()).await?;
+    let stream = tools::youtube::run(
+        &data.config,
+        req.url.clone(),
+        req.prompt.clone(),
+        Some(&model),
+        std::io::sink(),
+    )
+    .await?;
 
-    Ok(openai_adapter::adapt_stream(
-        stream,
-        model,
-    ))
+    Ok(openai_adapter::adapt_stream(stream, model))
 }

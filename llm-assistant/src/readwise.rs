@@ -12,7 +12,7 @@ use owo_colors::OwoColorize;
 use serde::Serialize;
 use url::Url;
 
-use crate::output::stream_to_stdout;
+use crate::{output::stream_to_stdout, config::Config};
 
 const DESCRIPTION_PROMPT: &str = r#"<request>{input}</request>
 What are the common characteristics of such online articles? Focus on the content only.
@@ -64,7 +64,7 @@ struct DocumentContext {
     word_count: Option<u32>,
 }
 
-pub async fn ask(question: String) -> anyhow::Result<()> {
+pub async fn ask(config: Config, question: String) -> anyhow::Result<()> {
     let description = create_description(question).await?;
     println!("{}", description.dimmed());
 
@@ -80,7 +80,7 @@ pub async fn ask(question: String) -> anyhow::Result<()> {
 
     let final_prompt = render(FINAL_PROMPT, ctx, "readwise")?;
 
-    create_final_response(final_prompt).await
+    create_final_response(config, final_prompt).await
 }
 
 async fn create_description(question: String) -> anyhow::Result<String> {
@@ -135,11 +135,12 @@ fn create_document_context(documents: Vec<Document>) -> anyhow::Result<String> {
     Ok(context)
 }
 
-async fn create_final_response(prompt: String) -> anyhow::Result<()> {
+async fn create_final_response(config: Config, prompt: String) -> anyhow::Result<()> {
     let conv = Conversation::new(prompt);
 
     let config = AnthropicConfig {
         model: Model::Claude2,
+        api_key: config.anthropic_api_key,
         ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
