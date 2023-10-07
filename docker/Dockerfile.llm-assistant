@@ -33,3 +33,5 @@ EXPOSE 8080
 ENV PORT 8080
 
 ENTRYPOINT ["/app/bin/llm-assistant", "--config", "/data/config/config.ini", "server"]
+
+LABEL org.opencontainers.image.source https://github.com/ofalvai/homecooked

@@ -16,7 +16,8 @@ import { Separator } from "@radix-ui/react-separator"
 import { SelectGroup } from "@radix-ui/react-select"
 import { Textarea } from "./ui/textarea"
 import { parse } from "yaml"
-import useSWR from "swr"
+import useSWRImmutable from "swr/immutable"
+import { useAppConfig } from "@/lib/swr-utils"
 
 export interface ChatSettingsProps {
   params: ChatParams
@@ -34,17 +35,22 @@ export function ChatSettings({
   params: params,
   setParams: setParams
 }: ChatSettingsProps) {
-  const { data, error, isLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/config/personas.yml`,
+  const { data: appConfig } = useAppConfig()
+  const { data: personas } = useSWRImmutable(
+    () => {
+      // Throw error on purpose to let SWR know of the dependency
+      return appConfig!.llmApiBaseUrl + "/config/personas.yml"
+    },
     personaFetcher,
     {
-      onSuccess: (data: Personas) => {
-        const persona = data.personas.find(p => p.id === data.default)
+      onSuccess: (personas: Personas) => {
+        const persona = personas.personas.find(p => p.id === personas.default)
         if (persona) {
-          setPersonaId(data.default)
+          setPersonaId(personas.default)
           setParams({ ...params, systemPrompt: persona.prompt })
         }
-      }
+      },
+      onError: err => console.log(err)
     }
   )
   const [personaId, setPersonaId] = useState<string | "manual">("manual")
@@ -112,10 +118,10 @@ export function ChatSettings({
       <div className="grid w-full gap-1.5">
         <Label>Persona</Label>
         <Select
-          value={personaId ?? data?.default ?? "manual"}
+          value={personaId ?? personas?.default ?? "manual"}
           onValueChange={(v: string) => {
             setPersonaId(v)
-            const persona = data?.personas.find(p => p.id === v)
+            const persona = personas?.personas.find(p => p.id === v)
             if (persona) {
               setParams({ ...params, systemPrompt: persona.prompt })
             }
@@ -125,7 +131,7 @@ export function ChatSettings({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {data?.personas.map((persona: Persona) => (
+            {personas?.personas.map((persona: Persona) => (
               <SelectItem value={persona.id} key={persona.id}>
                 <div className="flex flex-row items-center">
                   <div

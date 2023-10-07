@@ -1,9 +1,9 @@
-'use client'
+"use client"
 
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from "next/navigation"
 
-import { getChat } from '@/app/actions'
-import { Chat } from '@/components/chat'
+import { getChat } from "@/app/actions"
+import { Chat } from "@/components/chat"
 
 export interface ChatPageProps {
   params: {

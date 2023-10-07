@@ -1,5 +1,9 @@
 import { type Message } from 'ai'
 
+export interface AppConfig {
+  llmApiBaseUrl: string
+}
+
 export interface Chat extends Record<string, any> {
   id: string
   title: string

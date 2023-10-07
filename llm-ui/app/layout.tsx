@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     title: "LLM UI",
-    card: "summary",
-  },
+    card: "summary"
+  }
 }
 
 interface RootLayoutProps {
@@ -37,7 +37,9 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <link rel="preload" href="/api/config" as="fetch" crossOrigin="anonymous" />
+      </head>
       <body
         className={cn(
           "font-sans antialiased",
