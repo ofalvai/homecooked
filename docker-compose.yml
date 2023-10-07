@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: docker/Dockerfile.llm-ui
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=${LLM_UI_API_BASE_URL}
+      - LLM_API_BASE_URL=${LLM_UI_API_BASE_URL}
     ports:
       - "3000:3000"
     depends_on:
