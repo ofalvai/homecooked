@@ -2083,7 +2083,6 @@ dependencies = [
  "anyhow",
  "clap",
  "configparser",
- "derive_more",
  "directories",
  "futures",
  "llm-toolkit",
@@ -2095,6 +2094,7 @@ dependencies = [
  "simplelog",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "url",
  "uuid",
 ]

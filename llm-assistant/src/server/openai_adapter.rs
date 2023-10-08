@@ -17,6 +17,7 @@ use super::{
         ChatCompletionResponseStreamMessage, ChatCompletionStreamResponseDelta,
         CreateChatCompletionRequest, CreateChatCompletionStreamResponse, Role,
     },
+    STREAM_KEEPALIVE,
 };
 
 pub fn completion_params(req: &CreateChatCompletionRequest) -> CompletionParams {
@@ -62,11 +63,11 @@ pub fn adapt_stream(stream: CompletionResponseStream, model: String) -> impl Res
             sse::Data::new_json(chunk).context("serialization error")?,
         ))
     });
-    
+
     let stream2 = stream::iter(vec![Ok(end_event)]);
     let stream = stream.chain(stream2);
 
-    sse::Sse::from_stream(stream).with_keep_alive(Duration::from_secs(5))
+    sse::Sse::from_stream(stream).with_keep_alive(STREAM_KEEPALIVE)
 }
 
 fn new_chunk(content: String, model: &str) -> CreateChatCompletionStreamResponse {

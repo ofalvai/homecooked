@@ -12,7 +12,7 @@ use owo_colors::OwoColorize;
 use serde::Serialize;
 use url::Url;
 
-use crate::{output::stream_to_stdout, config::Config};
+use crate::{config::Config, output::print_completion_stream};
 
 const DESCRIPTION_PROMPT: &str = r#"<request>{input}</request>
 What are the common characteristics of such online articles? Focus on the content only.
@@ -151,7 +151,7 @@ async fn create_final_response(config: Config, prompt: String) -> anyhow::Result
 
     let stream = client.completion_stream(conv, params).await?;
     println!();
-    stream_to_stdout(stream).await?;
+    print_completion_stream(stream).await?;
 
     Ok(())
 }

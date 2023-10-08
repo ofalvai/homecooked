@@ -1,6 +1,6 @@
-use thiserror::Error;
 use llm_toolkit::provider::CompletionError;
 use serde::Serialize;
+use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum LlmError {
@@ -40,7 +40,6 @@ impl actix_web::error::ResponseError for LlmError {
         match self {
             LlmError::InvalidInput(_) => actix_web::http::StatusCode::BAD_REQUEST,
             LlmError::UnhandledError(_) => actix_web::http::StatusCode::INTERNAL_SERVER_ERROR,
-        
         }
     }
 }

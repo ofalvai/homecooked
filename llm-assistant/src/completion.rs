@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::{models::get_client, output::stream_to_stdout};
+use crate::{models::get_client, output::print_completion_stream};
 
 use anyhow::Context;
 use llm_toolkit::provider::CompletionParams;
@@ -41,7 +41,7 @@ pub async fn completion(
 
     let stream = client.completion_stream(conv, params).await?;
     println!();
-    stream_to_stdout(stream).await?;
+    print_completion_stream(stream).await?;
 
     // let resp = client.completion(conv.messages, args).await?;
     // println!("{}", resp.content);

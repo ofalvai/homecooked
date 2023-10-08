@@ -97,7 +97,10 @@ pub async fn prompt(config: Config, prompt: String, model: Option<String>) -> an
     Ok(())
 }
 
-async fn generate_option(client: &Box<dyn Client>, prompt: String) -> anyhow::Result<String> {
+async fn generate_option(
+    client: &Box<dyn Client + Send + Sync>,
+    prompt: String,
+) -> anyhow::Result<String> {
     let ctx = TemplateContext { input: prompt };
     let rendered_prompt = render_prompt(&PROMPT_OPTION, &ctx).context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());
@@ -114,7 +117,7 @@ async fn generate_option(client: &Box<dyn Client>, prompt: String) -> anyhow::Re
 }
 
 async fn generate_reflection(
-    client: &Box<dyn Client>,
+    client: &Box<dyn Client + Send + Sync>,
     prompt: String,
     options: Vec<String>,
 ) -> anyhow::Result<String> {
@@ -139,7 +142,7 @@ async fn generate_reflection(
 }
 
 async fn generate_resolver_response(
-    client: &Box<dyn Client>,
+    client: &Box<dyn Client + Send + Sync>,
     prompt: String,
     options: Vec<String>,
     critique: String,

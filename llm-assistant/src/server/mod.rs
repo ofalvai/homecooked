@@ -4,8 +4,9 @@ use actix_web::{middleware::Logger, post, web, App, HttpServer, Responder};
 use anyhow::Context;
 
 use crate::{
+    config::Config,
     models::get_client,
-    server::{errors::LlmError, openai_types::CreateChatCompletionRequest}, config::Config,
+    server::{errors::LlmError, openai_types::CreateChatCompletionRequest},
 };
 
 mod errors;
@@ -14,8 +15,10 @@ mod openai_types;
 mod tools;
 
 struct AppState {
-    config: Config
+    config: Config,
 }
+
+static STREAM_KEEPALIVE: std::time::Duration = std::time::Duration::from_secs(10);
 
 pub async fn start(config: Config, port: Option<u16>) -> anyhow::Result<()> {
     HttpServer::new(move || {
@@ -23,11 +26,14 @@ pub async fn start(config: Config, port: Option<u16>) -> anyhow::Result<()> {
             .wrap(Logger::default())
             .wrap(Cors::permissive())
             .app_data(web::Data::new(AppState {
-                config: config.clone()
+                config: config.clone(),
             }))
             .service(completions)
             .service(tools::youtube)
-            .service(Files::new("/config", config.persona_file.parent().unwrap().clone())) // TODO: make this more robust
+            .service(Files::new(
+                "/config",
+                config.persona_file.parent().unwrap().clone(),
+            )) // TODO: make this more robust
     })
     .bind(("0.0.0.0", port.unwrap_or(8080)))?
     .run()

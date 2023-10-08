@@ -7,11 +7,11 @@ mod config;
 mod models;
 mod output;
 mod readwise;
+mod server;
+mod smartgpt;
+mod tools;
 mod web;
 mod youtube;
-mod smartgpt;
-mod server;
-mod tools;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -19,7 +19,7 @@ struct Cli {
     #[command(subcommand)]
     command: Commands,
 
-    #[arg(value_name = "LEVEL", short, long, default_value_t = LevelFilter::Warn)]
+    #[arg(value_name = "LEVEL", short, long, default_value_t = LevelFilter::Info)]
     log_level: LevelFilter,
 
     #[arg(value_name = "FILE", short, long)]
@@ -123,7 +123,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::Models => models::models(),
         Commands::Readwise { prompt } => readwise::ask(config, prompt).await,
         Commands::Youtube { url, prompt, model } => youtube::ask(config, url, prompt, model).await,
-        Commands::SmartGPT { prompt , model } => smartgpt::prompt(config, prompt, model).await,
+        Commands::SmartGPT { prompt, model } => smartgpt::prompt(config, prompt, model).await,
         Commands::Server { port } => server::start(config, port).await,
     };
 }

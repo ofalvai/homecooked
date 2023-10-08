@@ -2,8 +2,11 @@ use llm_toolkit::provider::{anthropic, openai, Client};
 
 use crate::config::Config;
 
-pub fn get_client(model_name: &str, config: &Config) -> anyhow::Result<Box<dyn Client>> {
-    let client: Box<dyn Client> = match model_name {
+pub fn get_client(
+    model_name: &str,
+    config: &Config,
+) -> anyhow::Result<Box<dyn Client + Send + Sync>> {
+    let client: Box<dyn Client + Send + Sync> = match model_name {
         "gpt3" | "gpt-3" | "gpt-3.5" | "gpt-3.5-turbo" => {
             let config = openai::OpenAIConfig {
                 model: openai::Model::Gpt35Turbo,

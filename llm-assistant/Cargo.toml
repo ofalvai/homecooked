@@ -3,28 +3,26 @@ name = "llm-assistant"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 llm-toolkit = { path = "../llm-toolkit" }
 
 clap = { workspace = true }
 anyhow = { workspace = true }
 owo-colors = { workspace = true }
-tokio = { version = "1.32.0", features = ["rt", "sync"]}
+tokio = { version = "1.32.0", features = ["rt", "sync"] }
 futures = { workspace = true }
 serde = { workspace = true }
 url = { workspace = true }
 serde_yaml = "0.9.25"
-simplelog = { version = "^0.12.1"}
+simplelog = { version = "^0.12.1" }
 actix-web = { version = "4.4.0" }
 actix-web-lab = "0.19.1"
 uuid = { version = "1.4.1", features = ["v4"] }
-serde_json.workspace = true
-derive_more = "0.99.17"
+serde_json = { workspace = true }
 actix-files = "0.6.2"
 actix-cors = "0.6.4"
 thiserror = "1.0.48"
 log = "0.4.20"
 configparser = { workspace = true }
 directories = { workspace = true }
+tokio-stream = "0.1.14"

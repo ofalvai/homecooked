@@ -1,4 +1,4 @@
-use crate::{models::get_client, output::stream_to_stdout, config::Config};
+use crate::{config::Config, models::get_client, output::print_completion_stream};
 
 use anyhow::Context;
 use llm_toolkit::{
@@ -35,7 +35,7 @@ pub async fn prompt(
         temp: 0.6,
     };
     let stream = client.completion_stream(conv, params).await?;
-    stream_to_stdout(stream).await?;
+    print_completion_stream(stream).await?;
 
     Ok(())
 }
