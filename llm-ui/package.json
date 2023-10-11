@@ -16,6 +16,7 @@
   "dependencies": {
     "@next/bundle-analyzer": "^13.4.19",
     "@radix-ui/react-alert-dialog": "^1.0.4",
+    "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@radix-ui/react-label": "^2.0.2",
@@ -30,6 +31,7 @@
     "ai": "^2.1.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^1.2.1",
+    "eventsource-parser": "^1.1.1",
     "focus-trap-react": "^10.1.1",
     "lucide-react": "^0.274.0",
     "nanoid": "^4.0.2",

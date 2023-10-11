@@ -1,4 +1,3 @@
-use anyhow::Context;
 use llm_toolkit::{
     conversation::Conversation,
     document::loader::readwise::{Document, Location, ReadwiseClient},
@@ -68,8 +67,7 @@ pub async fn ask(config: Config, question: String) -> anyhow::Result<()> {
     let description = create_description(question).await?;
     println!("{}", description.dimmed());
 
-    let token = std::env::var("READWISE_TOKEN").context("Missing READWISE_TOKEN")?;
-    let client = ReadwiseClient::new(token);
+    let client = ReadwiseClient::new(config.readwise_api_key.clone());
     let documents = client.fetch_documents(None, Some(Location::New)).await?;
     let document_ctx = create_document_context(documents)?;
 

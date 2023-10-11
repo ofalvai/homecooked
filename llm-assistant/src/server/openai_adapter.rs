@@ -1,4 +1,4 @@
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
 
 use actix_web::Responder;
 use actix_web_lab::sse;
