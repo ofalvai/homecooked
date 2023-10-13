@@ -1,13 +1,13 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { useAppConfig } from "@/lib/swr-utils"
-import { ToolEvent, YoutubeSummaryRequest } from "@/lib/types"
+import { ToolEvent, WebSummaryRequest } from "@/lib/types"
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { ToolEventList } from "@/components/tool"
 import { readToolEventStream } from "@/lib/tools"
 
-export default function YoutubePage() {
+export default function WebPage() {
   const [url, setUrl] = useState("")
   const [events, setEvents] = useState<ToolEvent[]>([])
   const { data: appConfig } = useAppConfig()
@@ -29,10 +29,9 @@ export default function YoutubePage() {
     >
       <Input
         type="text"
-        className=""
         value={url}
         onChange={e => setUrl(e.target.value)}
-        placeholder="Youtube URL"
+        placeholder="URL"
       />
       <Button type="submit" disabled={url.trim() === ""}>
         Summarize
@@ -47,12 +46,12 @@ async function invokeTool(
   url: string,
   onEvent: (event: ToolEvent) => void
 ) {
-  const req: YoutubeSummaryRequest = {
+  const req: WebSummaryRequest = {
     url: url,
     prompt: undefined
   }
 
-  const resp = await fetch(`${baseUrl}/v1/tools/youtube`, {
+  const resp = await fetch(`${baseUrl}/v1/tools/web`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

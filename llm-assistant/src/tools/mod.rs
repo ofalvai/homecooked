@@ -3,6 +3,7 @@ use std::pin::Pin;
 use futures::Stream;
 
 pub mod youtube;
+pub mod web;
 
 // TODO: move these to llm-toolkit
 pub type ToolEventStream = Pin<Box<dyn Stream<Item = ToolUseEvent> + Send>>;

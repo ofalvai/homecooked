@@ -1,27 +1,26 @@
 use anyhow::Context;
 use llm_toolkit::{
     conversation::Conversation,
-    document::loader::youtube::fetch_transcript,
+    document::loader::web_article::WebArticleLoader,
     provider::CompletionParams,
     template::{render_prompt, TemplateContext},
 };
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{config::Config, models::get_client};
-
-use super::{
-    ErrorEvent, IntermediateOutput, ToolEventStream, ToolUseEvent, ToolUseMetadata, WorkingEvent,
+use crate::{
+    config::Config,
+    models::get_client,
+    tools::{ErrorEvent, IntermediateOutput, ToolUseMetadata, WorkingEvent},
 };
 
-const DEFAULT_PROMPT: &str = r#"Summarize a video based on a transcript.
-Your response should match the spoken language of the video, but your response style should not mimic the speakers.
-Video transcript:
->>>
+use super::{ToolEventStream, ToolUseEvent};
+
+const DEFAULT_PROMPT: &str = r#"Summarize an article extracted from a web page. Your response should match the language of the article.
+Article content:
 {input}
->>>
 "#;
 
-pub const DEFAULT_MODEL: &str = "claude-instant-1";
+const DEFAULT_MODEL: &str = "claude-instant-1";
 
 pub fn run(
     config: Config,
@@ -57,39 +56,42 @@ async fn run_inner(
     model: Option<String>,
 ) -> anyhow::Result<()> {
     tx.send(ToolUseEvent::Working(WorkingEvent {
-        label: "Fetching video transcript".to_string(),
+        label: "Loading webpage".to_string(),
     }))?;
 
-    let transcript = fetch_transcript(url)
-        .await
-        .context("fetch video transcript")?;
+    let loader = WebArticleLoader {};
+    let html = loader.load(&url).await?;
 
-    let prompt = prompt.unwrap_or(DEFAULT_PROMPT.to_string());
-    let ctx = TemplateContext {
-        input: transcript.text,
-    };
-    let rendered_prompt = render_prompt(&prompt, &ctx).context("prompt error")?;
+    let model = model.unwrap_or(DEFAULT_MODEL.to_string());
+    let client = get_client(model.as_str(), &config)?;
+
+    let user_prompt = create_prompt(html, prompt)?;
     tx.send(ToolUseEvent::IntermediateOutput(IntermediateOutput {
         label: "Prompt".to_string(),
-        content: rendered_prompt.clone(),
+        content: user_prompt.clone(),
     }))?;
 
     tx.send(ToolUseEvent::Working(WorkingEvent {
         label: "Generating final answer".to_string(),
     }))?;
-    let conversation = Conversation::new(rendered_prompt);
+    let conv = Conversation::new(user_prompt);
     let params = CompletionParams {
         max_tokens: 500,
-        temp: 0.2,
+        temp: 0.6,
     };
-    let model = model.unwrap_or(DEFAULT_MODEL.to_string());
-    let resp = get_client(&model, &config)?
-        .completion(conversation, params)
+    let resp = client
+        .completion(conv, params)
         .await
         .context("completion error")?;
+
     tx.send(ToolUseEvent::Output(super::OutputEvent {
         content: resp.content,
     }))?;
-
     Ok(())
+}
+
+fn create_prompt(html: String, prompt: Option<String>) -> anyhow::Result<String> {
+    let prompt = prompt.unwrap_or(DEFAULT_PROMPT.to_string());
+    let ctx = TemplateContext { input: html };
+    render_prompt(&prompt, &ctx).context("prompt error")
 }

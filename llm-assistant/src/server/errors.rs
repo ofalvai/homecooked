@@ -45,7 +45,11 @@ impl actix_web::error::ResponseError for LlmError {
 }
 impl From<anyhow::Error> for LlmError {
     fn from(err: anyhow::Error) -> LlmError {
-        LlmError::UnhandledError(err.to_string())
+        let err_chain = err.chain()
+            .map(|err| err.to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+        LlmError::UnhandledError(err_chain)
     }
 }
 

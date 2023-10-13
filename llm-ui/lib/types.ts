@@ -47,6 +47,11 @@ export interface YoutubeSummaryRequest {
   prompt: string | undefined
 }
 
+export interface WebSummaryRequest {
+  url: string
+  prompt: string | undefined
+}
+
 export interface WorkingEvent {
   type: "working"
   label: string
@@ -73,4 +78,4 @@ export interface FinishedEvent {
   type: "finished"
 }
 
-export type ToolUseEvent = WorkingEvent | ErrorEvent | IntermediateOutputEvent | OutputEevent | FinishedEvent
+export type ToolEvent = WorkingEvent | ErrorEvent | IntermediateOutputEvent | OutputEevent | FinishedEvent

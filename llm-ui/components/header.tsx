@@ -62,6 +62,13 @@ export async function Header() {
                   >
                     Curated Readwise reading list
                   </ListItem>
+                  <ListItem
+                    key="Webpage"
+                    title="Webpage"
+                    href="/tools/web"
+                  >
+                    Webpage contents
+                  </ListItem>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
