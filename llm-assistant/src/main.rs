@@ -2,16 +2,12 @@ use anyhow::Context;
 use clap::{Parser, Subcommand};
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
-mod completion;
+mod commands;
 mod config;
 mod models;
 mod output;
-mod readwise;
 mod server;
-mod smartgpt;
 mod tools;
-mod web;
-mod youtube;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -118,12 +114,18 @@ async fn main() -> anyhow::Result<()> {
             prompt,
             template,
             model,
-        } => completion::completion(config, prompt, template, model).await,
-        Commands::Web { url, prompt, model } => web::prompt(config, url, prompt, model).await,
+        } => commands::completion::completion(config, prompt, template, model).await,
+        Commands::Web { url, prompt, model } => {
+            commands::web::prompt(config, url, prompt, model).await
+        }
         Commands::Models => models::models(),
-        Commands::Readwise { prompt } => readwise::ask(config, prompt).await,
-        Commands::Youtube { url, prompt, model } => youtube::ask(config, url, prompt, model).await,
-        Commands::SmartGPT { prompt, model } => smartgpt::prompt(config, prompt, model).await,
+        Commands::Readwise { prompt } => commands::readwise::ask(config, prompt).await,
+        Commands::Youtube { url, prompt, model } => {
+            commands::youtube::ask(config, url, prompt, model).await
+        }
+        Commands::SmartGPT { prompt, model } => {
+            commands::smartgpt::prompt(config, prompt, model).await
+        }
         Commands::Server { port } => server::start(config, port).await,
     };
 }

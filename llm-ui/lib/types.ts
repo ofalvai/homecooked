@@ -52,6 +52,10 @@ export interface WebSummaryRequest {
   prompt: string | undefined
 }
 
+export interface ReadwiseRequest {
+  query: string
+}
+
 export interface WorkingEvent {
   type: "working"
   label: string

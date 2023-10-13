@@ -3,18 +3,28 @@ use llm_toolkit::{
     document::loader::readwise::{Document, Location, ReadwiseClient},
     provider::{
         anthropic::{AnthropicClient, AnthropicConfig, Model},
-        Client, CompletionParams,
+        Client, CompletionParams, CompletionResponse,
     },
     template::{render, render_prompt, TemplateContext},
 };
 use owo_colors::OwoColorize;
 use serde::Serialize;
+use tokio::sync::mpsc::UnboundedSender;
 use url::Url;
 
-use crate::{config::Config, output::print_completion_stream};
+use crate::{
+    config::Config,
+    tools::{IntermediateOutput, WorkingEvent},
+};
 
-const DESCRIPTION_PROMPT: &str = r#"<request>{input}</request>
-What are the common characteristics of such online articles? Focus on the content only.
+use super::{ErrorEvent, ToolEventStream, ToolUseEvent, ToolUseMetadata};
+
+const DESCRIPTION_PROMPT: &str = r#"What are the common characteristics of online articles for the following criteria:
+```
+{input}
+```
+
+Focus on the content only.
 Respond with 5 examples where each item is a short and concise description.
 You do not need to look up articles.
 Do not provide any commentary, just the 5 items.
@@ -63,27 +73,72 @@ struct DocumentContext {
     word_count: Option<u32>,
 }
 
-pub async fn ask(config: Config, question: String) -> anyhow::Result<()> {
-    let description = create_description(question).await?;
-    println!("{}", description.dimmed());
+pub fn run(config: Config, query: String) -> ToolEventStream {
+    let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
+    tokio::spawn(async move {
+        match run_inner(&tx, config, query).await {
+            Ok(_) => {
+                tx.send(ToolUseEvent::Finished(ToolUseMetadata {})).unwrap();
+            }
+            Err(e) => {
+                tx.send(ToolUseEvent::Error(ErrorEvent {
+                    label: "Failed to run tool".to_string(),
+                    error: Some(e.to_string()),
+                }))
+                .unwrap();
+            }
+        }
+    });
+
+    Box::pin(tokio_stream::wrappers::UnboundedReceiverStream::new(rx))
+}
+
+async fn run_inner(
+    tx: &UnboundedSender<ToolUseEvent>,
+    config: Config,
+    query: String,
+) -> anyhow::Result<()> {
+    tx.send(ToolUseEvent::Working(WorkingEvent {
+        label: "Thinking about the request".to_string(),
+    }))?;
+    let description = create_description(&config, query).await?;
+    tx.send(ToolUseEvent::IntermediateOutput(IntermediateOutput {
+        label: "Common themes".to_string(),
+        content: description.clone(),
+    }))?;
+
+    tx.send(ToolUseEvent::Working(WorkingEvent {
+        label: "Fetching Readwise documents".to_string(),
+    }))?;
     let client = ReadwiseClient::new(config.readwise_api_key.clone());
     let documents = client.fetch_documents(None, Some(Location::New)).await?;
     let document_ctx = create_document_context(documents)?;
+    tx.send(ToolUseEvent::IntermediateOutput(IntermediateOutput {
+        label: "Readwise documents".to_string(),
+        content: document_ctx.clone(),
+    }))?;
 
+    tx.send(ToolUseEvent::Working(WorkingEvent {
+        label: "Generating final answer".to_string(),
+    }))?;
     let ctx = FinalPromptContext {
         description: description,
         articles: document_ctx,
     };
 
     let final_prompt = render(FINAL_PROMPT, ctx, "readwise")?;
-
-    create_final_response(config, final_prompt).await
+    let final_resp = create_final_response(&config, final_prompt).await?;
+    tx.send(ToolUseEvent::Output(super::OutputEvent {
+        content: final_resp.content,
+    }))?;
+    Ok(())
 }
 
-async fn create_description(question: String) -> anyhow::Result<String> {
+async fn create_description(config: &Config, question: String) -> anyhow::Result<String> {
     let config = AnthropicConfig {
         model: Model::ClaudeInstant1,
+        api_key: config.anthropic_api_key.clone(),
         ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
@@ -133,12 +188,15 @@ fn create_document_context(documents: Vec<Document>) -> anyhow::Result<String> {
     Ok(context)
 }
 
-async fn create_final_response(config: Config, prompt: String) -> anyhow::Result<()> {
+async fn create_final_response(
+    config: &Config,
+    prompt: String,
+) -> anyhow::Result<CompletionResponse> {
     let conv = Conversation::new(prompt);
 
     let config = AnthropicConfig {
         model: Model::Claude2,
-        api_key: config.anthropic_api_key,
+        api_key: config.anthropic_api_key.clone(),
         ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
@@ -147,9 +205,6 @@ async fn create_final_response(config: Config, prompt: String) -> anyhow::Result
         temp: 0.5,
     };
 
-    let stream = client.completion_stream(conv, params).await?;
-    println!();
-    print_completion_stream(stream).await?;
-
-    Ok(())
+    let resp = client.completion(conv, params).await?;
+    Ok(resp)
 }

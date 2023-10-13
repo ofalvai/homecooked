@@ -2,6 +2,7 @@ use std::pin::Pin;
 
 use futures::Stream;
 
+pub mod readwise;
 pub mod youtube;
 pub mod web;
 

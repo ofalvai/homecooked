@@ -20,6 +20,11 @@ struct WebPageRequest {
     prompt: Option<String>,
 }
 
+#[derive(Deserialize)]
+struct ReadwiseRequest {
+    query: String,
+}
+
 #[post("/v1/tools/youtube")]
 async fn youtube(
     req: web::Json<YoutubeRequest>,
@@ -46,6 +51,20 @@ async fn web_page(
         req.url.clone(),
         req.prompt.clone(),
         None,
+    )
+    .map(map_to_sse);
+
+    Ok(sse::Sse::from_stream(stream).with_keep_alive(STREAM_KEEPALIVE))
+}
+
+#[post("/v1/tools/readwise")]
+async fn readwise(
+    req: web::Json<ReadwiseRequest>,
+    data: web::Data<AppState>,
+) -> Result<impl Responder, LlmError> {
+    let stream = tools::readwise::run(
+        data.config.clone(),
+        req.query.clone(),
     )
     .map(map_to_sse);
 
