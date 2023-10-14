@@ -1,4 +1,5 @@
 import { ParsedEvent } from "eventsource-parser"
+// @ts-ignore: https://github.com/rexxars/eventsource-parser/issues/4
 import { EventSourceParserStream } from "eventsource-parser/stream"
 import { ToolEvent } from "./types"
 

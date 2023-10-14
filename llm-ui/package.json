@@ -45,6 +45,8 @@
     "react-markdown": "^8.0.7",
     "react-syntax-highlighter": "^15.5.0",
     "react-textarea-autosize": "^8.4.1",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.0",
     "remark-math": "^5.1.1",
     "swr": "^2.2.2",
     "yaml": "^2.3.2"

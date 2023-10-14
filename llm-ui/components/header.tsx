@@ -12,6 +12,7 @@ import { ClearHistory } from "@/components/clear-history"
 import {
   NavigationMenu,
   NavigationMenuContent,
+  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -20,6 +21,26 @@ import {
 } from "./ui/navigation-menu"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+
+const tools: { title: string; href: string; description: string }[] = [
+  {
+    title: "Youtube",
+    href: "/tools/youtube",
+    description:
+      "Summarize Youtube videos via transcripts."
+  },
+  {
+    title: "Webpage",
+    href: "/tools/web",
+    description: "Summarize or ask questions about webpages."
+  },
+  {
+    title: "Readwise",
+    href: "/tools/readwise",
+    description:
+      "Create a curated reading list from your Readwise inbox by telling the LLM what you want to read about."
+  },
+]
 
 export async function Header() {
   const pathname = usePathname()
@@ -38,6 +59,7 @@ export async function Header() {
         </Sidebar>
         <NavigationMenu orientation="horizontal">
           <NavigationMenuList>
+          <NavigationMenuIndicator />
             <NavigationMenuItem>
               <Link href="/" legacyBehavior passHref>
                 <NavigationMenuLink
@@ -52,23 +74,16 @@ export async function Header() {
               <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  <ListItem key="Youtube" title="Youtube" href="/tools/youtube">
-                    Work with Youtube video transcripts
-                  </ListItem>
-                  <ListItem
-                    key="Readwise"
-                    title="Readwise"
-                    href="/tools/readwise"
-                  >
-                    Curated Readwise reading list
-                  </ListItem>
-                  <ListItem
-                    key="Webpage"
-                    title="Webpage"
-                    href="/tools/web"
-                  >
-                    Webpage contents
-                  </ListItem>
+                  {tools.map(component => (
+                    <ListItem
+                      key={component.title}
+                      title={component.title}
+                      href={component.href}
+                      
+                    >
+                      {component.description}
+                    </ListItem>
+                  ))}
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
@@ -85,7 +100,7 @@ const ListItem = React.forwardRef<
 >(({ className, title, children, ...props }, ref) => {
   return (
     <li>
-      <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+      <NavigationMenuLink asChild>
         <a
           ref={ref}
           className={cn(

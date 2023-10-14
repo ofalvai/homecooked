@@ -36,11 +36,13 @@ Think step by step why one article matches the criteria.
 If an article is irrelevant to the question, feel free to respond with less than 3 articles or no articles at all.
 Do not make up facts about the article contents, accuracy is more important than recommending an article at all costs.
 Limit your response to 3 choices.
-For each choice, the output should should be:
+For each choice, the output format should be:
 1. Title
 2. Author
-3. Your reasoning
-4. URL
+3. Relevance
+4. Article URL
+
+Use Markdown formatting for highlighting certain parts of your response.
 
 Description of what I'm looking for:
 { description }

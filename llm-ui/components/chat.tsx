@@ -101,7 +101,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         </div>
         <div
           className={cn(
-            "bg-background fixed inset-y-0 right-0 top-16 w-80 border-l",
+            "bg-muted/50 fixed inset-y-0 right-0 top-16 w-80 border-l",
             className
           )}
         >

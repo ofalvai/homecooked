@@ -10,6 +10,7 @@ import {
   ChevronsUpDown,
   CheckCircle2
 } from "lucide-react"
+import { FormattedOutput } from "./output"
 
 export function ToolEventList(props: { events: ToolEvent[] }) {
   return (
@@ -53,9 +54,7 @@ export function ToolEventComponent(props: {
       )
     case "output":
       return (
-        <div className="m-4 whitespace-pre-wrap leading-relaxed">
-          {props.event.content}
-        </div>
+        <FormattedOutput content={props.event.content} />
       )
     case "intermediate_output":
       return (
@@ -65,7 +64,7 @@ export function ToolEventComponent(props: {
             <span className="sr-only">Toggle</span>
             <span className="align-middle">{props.event.label}</span>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mx-4 whitespace-pre-wrap py-2 leading-normal">
+          <CollapsibleContent className="prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 mx-4 whitespace-pre-wrap break-words py-2">
             {props.event.content}
           </CollapsibleContent>
         </Collapsible>
