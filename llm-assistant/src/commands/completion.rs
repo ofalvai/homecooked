@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::templates::read_template;
 use crate::{models::get_client, output::print_completion_stream};
 
 use anyhow::Context;
@@ -8,7 +9,6 @@ use llm_toolkit::{
     template::{render_prompt, TemplateContext},
 };
 use owo_colors::OwoColorize;
-use serde::Deserialize;
 
 pub async fn completion(
     config: Config,
@@ -21,8 +21,9 @@ pub async fn completion(
     let mut model = model.unwrap_or("gpt-3.5-turbo".to_string());
 
     match template {
-        Some(template_name) => {
-            let template = read_template(template_name).context("Cannot read template")?;
+        Some(template_id) => {
+            let template = read_template(&config.template_file, template_id)
+                .context("Cannot read template")?;
             let ctx = TemplateContext { input: user_prompt };
             user_prompt = render_prompt(&template.prompt, &ctx).context("Cannot render prompt")?;
 
@@ -59,19 +60,4 @@ pub async fn completion(
     // println!("response: {:?}", response);
 
     Ok(())
-}
-
-#[derive(Debug, Deserialize)]
-struct Template {
-    prompt: String,
-    model: Option<String>,
-}
-
-const TEMPLATE_FOLDER: &str = "templates";
-
-fn read_template(name: String) -> anyhow::Result<Template> {
-    let path = format!("{}/{}.yml", TEMPLATE_FOLDER, name);
-    let template = std::fs::read_to_string(&path)?;
-    let template: Template = serde_yaml::from_str(&template)?;
-    Ok(template)
 }

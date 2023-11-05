@@ -11,7 +11,7 @@ pub struct Config {
     pub readwise_api_key: String,
 
     pub persona_file: PathBuf,
-    pub template_dir: PathBuf,
+    pub template_file: PathBuf,
 }
 
 pub fn load_config(path: Option<String>) -> anyhow::Result<Config> {
@@ -40,16 +40,16 @@ pub fn load_config(path: Option<String>) -> anyhow::Result<Config> {
     let persona_file = config
         .get("content", "persona_file")
         .context("Can't find persona_file field in config.ini")?;
-    let template_dir = config
-        .get("content", "template_dir")
-        .context("Can't find template_dir field in config.ini")?;
+    let template_file = config
+        .get("content", "template_file")
+        .context("Can't find template_file field in config.ini")?;
 
     Ok(Config {
         openai_api_key,
         anthropic_api_key,
         readwise_api_key,
         persona_file: load_config_path(&config_path, &persona_file),
-        template_dir: load_config_path(&config_path, &template_dir),
+        template_file: load_config_path(&config_path, &template_file),
     })
 }
 

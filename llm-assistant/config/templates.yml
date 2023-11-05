@@ -1,0 +1,86 @@
+templates:
+- id: alt
+  label: Alternative
+  prompt: >
+    Give me 10 alternative versions of the concept. Ensure that the alternatives are all distinct from one another.
+
+    Concept: {input}
+
+    Alternatives:
+
+- id: ask_questions
+  label: Ask me questions
+  prompt: >
+    {input}
+    This is what I want you to do, but I am not sure how to go about doing this, so you need to ask me the questions to find out.
+
+- id: breakdown
+  label: Task breakdown
+  prompt: >
+    Make the following task more actionable by breaking down into subtasks: {input}
+    Respond with Markdown-formatted checkbox list items.
+
+- id: debate
+  label: Debate
+  prompt: >
+    Take a stance on the topic and argue for it.
+
+    Construct a convincing argument and provide evidence to support your stance.
+
+    Topic: {input}
+
+    Argument:
+
+- id: git
+  label: Git command
+  prompt: >
+    Translate the text to Git commands. Only reply one unique code block, and nothing else. Do not write explanations.
+
+    Text: {input}
+
+    Git commands:
+
+- id: identity_expert
+  label: "Identity: expert"
+  prompt: You are a world-class expert in {topic}. Use your expertise to answer the following question by thinking step by step. Take pride in your work and give it your best effort.
+
+- id: pro_con
+  label: Pros and cons
+  prompt: >
+    List pros and cons of a concept based on the topics mentioned.
+    Format the response as a markdown list of pros and cons.
+    Do not provide any other commentary.
+
+    Concept: {input}
+
+    Pros and cons:
+
+- id: rephrase_question
+  label: Rephrase as question
+  prompt: >
+    Rewrite the following text as a concise, polite and friendly message. This should be written in a way that it can be sent in a chat application like Slack or as an email reply. Do not include a greeting or a signature.
+
+    Text: {input}
+
+    Message:
+
+- id: slackify
+  label: Slackify
+  prompt: >
+    Format an announcement to make it easier to skim the important parts.
+    Add emojis and Markdown formatting (italics and bold) to highlight certain parts of the text.
+    DO NOT change the wording or rephrase the text, the meaning MUST remain the same.
+
+    The announcement is below:
+
+    {input}
+
+- id: text_analysis
+  label: Text analysis
+  prompt: >
+    Analyze the following text and provide insights on its tone, style, and potential audience.
+
+    Text:
+    {input}
+
+    Analysis:

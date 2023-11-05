@@ -1,7 +1,0 @@
-prompt: >
-  Rewrite the following text as a concise, polite and friendly message. This should be written in a way that it can be sent in a chat application like Slack or as an email reply. Do not include a greeting or a signature.
-
-  Text: {input}
-
-  Message:
-  

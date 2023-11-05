@@ -7,6 +7,7 @@ mod config;
 mod models;
 mod output;
 mod server;
+mod templates;
 mod tools;
 
 #[derive(Parser)]

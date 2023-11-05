@@ -42,6 +42,16 @@ export interface Personas {
   personas: Persona[]
 }
 
+export interface Spell {
+  id: string
+  label: string
+  prompt: string
+}
+
+export interface Spells {
+  templates: Spell[]
+}
+
 export interface YoutubeSummaryRequest {
   url: string
   prompt: string | undefined

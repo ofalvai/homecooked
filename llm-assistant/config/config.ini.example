@@ -5,4 +5,4 @@ readwise_api_key=TODO
 
 [content]
 persona_file=relative/path/personas.yml
-template_dir=/absolute/path/
+template_file=/absolute/path/templates.yml
