@@ -1,5 +1,3 @@
-"use client"
-
 import { notFound } from "next/navigation"
 
 import { getChat } from "@/app/actions"

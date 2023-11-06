@@ -1,4 +1,3 @@
-"use client";
 import { getChats, removeChat } from '@/app/actions'
 import { SidebarActions } from '@/components/sidebar-actions'
 import { SidebarItem } from '@/components/sidebar-item'
