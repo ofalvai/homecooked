@@ -23,7 +23,7 @@ export interface ChatProps extends React.ComponentProps<"div"> {
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
   const defaultParams: ChatParams = {
-    model: "claude-instant",
+    model: "gpt-3.5-turbo-1106",
     maxLength: 512,
     temp: "medium",
     systemPrompt: "You are a helpful assistant."

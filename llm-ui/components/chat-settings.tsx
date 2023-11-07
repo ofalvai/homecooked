@@ -68,8 +68,8 @@ export function ChatSettings({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>OpenAI</SelectLabel>
-            <SelectItem value="gpt-3.5-turbo">GPT 3.5 Turbo</SelectItem>
-            <SelectItem value="gpt-3.5-turbo-16k">GPT 3.5 Turbo 16K</SelectItem>
+            <SelectItem value="gpt-3.5-turbo-1106">GPT 3.5 Turbo</SelectItem>
+            <SelectItem value="gpt-4-1106-preview">GPT 4 Turbo</SelectItem>
             <SelectItem value="gpt-4">GPT 4</SelectItem>
           </SelectGroup>
           <SelectGroup>

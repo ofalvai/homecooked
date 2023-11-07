@@ -7,7 +7,7 @@ pub fn get_client(
     config: &Config,
 ) -> anyhow::Result<Box<dyn Client + Send + Sync>> {
     let client: Box<dyn Client + Send + Sync> = match model_name {
-        "gpt3" | "gpt-3" | "gpt-3.5" | "gpt-3.5-turbo" => {
+        "gpt3" | "gpt-3" | "gpt-3.5" | "gpt-3.5-turbo" | "gpt-3.5-turbo-1106" => {
             let config = openai::OpenAIConfig {
                 model: openai::Model::Gpt35Turbo,
                 api_key: config.openai_api_key.clone(),
@@ -15,9 +15,9 @@ pub fn get_client(
             };
             Box::new(openai::OpenAIClient::with_config(config))
         }
-        "16k" | "gpt-3.5-turbo-16k" => {
+        "gpt-4-turbo" | "gpt-4-1106-preview" => {
             let config = openai::OpenAIConfig {
-                model: openai::Model::Gpt35Turbo16K,
+                model: openai::Model::Gpt4Turbo,
                 api_key: config.openai_api_key.clone(),
                 ..Default::default()
             };
