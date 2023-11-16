@@ -30,7 +30,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
   }
   const [chatParams, setChatParams] = useState(defaultParams)
 
-  const { messages, append, reload, stop, isLoading, input, setInput, error } =
+  const { messages, setMessages, append, reload, stop, isLoading, input, setInput, error } =
     useChat({
       api: "/api/chat",
       initialMessages,
@@ -80,7 +80,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
         <div className={cn("flex-1 pb-[200px] pr-80 pt-4 md:pt-10", className)}>
           {messages.length ? (
             <>
-              <ChatList messages={messages} model={chatParams.model} />
+              <ChatList messages={messages} setMessages={setMessages} model={chatParams.model} />
               <ChatScrollAnchor trackVisibility={isLoading} />
             </>
           ) : (
