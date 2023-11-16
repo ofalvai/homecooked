@@ -1,17 +1,24 @@
 use llm_toolkit::provider::{anthropic, openai, Client};
 
-pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
-    let client: Box<dyn Client> = match model_name {
-        "gpt3" | "gpt-3" | "gpt-3.5" | "gpt-3.5-turbo" => {
+use crate::config::Config;
+
+pub fn get_client(
+    model_name: &str,
+    config: &Config,
+) -> anyhow::Result<Box<dyn Client + Send + Sync>> {
+    let client: Box<dyn Client + Send + Sync> = match model_name {
+        "gpt3" | "gpt-3" | "gpt-3.5" | "gpt-3.5-turbo" | "gpt-3.5-turbo-1106" => {
             let config = openai::OpenAIConfig {
                 model: openai::Model::Gpt35Turbo,
+                api_key: config.openai_api_key.clone(),
                 ..Default::default()
             };
             Box::new(openai::OpenAIClient::with_config(config))
         }
-        "16k" | "gpt-3.5-turbo-16k" => {
+        "gpt-4-turbo" | "gpt-4-1106-preview" => {
             let config = openai::OpenAIConfig {
-                model: openai::Model::Gpt35Turbo16K,
+                model: openai::Model::Gpt4Turbo,
+                api_key: config.openai_api_key.clone(),
                 ..Default::default()
             };
             Box::new(openai::OpenAIClient::with_config(config))
@@ -19,6 +26,7 @@ pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
         "gpt4" | "gpt-4" => {
             let config = openai::OpenAIConfig {
                 model: openai::Model::Gpt4,
+                api_key: config.openai_api_key.clone(),
                 ..Default::default()
             };
             Box::new(openai::OpenAIClient::with_config(config))
@@ -26,6 +34,7 @@ pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
         "claude" | "claude-instant" | "claude-instant-1" => {
             let config = anthropic::AnthropicConfig {
                 model: anthropic::Model::ClaudeInstant1,
+                api_key: config.anthropic_api_key.clone(),
                 ..Default::default()
             };
             Box::new(anthropic::AnthropicClient::with_config(config))
@@ -33,6 +42,7 @@ pub fn get_client(model_name: &str) -> anyhow::Result<Box<dyn Client>> {
         "claude-2" | "claude2" => {
             let config = anthropic::AnthropicConfig {
                 model: anthropic::Model::Claude2,
+                api_key: config.anthropic_api_key.clone(),
                 ..Default::default()
             };
             Box::new(anthropic::AnthropicClient::with_config(config))

@@ -1,8 +1,0 @@
-prompt: >
-  Format a piece of message to make it easier to skim the important parts.
-  Add emojis and Markdown formatting (italics and bold) to highlight certain parts of the text.
-  DO NOT change the wording or rephrase the text.
-
-  The message is below:
-
-  {input}

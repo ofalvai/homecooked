@@ -24,8 +24,8 @@ use super::{
 #[derive(Debug)]
 pub enum Model {
     Gpt35Turbo,
-    Gpt35Turbo16K,
     Gpt4,
+    Gpt4Turbo,
     Custom(String),
 }
 
@@ -42,9 +42,9 @@ pub struct OpenAIClient {
 impl Model {
     fn model_id(&self) -> &str {
         match self {
-            Model::Gpt35Turbo => "gpt-3.5-turbo",
-            Model::Gpt35Turbo16K => "gpt-3.5-turbo-16k",
+            Model::Gpt35Turbo => "gpt-3.5-turbo-1106",
             Model::Gpt4 => "gpt-4",
+            Model::Gpt4Turbo => "gpt-4-1106-preview",
             Model::Custom(model) => model,
         }
     }
@@ -56,7 +56,7 @@ impl FromStr for Model {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "gpt-3.5-turbo" => Ok(Model::Gpt35Turbo),
-            "gpt-3.5-turbo-16k" => Ok(Model::Gpt35Turbo16K),
+            "gpt-4-1106-preview" => Ok(Model::Gpt4Turbo),
             "gpt-4" => Ok(Model::Gpt4),
             model => Ok(Model::Custom(model.to_string())),
         }
