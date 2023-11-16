@@ -5,9 +5,10 @@ use std::{fmt::Display, str::FromStr};
 use async_openai::{
     error::OpenAIError,
     types::{
-        ChatCompletionRequestMessage, ChatCompletionRequestMessageArgs,
+        ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
+        ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
         CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
-        CreateChatCompletionStreamResponse,
+        CreateChatCompletionStreamResponse, ChatCompletionRequestUserMessageContent,
     },
 };
 use async_trait::async_trait;
@@ -206,30 +207,32 @@ fn completion_request(
 ) -> Result<CreateChatCompletionRequest, CompletionError> {
     let mapped_messages: Vec<ChatCompletionRequestMessage> = messages
         .into_iter()
-        .filter_map(|message| {
-            let role = match message.role {
-                Role::System => async_openai::types::Role::System,
-                Role::User => async_openai::types::Role::User,
-                Role::Assistant => async_openai::types::Role::Assistant,
-            };
-            let args = ChatCompletionRequestMessageArgs::default()
-                .content(message.content.clone())
-                .role(role)
-                .build();
-            match args {
-                Ok(args) => Some(args),
-                Err(_) => {
-                    // TODO
-                    None
+        .map(|message| {
+            match message.role {
+                Role::System => {
+                    let args = ChatCompletionRequestSystemMessageArgs::default()
+                        .content(message.content)
+                        .build()
+                        .unwrap(); // TODO: proper error handling
+                    ChatCompletionRequestMessage::System(args)
+                }
+                Role::User => {
+                    let args = ChatCompletionRequestUserMessageArgs::default()
+                        .content(message.content)
+                        .build()
+                        .unwrap();
+                    ChatCompletionRequestMessage::User(args)
+                }
+                Role::Assistant => {
+                    let args = ChatCompletionRequestAssistantMessageArgs::default()
+                        .content(message.content)
+                        .build()
+                        .unwrap();
+                    ChatCompletionRequestMessage::Assistant(args)
                 }
             }
         })
         .collect();
-
-    mapped_messages.iter().for_each(|m| {
-        let role = m.role.to_string();
-        info!("{}: {}", m.role.to_string(), m.content.as_ref().unwrap());
-    });
 
     let request = CreateChatCompletionRequestArgs::default()
         .messages(mapped_messages)
