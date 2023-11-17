@@ -10,7 +10,7 @@ llama-cpp = ["dep:rs-llama-cpp"]
 reqwest = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
-async-openai = "0.16.2"
+async-openai = "0.16.3"
 async-trait = "0.1.73"
 thiserror = "1.0.50"
 article_scraper = "2.0.0"
