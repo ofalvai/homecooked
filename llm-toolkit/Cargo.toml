@@ -11,7 +11,7 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
 async-openai = "0.16.3"
-async-trait = "0.1.73"
+async-trait = "0.1.74"
 thiserror = "1.0.50"
 article_scraper = "2.0.0"
 url = { workspace = true }
