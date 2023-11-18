@@ -20,7 +20,7 @@ jobs:
         with:
           version: latest
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Run build
         run: earthly --org ofalvai --sat homecooked --ci +build-all
