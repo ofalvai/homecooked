@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM rust:1.72-slim
+FROM rust:1.74-slim
 WORKDIR /homecooked
 RUN apt-get update && apt-get install -y pkg-config libxml2-dev libssl-dev
 
@@ -26,6 +26,8 @@ build-cache:
     SAVE ARTIFACT $CARGO_HOME cargo_home
 
 build-all:
+    BUILD ./llm-ui+build
+
     COPY --dir embeddings/src embeddings/Cargo.toml embeddings/
     COPY --dir focus/src focus/Cargo.toml focus/
     COPY --dir gardener/src gardener/Cargo.toml gardener/
