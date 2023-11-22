@@ -3,7 +3,7 @@ use std::{fmt::Display, str::FromStr};
 use anthropic::error::AnthropicError;
 use async_trait::async_trait;
 use futures::{future, StreamExt};
-use log::warn;
+use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -138,8 +138,10 @@ impl Client for AnthropicClient {
             Ok(client) => client,
             Err(err) => return Err(CompletionError::InvalidArgument(err.to_string())),
         };
+        let prompt = make_prompt(conversation.messages);
+        debug!("prompt: \n{}", prompt);
         let request = match anthropic::types::CompleteRequestBuilder::default()
-            .prompt(make_prompt(conversation.messages))
+            .prompt(prompt)
             .model(self.config.model.to_string())
             // TODO: set temp
             .stream(true)
@@ -186,10 +188,7 @@ fn make_prompt(messages: Vec<Message>) -> String {
         .into_iter()
         .map(|m| {
             let prefix = match m.role {
-                Role::System => {
-                    warn!("The system role is not supported by Anthropic. The message is going to be converted to a human prompt.");
-                    anthropic::HUMAN_PROMPT
-                },
+                Role::System => "",
                 Role::User => anthropic::HUMAN_PROMPT,
                 Role::Assistant => anthropic::AI_PROMPT,
             };
@@ -254,6 +253,28 @@ mod tests {
             "Here's a silly joke for you:\n\nWhy was the math book sad? Because it had too many problems!",
             anthropic::HUMAN_PROMPT,
             "Tell me another",
+            anthropic::AI_PROMPT,
+        );
+        assert_eq!(make_prompt(messages), expected_output);
+    }
+
+    #[test]
+    fn test_make_system_prompt() {
+        let messages: Vec<Message> = vec![
+            Message {
+                role: Role::System,
+                content: "You are a helpful assistant.".to_string(),
+            },
+            Message {
+                role: Role::User,
+                content: "Tell me a joke".to_string(),
+            },
+        ];
+        let expected_output = format!(
+            "{}{}{}{}",
+            "You are a helpful assistant.",
+            anthropic::HUMAN_PROMPT,
+            "Tell me a joke",
             anthropic::AI_PROMPT,
         );
         assert_eq!(make_prompt(messages), expected_output);
