@@ -11,9 +11,7 @@ services:
       - "8080:8080"
 
   llm-ui:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.llm-ui
+    image: ghcr.io/ofalvai/homecooked-llm-ui:latest
     environment:
       - LLM_API_BASE_URL=${LLM_UI_API_BASE_URL}
     ports:
