@@ -1301,9 +1301,9 @@ dependencies = [
 
 [[package]]
 name = "eyre"
-version = "0.6.8"
+version = "0.6.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c2b6b5a29c02cdc822728b7d7b8ae1bab3e3b05d44522770ddd49722eeac7eb"
+checksum = "b6267a1fa6f59179ea4afc8e50fd8612a3cc60bc858f786ff877a4a8cb042799"
 dependencies = [
  "indenter",
  "once_cell",
@@ -2304,9 +2304,9 @@ dependencies = [
 
 [[package]]
 name = "obsidian-export"
-version = "22.11.0"
+version = "23.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0cd271fa48112c4f80cd966bf6983573faf7fe1cd62a3b717fd5c08da14b119"
+checksum = "1ba75c8065818a173251426e0b9795f5b8d8fd53a305f0fcd583720242553831"
 dependencies = [
  "eyre",
  "gumdrop",
@@ -2557,9 +2557,9 @@ dependencies = [
 
 [[package]]
 name = "pulldown-cmark-to-cmark"
-version = "10.0.4"
+version = "11.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0194e6e1966c23cc5fd988714f85b18d548d773e81965413555d96569931833d"
+checksum = "a883e495f8fc4f209521b03a89dde6f6f211ed7cf92e85693c82508e8b722710"
 dependencies = [
  "pulldown-cmark",
 ]
