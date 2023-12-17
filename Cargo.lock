@@ -382,7 +382,7 @@ dependencies = [
 [[package]]
 name = "anthropic"
 version = "0.0.7"
-source = "git+https://github.com/ofalvai/anthropic-rs.git?branch=ofalvai/dep-prune#1f716bb11ecaed90e196159738a69a24a4647573"
+source = "git+https://github.com/ofalvai/anthropic-rs.git?branch=main#c3d48caad57a26dbcbe37c63299a451cc1cc7254"
 dependencies = [
  "backoff",
  "config",
