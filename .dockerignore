@@ -6,3 +6,6 @@ docker/
 gardener/output/
 llm-ui/.next/
 llm-ui/node_modules/
+renovate.json
+README.md
+docker-compose.yml

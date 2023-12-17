@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  # Don't overwhelm the small Earthly satellite with concurrent builds
+  group: earthly-satellite
+
 jobs:
   build:
     runs-on: ubuntu-latest
