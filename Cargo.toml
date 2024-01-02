@@ -22,7 +22,7 @@ ignore = "0.4.21"
 
 futures = "0.3.29"
 directories = "5.0.1"
-configparser = "3.0.3"
+configparser = "3.0.4"
 reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls", "json"] }
 lazy_static = "1.4.0"
 url = "2.5.0"
