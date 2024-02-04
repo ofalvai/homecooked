@@ -15,7 +15,7 @@ serde = { workspace = true }
 url = { workspace = true }
 serde_yaml = "0.9.27"
 simplelog = { version = "^0.12.1" }
-actix-web = { version = "4.4.0", default-features = false, features = ["macros", "compress-gzip"]}
+actix-web = { version = "4.5.1", default-features = false, features = ["macros", "compress-gzip"]}
 actix-web-lab = "0.20.1"
 uuid = { version = "1.6.1", features = ["v4"] }
 serde_json = { workspace = true }
