@@ -9,7 +9,7 @@ use ignore::Walk;
 
 use lazy_static::lazy_static;
 use owo_colors::OwoColorize;
-use tiktoken_rs::{get_bpe_from_model, CoreBPE};
+use tiktoken_rs::{get_bpe_from_tokenizer, CoreBPE};
 
 use crate::{
     config::{self, Config, MAX_TOKENS},
@@ -17,7 +17,7 @@ use crate::{
 };
 
 lazy_static! {
-    pub static ref TOKENIZER: CoreBPE = get_bpe_from_model(config::EMBEDDING_MODEL).unwrap();
+    pub static ref TOKENIZER: CoreBPE = get_bpe_from_tokenizer(config::TOKENIZER).unwrap();
 }
 
 pub struct Note {

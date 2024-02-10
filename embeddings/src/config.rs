@@ -3,11 +3,13 @@ use std::{collections::HashMap, path::PathBuf};
 use anyhow::Context;
 use configparser::ini::Ini;
 use directories::ProjectDirs;
+use tiktoken_rs::tokenizer::Tokenizer;
 
-pub const EMBEDDING_MODEL: &str = "text-embedding-ada-002";
+pub const EMBEDDING_MODEL: &str = "text-embedding-3-large";
+pub const TOKENIZER: Tokenizer = Tokenizer::Cl100kBase;
 pub const MAX_TOKENS: usize = 8191;
-pub const EMBEDDING_DIM: usize = 1536;
-pub const COST_PER_TOKEN: f64 = 0.0001 / 1000.0;
+pub const EMBEDDING_DIM: usize = 3072;
+pub const COST_PER_TOKEN: f64 = 0.00013 / 1000.0;
 
 const EMBEDDING_FILE: &str = "embeddings.msgpack";
 
