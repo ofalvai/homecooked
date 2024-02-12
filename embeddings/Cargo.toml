@@ -19,7 +19,7 @@ async-openai = "0.17.1"
 rmp-serde = "1.1.2"
 tiktoken-rs = { version = "0.5.7", default-features = false }
 try-partialord = "0.1.3"
-crc32fast = { default-features = false, version = "1.3.2" }
+crc32fast = { default-features = false, version = "1.4.0" }
 shellexpand = "3.1.0"
 dialoguer = { version = "0.11.0", default-features = false, features = ["fuzzy-select"] }
 urlencoding = "2.1.3"
