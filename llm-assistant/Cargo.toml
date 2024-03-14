@@ -25,4 +25,4 @@ thiserror = "1.0.51"
 log = "0.4.20"
 configparser = { workspace = true }
 directories = { workspace = true }
-tokio-stream = "0.1.14"
+tokio-stream = "0.1.15"
