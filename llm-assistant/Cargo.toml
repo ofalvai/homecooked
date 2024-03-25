@@ -13,7 +13,7 @@ tokio = { version = "1.35.0", features = ["rt", "sync"] }
 futures = { workspace = true }
 serde = { workspace = true }
 url = { workspace = true }
-serde_yaml = "0.9.27"
+serde_yaml = "0.9.34"
 simplelog = { version = "^0.12.1" }
 actix-web = { version = "4.4.0", default-features = false, features = ["macros", "compress-gzip"]}
 actix-web-lab = "0.20.1"
