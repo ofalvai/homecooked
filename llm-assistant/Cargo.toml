@@ -9,7 +9,7 @@ llm-toolkit = { path = "../llm-toolkit" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 owo-colors = { workspace = true }
-tokio = { version = "1.35.0", features = ["rt", "sync"] }
+tokio = { version = "1.37.0", features = ["rt", "sync"] }
 futures = { workspace = true }
 serde = { workspace = true }
 url = { workspace = true }

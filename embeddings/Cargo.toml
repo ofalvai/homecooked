@@ -14,7 +14,7 @@ serde_json = { workspace = true }
 owo-colors = { workspace = true }
 directories = { workspace = true }
 configparser = { workspace = true }
-tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.37.0", features = ["macros", "rt-multi-thread"] }
 async-openai = "0.17.1"
 rmp-serde = "1.1.2"
 tiktoken-rs = { version = "0.5.7", default-features = false }
