@@ -217,9 +217,9 @@ dependencies = [
 
 [[package]]
 name = "actix-web-lab"
-version = "0.20.1"
+version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6ddd78b365b70614e27f49a128ab8edba32bbc8f9b2abb1fbe07f15dd48cfab"
+checksum = "7675c1a84eec1b179c844cdea8488e3e409d8e4984026e92fa96c87dd86f33c6"
 dependencies = [
  "actix-http",
  "actix-router",
@@ -1935,9 +1935,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.11.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
 dependencies = [
  "either",
 ]
