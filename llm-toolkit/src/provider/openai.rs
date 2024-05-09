@@ -7,8 +7,8 @@ use async_openai::{
     types::{
         ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
         ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
-        CreateChatCompletionRequest, CreateChatCompletionRequestArgs,
-        CreateChatCompletionStreamResponse, ChatCompletionRequestUserMessageContent,
+        ChatCompletionRequestUserMessageContent, CreateChatCompletionRequest,
+        CreateChatCompletionRequestArgs, CreateChatCompletionStreamResponse,
     },
 };
 use async_trait::async_trait;
