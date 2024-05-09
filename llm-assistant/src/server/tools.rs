@@ -62,11 +62,7 @@ async fn readwise(
     req: web::Json<ReadwiseRequest>,
     data: web::Data<AppState>,
 ) -> Result<impl Responder, LlmError> {
-    let stream = tools::readwise::run(
-        data.config.clone(),
-        req.query.clone(),
-    )
-    .map(map_to_sse);
+    let stream = tools::readwise::run(data.config.clone(), req.query.clone()).map(map_to_sse);
 
     Ok(sse::Sse::from_stream(stream).with_keep_alive(STREAM_KEEPALIVE))
 }

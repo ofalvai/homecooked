@@ -32,10 +32,8 @@ pub async fn start(config: Config, port: Option<u16>) -> anyhow::Result<()> {
             .service(tools::youtube)
             .service(tools::web_page)
             .service(tools::readwise)
-            .service(Files::new(
-                "/config",
-                config.persona_file.parent().unwrap(),
-            )) // TODO: make this more robust
+            .service(Files::new("/config", config.persona_file.parent().unwrap()))
+        // TODO: make this more robust
     })
     .bind(("0.0.0.0", port.unwrap_or(8080)))?
     .run()

@@ -116,10 +116,7 @@ fn print_output(output: &Output) {
         Some(val) => format!("{val}%"),
         None => String::from("not available"),
     };
-    println!(
-        "Packet loss:\t\t{}",
-        packet_loss_value.yellow()
-    );
+    println!("Packet loss:\t\t{}", packet_loss_value.yellow());
     println!(
         "Idle latency:\t\t{} ({}/{}) {}",
         format!("{:.0}ms", output.ping.latency).yellow(),

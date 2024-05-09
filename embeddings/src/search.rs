@@ -3,7 +3,7 @@ use std::{path::PathBuf, str::FromStr, time::Instant};
 use anyhow::Context;
 use owo_colors::OwoColorize;
 
-use async_openai::{types::CreateEmbeddingRequestArgs, Client, config::OpenAIConfig};
+use async_openai::{config::OpenAIConfig, types::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{
@@ -116,8 +116,13 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
         .build()?;
 
     let response = client.embeddings().create(request).await?;
-    let embedding = response.data.first().context("No embedding returned")?.embedding.to_owned();
-    Ok(embedding)
+    let embedding = response
+        .data
+        .first()
+        .context("No embedding returned")?
+        .embedding
+        .to_owned();
+    return Ok(embedding);
 }
 
 pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {

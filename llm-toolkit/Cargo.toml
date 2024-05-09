@@ -22,3 +22,4 @@ log = "0.4.20"
 anthropic = { git = "https://github.com/ofalvai/anthropic-rs.git", branch = "main" }
 youtube-transcript = { git = "https://github.com/akhildevelops/summarizer", branch = "main" }
 html-escape = "0.2.13"
+homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
