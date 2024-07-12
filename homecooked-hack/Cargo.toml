@@ -80,4 +80,17 @@ libc = { version = "0.2", default-features = false, features = ["extra_traits"] 
 once_cell = { version = "1", features = ["unstable"] }
 rustix = { version = "0.38", features = ["fs"] }
 
+[target.aarch64-unknown-linux-gnu.dependencies]
+futures-channel = { version = "0.3" }
+getrandom = { version = "0.2", default-features = false, features = ["std"] }
+miniz_oxide = { version = "0.7", features = ["simd"] }
+native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
+once_cell = { version = "1", features = ["unstable"] }
+simd-adler32 = { version = "0.3" }
+spin = { version = "0.9" }
+tokio-util = { version = "0.7", features = ["codec", "io-util"] }
+
+[target.aarch64-unknown-linux-gnu.build-dependencies]
+once_cell = { version = "1", features = ["unstable"] }
+
 ### END HAKARI SECTION
