@@ -2001,6 +2001,7 @@ dependencies = [
  "security-framework-sys",
  "serde",
  "simd-adler32",
+ "spin",
  "syn 1.0.109",
  "syn 2.0.39",
  "tokio",
