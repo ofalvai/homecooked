@@ -26,3 +26,4 @@ log = "0.4.20"
 configparser = { workspace = true }
 directories = { workspace = true }
 tokio-stream = "0.1.14"
+homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
