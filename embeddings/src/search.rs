@@ -75,7 +75,7 @@ pub fn related(config: &Config, note_path: &Option<String>) -> anyhow::Result<()
     } else {
         note_path.with_extension("md")
     };
-    let abs_path = config.notes_root.join(note_path.to_path_buf());
+    let abs_path = config.notes_root.join(&note_path);
     let note = file_to_note(&abs_path, &config.notes_root)?;
 
     let mut embeddings: Vec<Embedding> =
@@ -116,8 +116,8 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
         .build()?;
 
     let response = client.embeddings().create(request).await?;
-    let embedding = response.data.get(0).context("No embedding returned")?.embedding.to_owned();
-    return Ok(embedding);
+    let embedding = response.data.first().context("No embedding returned")?.embedding.to_owned();
+    Ok(embedding)
 }
 
 fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {

@@ -32,7 +32,7 @@ pub fn collect_notes(root: &Path) -> Vec<Note> {
         .filter_map(|file| match file_to_note(&file, root) {
             Ok(note) => Some(note),
             Err(err) => {
-                println!("Failed to parse note: {:?}", file);
+                println!("Failed to parse note: {file:?}");
                 println!("Error: {}", err.red());
                 None
             }

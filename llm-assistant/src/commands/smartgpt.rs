@@ -80,17 +80,17 @@ pub async fn prompt(config: Config, prompt: String, model: Option<String>) -> an
 
     let mut options = Vec::<String>::new();
     for i in 0..N_OPTION {
-        let option = generate_option(&client, prompt.clone()).await?;
+        let option = generate_option(client.as_ref(), prompt.clone()).await?;
         println!("{}", format!("Option {}:", i + 1).green());
         println!("{}", option.yellow());
         options.push(option);
     }
 
-    let reflection = generate_reflection(&client, prompt.clone(), options.clone()).await?;
+    let reflection = generate_reflection(client.as_ref(), prompt.clone(), options.clone()).await?;
     println!("\n\n{}", "Reflection:".green());
     println!("{}", reflection.yellow());
 
-    let resolver = generate_resolver_response(&client, prompt, options.clone(), reflection).await?;
+    let resolver = generate_resolver_response(client.as_ref(), prompt, options.clone(), reflection).await?;
     println!("\n\n{}", "Final answer:".green());
     println!("{}", resolver.yellow());
 
@@ -98,11 +98,11 @@ pub async fn prompt(config: Config, prompt: String, model: Option<String>) -> an
 }
 
 async fn generate_option(
-    client: &Box<dyn Client + Send + Sync>,
+    client: &(dyn Client + Send + Sync),
     prompt: String,
 ) -> anyhow::Result<String> {
     let ctx = TemplateContext { input: prompt };
-    let rendered_prompt = render_prompt(&PROMPT_OPTION, &ctx).context("prompt error")?;
+    let rendered_prompt = render_prompt(PROMPT_OPTION, &ctx).context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());
     let conversation = Conversation::new(rendered_prompt);
     let params = CompletionParams {
@@ -117,13 +117,13 @@ async fn generate_option(
 }
 
 async fn generate_reflection(
-    client: &Box<dyn Client + Send + Sync>,
+    client: &(dyn Client + Send + Sync),
     prompt: String,
     options: Vec<String>,
 ) -> anyhow::Result<String> {
     let ctx = ReflectionContext {
         n_option: options.len(),
-        prompt: prompt,
+        prompt,
         options: options.join("\n---ANSWER OPTION SEPARATOR---\n"), // TODO
     };
     let rendered_prompt = render(PROMPT_REFLECTION, ctx, "reflection").context("prompt error")?;
@@ -142,7 +142,7 @@ async fn generate_reflection(
 }
 
 async fn generate_resolver_response(
-    client: &Box<dyn Client + Send + Sync>,
+    client: &(dyn Client + Send + Sync),
     prompt: String,
     options: Vec<String>,
     critique: String,
@@ -154,9 +154,9 @@ async fn generate_resolver_response(
         .collect();
     let ctx = ResolverContext {
         n_option: options.len(),
-        prompt: prompt,
-        options: options,
-        critique: critique,
+        prompt,
+        options,
+        critique,
     };
     let rendered_prompt = render(PROMPT_RESOLVER, ctx, "resolver").context("prompt error")?;
     println!("{}", rendered_prompt.dimmed());

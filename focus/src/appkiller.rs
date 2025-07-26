@@ -8,7 +8,7 @@ pub fn kill_process(process: &str) {
     if output.status.success() {
         println!("{process} killed!");
     } else {
-        println!("{:?}", command);
+        println!("{command:?}");
         println!("Status: {}", output.status);
         println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
         println!("stderr: {}", String::from_utf8_lossy(&output.stderr));

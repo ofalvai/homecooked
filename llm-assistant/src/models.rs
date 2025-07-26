@@ -35,7 +35,6 @@ pub fn get_client(
             let config = anthropic::AnthropicConfig {
                 model: anthropic::Model::ClaudeInstant1,
                 api_key: config.anthropic_api_key.clone(),
-                ..Default::default()
             };
             Box::new(anthropic::AnthropicClient::with_config(config))
         }
@@ -43,7 +42,6 @@ pub fn get_client(
             let config = anthropic::AnthropicConfig {
                 model: anthropic::Model::Claude2,
                 api_key: config.anthropic_api_key.clone(),
-                ..Default::default()
             };
             Box::new(anthropic::AnthropicClient::with_config(config))
         }

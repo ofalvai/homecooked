@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use configparser::ini::Ini;
@@ -53,7 +53,7 @@ pub fn load_config(path: Option<String>) -> anyhow::Result<Config> {
     })
 }
 
-fn load_config_path(config_path: &PathBuf, path_str: &str) -> PathBuf {
+fn load_config_path(config_path: &Path, path_str: &str) -> PathBuf {
     let path_buf = PathBuf::from(path_str);
 
     if path_buf.is_absolute() {

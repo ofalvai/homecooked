@@ -66,7 +66,7 @@ pub fn run_measurement() -> anyhow::Result<Output> {
         .context("Failed to execute speedtest command")?;
     let raw_output = String::from_utf8_lossy(&command_output.stdout);
     let output: Output = serde_json::from_str(&raw_output)
-        .with_context(|| format!("Failed to parse JSON output: {}", raw_output))?;
+        .with_context(|| format!("Failed to parse JSON output: {raw_output}"))?;
 
     Ok(output)
 }

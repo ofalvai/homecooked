@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::fmt;
 
 use anyhow::Context;
 use dialoguer::{theme::ColorfulTheme, FuzzySelect, Input, Select};
@@ -13,12 +14,11 @@ pub struct NoteListItem {
     pub similarity: f32,
 }
 
-impl ToString for NoteListItem {
-    fn to_string(&self) -> String {
+impl fmt::Display for NoteListItem {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let title = self.note_path.file_stem().expect("File should have a name");
         let path = self.note_path.parent().unwrap_or(Path::new("."));
-        format!(
-            "{} {} {} [{}] ",
+        write!(f, "{} {} {} [{}] ",
             title.to_string_lossy().bold().bright_white(),
             "in".dimmed(),
             path.display().dimmed(),
@@ -27,10 +27,10 @@ impl ToString for NoteListItem {
     }
 }
 
-impl ToString for Note {
-    fn to_string(&self) -> String {
+impl fmt::Display for Note {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let path = self.path.parent().unwrap_or(Path::new("."));
-        format!("{} - {}", self.title, path.display(),)
+        write!(f, "{} - {}", self.title, path.display())
     }
 }
 
@@ -87,5 +87,5 @@ fn open_note(vault_name: &str, note_path: &Path) -> anyhow::Result<()> {
 fn obsidian_uri(vault_name: &str, note_path: &Path) -> String {
     let path_str = note_path.to_string_lossy();
     let encoded_path = encode(&path_str);
-    format!("obsidian://open?vault={}&file={}", vault_name, encoded_path)
+    format!("obsidian://open?vault={vault_name}&file={encoded_path}")
 }

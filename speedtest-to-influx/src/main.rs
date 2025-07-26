@@ -113,7 +113,7 @@ fn print_output(output: &Output) {
     //     Style::new().green()
     // };
     let packet_loss_value = match output.packet_loss {
-        Some(val) => format!("{}%", val),
+        Some(val) => format!("{val}%"),
         None => String::from("not available"),
     };
     println!(
@@ -149,5 +149,5 @@ fn print_output(output: &Output) {
 
 fn format_bandwidth(bytes: u32) -> String {
     let mbits = bytes as f32 * 8.0 / 1000.0 / 1000.0;
-    format!("{:.0} Mbit/s", mbits)
+    format!("{mbits:.0} Mbit/s")
 }

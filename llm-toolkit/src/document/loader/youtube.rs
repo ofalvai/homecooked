@@ -18,14 +18,14 @@ pub async fn fetch_transcript(url: String) -> Result<Transcript, super::LoadErro
             html_escape::decode_html_entities_to_string(t.text.replace("\n", " "), &mut cleaned);
             cleaned
         })
-        .reduce(|acc, e| format!("{} {}", acc, e))
+        .reduce(|acc, e| format!("{acc} {e}"))
         .ok_or(super::LoadError::ProcessingError(
             "no transcript chunks returned".to_string(),
         )) {
         Ok(t) => {
             debug!("Transcript length: {} chars", t.chars().count());
-            return Ok(Transcript { text: t });
+            Ok(Transcript { text: t })
         }
-        Err(e) => return Err(e),
-    };
+        Err(e) => Err(e),
+    }
 }

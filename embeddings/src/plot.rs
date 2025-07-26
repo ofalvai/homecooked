@@ -32,7 +32,7 @@ pub fn plot(config: &Config) -> anyhow::Result<()> {
         .map(|(i, vec)| {
             let path = &embeddings
                 .get(i)
-                .context(format!("Failed to get embedding at index {}", i))?
+                .context(format!("Failed to get embedding at index {i}"))?
                 .note_path;
             Ok(Note {
                 x: vec[0],
