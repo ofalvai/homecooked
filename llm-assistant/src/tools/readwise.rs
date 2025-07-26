@@ -125,7 +125,7 @@ async fn run_inner(
         label: "Generating final answer".to_string(),
     }))?;
     let ctx = FinalPromptContext {
-        description: description,
+        description,
         articles: document_ctx,
     };
 
@@ -141,7 +141,6 @@ async fn create_description(config: &Config, question: String) -> anyhow::Result
     let config = AnthropicConfig {
         model: Model::ClaudeInstant1,
         api_key: config.anthropic_api_key.clone(),
-        ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
     let params = CompletionParams {
@@ -199,7 +198,6 @@ async fn create_final_response(
     let config = AnthropicConfig {
         model: Model::Claude2,
         api_key: config.anthropic_api_key.clone(),
-        ..Default::default()
     };
     let client = AnthropicClient::with_config(config);
     let params = CompletionParams {

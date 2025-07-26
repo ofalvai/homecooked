@@ -1,6 +1,7 @@
 use log::debug;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 
 const LIST_URL: &str = "https://readwise.io/api/v3/list";
 
@@ -38,14 +39,14 @@ pub struct ReadwiseClient {
     token: String,
 }
 
-impl ToString for Location {
-    fn to_string(&self) -> String {
+impl fmt::Display for Location {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Location::New => "new".to_string(),
-            Location::Later => "later".to_string(),
-            Location::Shortlist => "shortlist".to_string(),
-            Location::Archive => "archive".to_string(),
-            Location::Feed => "feed".to_string(),
+            Location::New => write!(f, "new"),
+            Location::Later => write!(f, "later"),
+            Location::Shortlist => write!(f, "shortlist"),
+            Location::Archive => write!(f, "archive"),
+            Location::Feed => write!(f, "feed"),
         }
     }
 }

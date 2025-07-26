@@ -95,14 +95,14 @@ fn collect_referenced_files(path: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
             let dest_decoded = percent_decode_str(&dest).decode_utf8_lossy();
             let joined = parent.join(dest_decoded.as_ref());
             let canonical = fs::canonicalize(joined.clone())
-                .context(format!("Problem with path: {:?}", joined))?;
+                .context(format!("Problem with path: {joined:?}"))?;
             Ok(canonical)
         })
         .filter_map(|result| result.map_err(|e| errors.push(e)).ok())
         .collect();
 
     if !errors.is_empty() {
-        println!("Errors: {:?}", errors);
+        println!("Errors: {errors:?}");
     }
 
     Ok(files)

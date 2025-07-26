@@ -20,21 +20,18 @@ pub async fn completion(
     let mut user_prompt = user_prompt;
     let mut model = model.unwrap_or("gpt-3.5-turbo".to_string());
 
-    match template {
-        Some(template_id) => {
-            let template = read_template(&config.template_file, template_id)
-                .context("Cannot read template")?;
-            let ctx = TemplateContext { input: user_prompt };
-            user_prompt = render_prompt(&template.prompt, &ctx).context("Cannot render prompt")?;
+    if let Some(template_id) = template {
+        let template = read_template(&config.template_file, template_id)
+            .context("Cannot read template")?;
+        let ctx = TemplateContext { input: user_prompt };
+        user_prompt = render_prompt(&template.prompt, &ctx).context("Cannot render prompt")?;
 
-            if let Some(model_id) = template.model {
-                model = model_id;
-            }
-
-            println!("{}", format!("Model: {}", model.cyan()));
-            println!("Prompt: {}", user_prompt.dimmed());
+        if let Some(model_id) = template.model {
+            model = model_id;
         }
-        None => {}
+
+        println!("Model: {}", model.cyan());
+        println!("Prompt: {}", user_prompt.dimmed());
     };
 
     let conv = Conversation::new(user_prompt);

@@ -95,8 +95,7 @@ async fn get_embedding(client: &Client<OpenAIConfig>, input: String) -> anyhow::
 
     let response = client.embeddings().create(request).await?;
     let embedding = response
-        .data
-        .get(0)
+        .data.first()
         .context("No embedding returned")?
         .embedding
         .to_owned();
@@ -120,9 +119,7 @@ fn load_embeddings(path: &PathBuf) -> anyhow::Result<HashMap<PathBuf, Embedding>
 }
 
 fn save_embeddings(embeddings: &HashMap<PathBuf, Embedding>, path: &PathBuf) -> anyhow::Result<()> {
-    let embedding_list: Vec<Embedding> = embeddings
-        .iter()
-        .map(|(_, embedding)| embedding.clone())
+    let embedding_list: Vec<Embedding> = embeddings.values().cloned()
         .collect();
 
     let buf = rmp_serde::to_vec(&embedding_list)?;
@@ -160,7 +157,7 @@ pub fn prune(config: &Config) -> anyhow::Result<()> {
 
     println!();
     if removed_count > 0 {
-        println!("Sucessfully pruned {} embeddings", removed_count);
+        println!("Sucessfully pruned {removed_count} embeddings");
     } else {
         println!("There is nothing to prune at the moment.")
     }

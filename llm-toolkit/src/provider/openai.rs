@@ -195,7 +195,7 @@ fn map_stream_error(err: OpenAIError) -> CompletionError {
             CompletionError::ApiError("OpenAI".to_string(), error_str)
         }
         OpenAIError::StreamError(e) => CompletionError::StreamError(e),
-        _ => CompletionError::UnknownError(format!("unknown error: {}", err)),
+        _ => CompletionError::UnknownError(format!("unknown error: {err}")),
     }
 }
 
@@ -245,6 +245,6 @@ fn completion_request(
 
     match request {
         Ok(req) => Ok(req),
-        Err(err) => Err(CompletionError::InvalidArgument(format!("{}", err))),
+        Err(err) => Err(CompletionError::InvalidArgument(format!("{err}"))),
     }
 }

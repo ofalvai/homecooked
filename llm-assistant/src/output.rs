@@ -23,7 +23,7 @@ pub async fn print_completion_stream(
             Ok(resp) => {
                 write!(lock, "{}", resp.content.yellow())?;
             }
-            Err(e) => eprintln!("{}", e),
+            Err(e) => eprintln!("{e}"),
         }
         stdout().flush()?;
     }

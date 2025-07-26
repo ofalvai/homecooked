@@ -40,11 +40,11 @@ fn main() {
     match &cli.command {
         Commands::Export { root, destination } => match run_export(root, destination) {
             Ok(()) => println!("Success!"),
-            Err(e) => println!("{}", e),
+            Err(e) => println!("{e}"),
         },
         Commands::Clean { root, dry_run } => match run_clean(root, *dry_run) {
             Ok(()) => println!("Success"),
-            Err(e) => println!("{}", e),
+            Err(e) => println!("{e}"),
         },
     }
 }
