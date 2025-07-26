@@ -1173,9 +1173,9 @@ checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "duration-string"
-version = "0.3.0"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fcc1d9ae294a15ed05aeae8e11ee5f2b3fe971c077d45a42fb20825fba6ee13"
+checksum = "04782251e09dc67c90d694d89e9a3e5fc6cfe883df1b203202de672d812fb299"
 
 [[package]]
 name = "dyn-clone"
