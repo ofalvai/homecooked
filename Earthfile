@@ -1,5 +1,5 @@
 VERSION 0.7
-FROM rust:1.74-slim
+FROM rust:1.88-slim
 WORKDIR /homecooked
 RUN apt-get update && apt-get install -y pkg-config libxml2-dev libssl-dev
 
