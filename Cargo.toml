@@ -1,13 +1,17 @@
 [workspace]
+metadata.crane.name = "homecooked"
 members = [
     "focus",
     "gardener",
+    "homecooked-hack",
     "speedtest-to-influx",
     "embeddings",
     "llm-toolkit",
     "llm-assistant",
 ]
 resolver = "2"
+
+package.version = "0.1.0"
 
 [profile.release]
 # lto = true  # Enable link-time optimization.

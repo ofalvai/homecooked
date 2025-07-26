@@ -126,9 +126,7 @@ fn collect_files(root: &Path) -> Vec<PathBuf> {
             }
         })
         .filter(|entry| {
-            let extension = entry
-                .extension()
-                .unwrap_or(OsStr::new(""));
+            let extension = entry.extension().unwrap_or(OsStr::new(""));
             extension == "md"
         })
         .collect()

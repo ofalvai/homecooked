@@ -1201,6 +1201,7 @@ dependencies = [
  "crc32fast",
  "dialoguer",
  "directories",
+ "homecooked-hack",
  "ignore",
  "lazy_static",
  "open",
@@ -1362,6 +1363,9 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "focus"
 version = "0.1.0"
+dependencies = [
+ "homecooked-hack",
+]
 
 [[package]]
 name = "foreign-types"
@@ -1497,6 +1501,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "homecooked-hack",
  "ignore",
  "obsidian-export",
  "percent-encoding",
@@ -1654,6 +1659,53 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5444c27eef6923071f7ebcc33e3444508466a76f7a2b93da00ed6e19f30c1ddb"
 dependencies = [
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "homecooked-hack"
+version = "0.1.0"
+dependencies = [
+ "askama_escape",
+ "bitflags 2.4.1",
+ "bstr",
+ "chrono",
+ "clap",
+ "clap_builder",
+ "crc32fast",
+ "either",
+ "futures-channel",
+ "futures-core",
+ "futures-sink",
+ "futures-util",
+ "getrandom",
+ "libc",
+ "log",
+ "memchr",
+ "mime_guess",
+ "minimal-lexical",
+ "miniz_oxide",
+ "mio",
+ "native-tls",
+ "nom",
+ "num-traits",
+ "once_cell",
+ "regex",
+ "regex-automata 0.4.3",
+ "regex-syntax 0.8.2",
+ "reqwest",
+ "rustix",
+ "security-framework",
+ "security-framework-sys",
+ "serde",
+ "simd-adler32",
+ "spin",
+ "syn 1.0.109",
+ "syn 2.0.39",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-core",
+ "unicode-normalization",
 ]
 
 [[package]]
@@ -2053,6 +2105,7 @@ dependencies = [
  "configparser",
  "directories",
  "futures",
+ "homecooked-hack",
  "llm-toolkit",
  "log",
  "owo-colors",
@@ -2076,6 +2129,7 @@ dependencies = [
  "async-openai",
  "async-trait",
  "futures",
+ "homecooked-hack",
  "html-escape",
  "lazy_static",
  "log",
@@ -3286,6 +3340,7 @@ dependencies = [
  "chrono",
  "clap",
  "duration-string",
+ "homecooked-hack",
  "influxdb",
  "owo-colors",
  "serde",
