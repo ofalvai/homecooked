@@ -28,6 +28,7 @@ Commands:
   related  Get related notes to a specific note
   plot     Plot embeddings in 2D and open result in browser
   prune    Prune embeddings of no longer existing notes
+  unlinked  Find similar notes that are not linked
   help     Print this message or the help of the given subcommand(s)
 
 Options:
