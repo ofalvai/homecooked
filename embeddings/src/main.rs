@@ -6,10 +6,12 @@ mod builder;
 mod common;
 mod config;
 mod cost;
+mod graph;
 mod plot;
 mod prompt;
 mod search;
 mod types;
+mod unlinked;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -46,6 +48,18 @@ enum Commands {
 
     #[command(about = "Prune embeddings of no longer existing notes")]
     Prune,
+
+    #[command(about = "Find similar notes that are not linked")]
+    Unlinked {
+        #[arg(long, value_name = "FILE")]
+        output: Option<String>,
+
+        #[arg(long, value_name = "PERCENT", default_value = "70")]
+        threshold: u8,
+
+        #[arg(long, value_name = "PATH")]
+        exclude: Vec<String>,
+    },
 }
 
 #[tokio::main(flavor = "current_thread")]
@@ -63,6 +77,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::Related { path } => search::related(&config, path)?,
         Commands::Plot => plot::plot(&config)?,
         Commands::Prune => builder::prune(&config)?,
+        Commands::Unlinked { output, threshold, exclude } => unlinked::handle_unlinked(&config, output.as_deref(), *threshold, exclude).await?,
     }
     Ok(())
 }

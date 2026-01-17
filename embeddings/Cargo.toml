@@ -28,3 +28,5 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter", "ansi"], de
 bhtsne = { version = "0.5.2", default-features = false }
 plotly = "0.8.4"
 lazy_static = { workspace = true }
+regex = { workspace = true }
+rayon = { workspace = true }

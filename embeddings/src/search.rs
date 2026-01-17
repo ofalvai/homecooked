@@ -120,7 +120,7 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
     Ok(embedding)
 }
 
-fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
+pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
     // OpenAI embedding vectors are normalized to [0..1], so it's enough to just compute the dot product
     let mut dot_product = 0.0;
 
