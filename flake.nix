@@ -6,10 +6,9 @@
 
     crane.url = "github:ipetkov/crane";
 
-    fenix = {
-      url = "github:nix-community/fenix";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.rust-analyzer-src.follows = "";
     };
 
     flake-utils.url = "github:numtide/flake-utils";
@@ -25,7 +24,7 @@
       self,
       nixpkgs,
       crane,
-      fenix, # TODO: use a specific minor Rust version from nixpkgs
+      rust-overlay,
       flake-utils,
       advisory-db,
       ...
@@ -33,11 +32,17 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ rust-overlay.overlays.default ];
+        };
 
         inherit (pkgs) lib;
 
-        craneLib = crane.mkLib nixpkgs.legacyPackages.${system};
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+
+        craneLib = (crane.mkLib nixpkgs.legacyPackages.${system}).overrideToolchain toolchain;
+
         src = craneLib.cleanCargoSource (craneLib.path ./.);
 
         # Common arguments can be set here to avoid repeating them later
@@ -261,11 +266,13 @@
           # Inherit inputs from checks.
           checks = self.checks.${system};
 
-          # Additional dev-shell environment variables can be set directly
-          # MY_CUSTOM_DEVELOPMENT_VAR = "something else";
+          # rust-analyzer needs the rust-src component from the toolchain we defined above
+          RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
 
           # Extra inputs can be added here; cargo and rustc are provided by default.
-          packages = [ pkgs.cargo-hakari ];
+          packages = [
+            pkgs.cargo-hakari
+          ];
         };
 
         # nix fmt
