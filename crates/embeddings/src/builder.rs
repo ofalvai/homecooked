@@ -95,7 +95,8 @@ async fn get_embedding(client: &Client<OpenAIConfig>, input: String) -> anyhow::
 
     let response = client.embeddings().create(request).await?;
     let embedding = response
-        .data.first()
+        .data
+        .first()
         .context("No embedding returned")?
         .embedding
         .to_owned();
@@ -119,8 +120,7 @@ fn load_embeddings(path: &PathBuf) -> anyhow::Result<HashMap<PathBuf, Embedding>
 }
 
 fn save_embeddings(embeddings: &HashMap<PathBuf, Embedding>, path: &PathBuf) -> anyhow::Result<()> {
-    let embedding_list: Vec<Embedding> = embeddings.values().cloned()
-        .collect();
+    let embedding_list: Vec<Embedding> = embeddings.values().cloned().collect();
 
     let buf = rmp_serde::to_vec(&embedding_list)?;
     std::fs::write(path, buf)?;

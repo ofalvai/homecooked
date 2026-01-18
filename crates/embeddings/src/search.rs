@@ -122,7 +122,7 @@ async fn get_query_embedding(api_key: &str, query: &str) -> anyhow::Result<Vec<f
         .context("No embedding returned")?
         .embedding
         .to_owned();
-    return Ok(embedding);
+    Ok(embedding)
 }
 
 pub fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {

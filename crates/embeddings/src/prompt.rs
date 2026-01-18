@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use std::fmt;
+use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use dialoguer::{theme::ColorfulTheme, FuzzySelect, Input, Select};
@@ -17,8 +17,16 @@ pub struct PairListItem {
 
 impl fmt::Display for PairListItem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let title_a = self.path_a.file_stem().unwrap_or_default().to_string_lossy();
-        let title_b = self.path_b.file_stem().unwrap_or_default().to_string_lossy();
+        let title_a = self
+            .path_a
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy();
+        let title_b = self
+            .path_b
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy();
 
         let display_a = if title_a == title_b {
             self.path_a.display().to_string()
@@ -31,7 +39,9 @@ impl fmt::Display for PairListItem {
             title_b.to_string()
         };
 
-        write!(f, "{} ~ {} ({})",
+        write!(
+            f,
+            "{} ~ {} ({})",
             display_a.red(),
             display_b.green(),
             format!("{:.0}%", self.similarity * 100.0).yellow(),
@@ -48,7 +58,9 @@ impl fmt::Display for NoteListItem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let title = self.note_path.file_stem().expect("File should have a name");
         let path = self.note_path.parent().unwrap_or(Path::new("."));
-        write!(f, "{} {} {} [{}] ",
+        write!(
+            f,
+            "{} {} {} [{}] ",
             title.to_string_lossy().bold().bright_white(),
             "in".dimmed(),
             path.display().dimmed(),
@@ -124,17 +136,14 @@ fn obsidian_uri(vault_name: &str, note_path: &Path) -> String {
     format!("obsidian://open?vault={vault_name}&file={encoded_path}")
 }
 
-
-pub fn unlinked_selector(
-    pairs: Vec<UnlinkedPair>,
-    config: &Config,
-) -> anyhow::Result<()> {
+pub fn unlinked_selector(pairs: Vec<UnlinkedPair>, config: &Config) -> anyhow::Result<()> {
     if pairs.is_empty() {
         println!("No unlinked pairs found");
         return Ok(());
     }
 
-    let pair_items: Vec<PairListItem> = pairs.iter()
+    let pair_items: Vec<PairListItem> = pairs
+        .iter()
         .map(|p| PairListItem {
             path_a: p.path_a.clone(),
             path_b: p.path_b.clone(),
@@ -188,9 +197,7 @@ pub fn unlinked_selector(
                     }
                 }
                 Some(3) => {
-                    if index > 0 {
-                        index -= 1;
-                    }
+                    index = index.saturating_sub(1);
                 }
                 Some(4) => {
                     break;

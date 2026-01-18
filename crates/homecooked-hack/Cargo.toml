@@ -14,39 +14,47 @@ publish = false
 
 ### BEGIN HAKARI SECTION
 [dependencies]
-askama_escape = { version = "0.10", default-features = false, features = ["json"] }
+actix-router = { version = "0.5" }
+aho-corasick = { version = "1" }
 bitflags = { version = "2", default-features = false, features = ["std"] }
 bstr = { version = "1" }
+bytes = { version = "1" }
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4", features = ["derive", "string"] }
 clap_builder = { version = "4", default-features = false, features = ["color", "help", "std", "string", "suggestions", "usage"] }
 crc32fast = { version = "1" }
-either = { version = "1" }
+either = { version = "1", features = ["use_std"] }
 futures-channel = { version = "0.3", default-features = false, features = ["sink", "std"] }
 futures-core = { version = "0.3" }
 futures-sink = { version = "0.3" }
 futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
+getrandom-468e82937335b1c9 = { package = "getrandom", version = "0.3", default-features = false, features = ["std"] }
 libc = { version = "0.2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
 mime_guess = { version = "2" }
 minimal-lexical = { version = "0.2", default-features = false, features = ["std"] }
-mio = { version = "0.8", features = ["net", "os-ext"] }
+mio = { version = "1", features = ["net", "os-ext"] }
 nom = { version = "7" }
 num-traits = { version = "0.2", features = ["i128", "libm"] }
+percent-encoding = { version = "2" }
 regex = { version = "1" }
-regex-automata = { version = "0.4", default-features = false, features = ["dfa-onepass", "dfa-search", "hybrid", "meta", "nfa", "perf", "unicode"] }
+regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
-reqwest = { version = "0.11", features = ["brotli", "gzip", "json", "multipart", "native-tls-alpn", "rustls-tls", "rustls-tls-native-roots", "stream"] }
+reqwest = { version = "0.11", features = ["json", "multipart", "native-tls-alpn", "rustls-tls", "rustls-tls-native-roots", "stream"] }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
+serde_core = { version = "1", features = ["alloc", "rc"] }
 tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "parking_lot", "rt-multi-thread", "signal", "sync", "time"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-core = { version = "0.1", default-features = false, features = ["std"] }
-unicode-normalization = { version = "0.1" }
+zerocopy = { version = "0.8", default-features = false, features = ["derive", "simd"] }
 
 [build-dependencies]
+actix-router = { version = "0.5" }
+aho-corasick = { version = "1" }
 bitflags = { version = "2", default-features = false, features = ["std"] }
-either = { version = "1" }
+bytes = { version = "1" }
+either = { version = "1", features = ["use_std"] }
 libc = { version = "0.2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
@@ -54,43 +62,52 @@ mime_guess = { version = "2" }
 minimal-lexical = { version = "0.2", default-features = false, features = ["std"] }
 nom = { version = "7" }
 regex = { version = "1" }
-regex-automata = { version = "0.4", default-features = false, features = ["dfa-onepass", "dfa-search", "hybrid", "meta", "nfa", "perf", "unicode"] }
+regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
+serde_core = { version = "1", features = ["alloc", "rc"] }
 syn-dff4ba8e3ae991db = { package = "syn", version = "1", features = ["extra-traits", "full"] }
-syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "full", "visit-mut"] }
+syn-f595c2ba2a3f28df = { package = "syn", version = "2", features = ["extra-traits", "fold", "full", "visit", "visit-mut"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-core = { version = "0.1", default-features = false, features = ["std"] }
 
 [target.aarch64-apple-darwin.dependencies]
+errno = { version = "0.3" }
 futures-channel = { version = "0.3" }
-getrandom = { version = "0.2", default-features = false, features = ["std"] }
+getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
 libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
-miniz_oxide = { version = "0.7", features = ["simd"] }
 native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
-once_cell = { version = "1", features = ["unstable"] }
-rustix = { version = "0.38", features = ["fs"] }
 security-framework = { version = "2", features = ["alpn"] }
 security-framework-sys = { version = "2" }
-simd-adler32 = { version = "0.3" }
+smallvec = { version = "1", default-features = false, features = ["const_new"] }
 tokio-util = { version = "0.7", features = ["codec", "io-util"] }
+zeroize = { version = "1" }
 
 [target.aarch64-apple-darwin.build-dependencies]
+cc = { version = "1", default-features = false, features = ["parallel"] }
+errno = { version = "0.3" }
 libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
-once_cell = { version = "1", features = ["unstable"] }
-rustix = { version = "0.38", features = ["fs"] }
 
 [target.aarch64-unknown-linux-gnu.dependencies]
 futures-channel = { version = "0.3" }
-getrandom = { version = "0.2", default-features = false, features = ["std"] }
-miniz_oxide = { version = "0.7", features = ["simd"] }
+getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
 native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
-once_cell = { version = "1", features = ["unstable"] }
-simd-adler32 = { version = "0.3" }
-spin = { version = "0.9" }
+smallvec = { version = "1", default-features = false, features = ["const_new"] }
 tokio-util = { version = "0.7", features = ["codec", "io-util"] }
+zeroize = { version = "1" }
 
 [target.aarch64-unknown-linux-gnu.build-dependencies]
-once_cell = { version = "1", features = ["unstable"] }
+cc = { version = "1", default-features = false, features = ["parallel"] }
+
+[target.x86_64-unknown-linux-gnu.dependencies]
+futures-channel = { version = "0.3" }
+getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
+native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
+smallvec = { version = "1", default-features = false, features = ["const_new"] }
+tokio-util = { version = "0.7", features = ["codec", "io-util"] }
+zeroize = { version = "1" }
+
+[target.x86_64-unknown-linux-gnu.build-dependencies]
+cc = { version = "1", default-features = false, features = ["parallel"] }
 
 ### END HAKARI SECTION

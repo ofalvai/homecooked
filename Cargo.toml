@@ -1,14 +1,8 @@
 [workspace]
 metadata.crane.name = "homecooked"
 members = [
-    "focus",
-    "gardener",
-    "homecooked-hack",
-    "speedtest-to-influx",
-    "embeddings",
-    "llm-toolkit",
-    "llm-assistant",
-]
+  "crates/*",
+] # Note: this wildcard pattern is required for Nix Crane compatibility
 resolver = "2"
 
 package.version = "0.1.0"
@@ -27,7 +21,10 @@ ignore = "0.4.21"
 futures = "0.3.29"
 directories = "5.0.1"
 configparser = "3.0.3"
-reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls", "json"] }
+reqwest = { version = "0.11.22", default-features = false, features = [
+  "rustls-tls",
+  "json",
+] }
 lazy_static = "1.4.0"
 regex = "1.10"
 rayon = "1.10"

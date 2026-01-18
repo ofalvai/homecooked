@@ -90,7 +90,8 @@ pub async fn prompt(config: Config, prompt: String, model: Option<String>) -> an
     println!("\n\n{}", "Reflection:".green());
     println!("{}", reflection.yellow());
 
-    let resolver = generate_resolver_response(client.as_ref(), prompt, options.clone(), reflection).await?;
+    let resolver =
+        generate_resolver_response(client.as_ref(), prompt, options.clone(), reflection).await?;
     println!("\n\n{}", "Final answer:".green());
     println!("{}", resolver.yellow());
 

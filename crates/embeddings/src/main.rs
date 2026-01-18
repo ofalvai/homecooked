@@ -77,7 +77,11 @@ async fn main() -> anyhow::Result<()> {
         Commands::Related { path } => search::related(&config, path)?,
         Commands::Plot => plot::plot(&config)?,
         Commands::Prune => builder::prune(&config)?,
-        Commands::Unlinked { output, threshold, exclude } => unlinked::handle_unlinked(&config, output.as_deref(), *threshold, exclude).await?,
+        Commands::Unlinked {
+            output,
+            threshold,
+            exclude,
+        } => unlinked::handle_unlinked(&config, output.as_deref(), *threshold, exclude).await?,
     }
     Ok(())
 }

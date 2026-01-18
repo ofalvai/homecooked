@@ -26,7 +26,7 @@ struct ReadwiseRequest {
 }
 
 #[post("/v1/tools/youtube")]
-async fn youtube(
+pub async fn youtube(
     req: web::Json<YoutubeRequest>,
     data: web::Data<AppState>,
 ) -> Result<impl Responder, LlmError> {
@@ -42,7 +42,7 @@ async fn youtube(
 }
 
 #[post("/v1/tools/web")]
-async fn web_page(
+pub async fn web_page(
     req: web::Json<WebPageRequest>,
     data: web::Data<AppState>,
 ) -> Result<impl Responder, LlmError> {
@@ -58,7 +58,7 @@ async fn web_page(
 }
 
 #[post("/v1/tools/readwise")]
-async fn readwise(
+pub async fn readwise(
     req: web::Json<ReadwiseRequest>,
     data: web::Data<AppState>,
 ) -> Result<impl Responder, LlmError> {

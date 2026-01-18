@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
 llm-toolkit = { path = "../llm-toolkit" }
 
 clap = { workspace = true }
@@ -15,7 +16,10 @@ serde = { workspace = true }
 url = { workspace = true }
 serde_yaml = "0.9.27"
 simplelog = { version = "^0.12.1" }
-actix-web = { version = "4.4.0", default-features = false, features = ["macros", "compress-gzip"]}
+actix-web = { version = "4.4.0", default-features = false, features = [
+  "macros",
+  "compress-gzip",
+] }
 actix-web-lab = "0.20.1"
 uuid = { version = "1.6.1", features = ["v4"] }
 serde_json = { workspace = true }
@@ -26,4 +30,3 @@ log = "0.4.20"
 configparser = { workspace = true }
 directories = { workspace = true }
 tokio-stream = "0.1.14"
-homecooked-hack = { version = "0.1", path = "../homecooked-hack" }

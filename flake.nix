@@ -1,13 +1,10 @@
 {
-  description = "Build a cargo workspace";
+  description = "Nix configuration for the Homecooked monorepo";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixpkgs-unstable";
 
-    crane = {
-      url = "github:ipetkov/crane";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    crane.url = "github:ipetkov/crane";
 
     fenix = {
       url = "github:nix-community/fenix";
@@ -48,27 +45,18 @@
           inherit src;
           strictDeps = true;
 
-          buildInputs =
-            [ pkgs.libxml2 ]
-            ++ lib.optionals pkgs.stdenv.isDarwin [
-              pkgs.libiconv
-              pkgs.darwin.apple_sdk.frameworks.Security
-              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
-            ];
-
+          buildInputs = [
+            pkgs.libxml2
+          ];
           nativeBuildInputs = [ pkgs.pkg-config ];
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
         };
 
-        craneLibLLvmTools = craneLib.overrideToolchain (
-          fenix.packages.${system}.complete.withComponents [
-            "cargo"
-            "llvm-tools"
-            "rustc"
-          ]
-        );
+        # Build *just* the cargo dependencies (of the entire workspace),
+        # so we can reuse all of that work (e.g. via cachix) when running in CI
+        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
         individualCrateArgs = commonArgs // {
+          inherit cargoArtifacts;
           inherit (craneLib.crateNameFromCargoToml { inherit src; }) version;
           # NB: we disable tests since we'll run them all via cargo-nextest
           doCheck = false;
@@ -81,9 +69,8 @@
             fileset = lib.fileset.unions [
               ./Cargo.toml
               ./Cargo.lock
-              ./homecooked-hack
-              # ./. # TODO: this hurts cacheability, but is necessary for now
-              crate
+              (craneLib.fileset.commonCargoSources ./crates/homecooked-hack)
+              (craneLib.fileset.commonCargoSources crate)
             ];
           };
 
@@ -106,7 +93,7 @@
           // {
             pname = "embeddings";
             cargoExtraArgs = "-p embeddings";
-            src = fileSetForCrate ./embeddings;
+            src = fileSetForCrate ./crates/embeddings;
           }
         );
         focus = craneLib.buildPackage (
@@ -114,7 +101,7 @@
           // {
             pname = "focus";
             cargoExtraArgs = "-p focus";
-            src = fileSetForCrate ./focus;
+            src = fileSetForCrate ./crates/focus;
           }
         );
         gardener = craneLib.buildPackage (
@@ -122,7 +109,7 @@
           // {
             pname = "gardener";
             cargoExtraArgs = "-p gardener";
-            src = fileSetForCrate ./gardener;
+            src = fileSetForCrate ./crates/gardener;
           }
         );
         llm-assistant = craneLib.buildPackage (
@@ -130,7 +117,16 @@
           // {
             pname = "llm-assistant";
             cargoExtraArgs = "-p llm-assistant";
-            src = fileSetForCrate ./llm-assistant;
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                ./Cargo.toml
+                ./Cargo.lock
+                (craneLib.fileset.commonCargoSources ./crates/homecooked-hack)
+                (craneLib.fileset.commonCargoSources ./crates/llm-assistant)
+                (craneLib.fileset.commonCargoSources ./crates/llm-toolkit)
+              ];
+            };
           }
         );
         llm-toolkit = craneLib.buildPackage (
@@ -138,7 +134,7 @@
           // {
             pname = "llm-toolkit";
             cargoExtraArgs = "-p llm-toolkit";
-            src = fileSetForCrate ./llm-toolkit;
+            src = fileSetForCrate ./crates/llm-toolkit;
           }
         );
         speedtest-to-influx = craneLib.buildPackage (
@@ -146,7 +142,7 @@
           // {
             pname = "speedtest-to-influx";
             cargoExtraArgs = "-p speedtest-to-influx";
-            src = fileSetForCrate ./speedtest-to-influx;
+            src = fileSetForCrate ./crates/speedtest-to-influx;
           }
         );
       in
@@ -155,7 +151,14 @@
         # Hint: run individual checks with `nix build .#checks.<name>`
         checks = {
           # Build the crates as part of `nix flake check` for convenience
-          # inherit embeddings focus gardener llm-assistant llm-toolkit speedtest-to-influx;
+          inherit
+            embeddings
+            focus
+            gardener
+            llm-assistant
+            llm-toolkit
+            speedtest-to-influx
+            ;
 
           # Run clippy (and deny all warnings) on the workspace source,
           # again, reusing the dependency artifacts from above.
@@ -163,13 +166,17 @@
           # Note that this is done as a separate derivation so that
           # we can block the CI if there are issues here, but not
           # prevent downstream consumers from building our crate by itself.
+          clippy = craneLib.cargoClippy (
+            commonArgs
+            // {
+              inherit cargoArtifacts;
+              cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+            }
+          );
 
-          # TODO: enable once lint errors are fixed
-          # clippy = craneLib.cargoClippy (commonArgs
-          #   // {
-          #     cargoArtifacts = workspaceDeps;
-          #     cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-          #   });
+          toml-fmt = craneLib.taploFmt {
+            src = pkgs.lib.sources.sourceFilesBySuffices src [ ".toml" ];
+          };
 
           # Check formatting
           fmt = craneLib.cargoFmt { inherit src; };
@@ -183,6 +190,10 @@
               partitionType = "count";
             }
           );
+
+          audit = craneLib.cargoAudit {
+            inherit src advisory-db;
+          };
 
           # Ensure that cargo-hakari is up to date
           hakari = craneLib.mkCargoDerivation {
@@ -214,29 +225,27 @@
           deps = workspaceDeps;
           ci = workspaceAll;
 
-          docker = {
-            llm-assistant = pkgs.dockerTools.buildLayeredImage {
-              name = "ghcr.io/ofalvai/homecooked-llm-assistant";
-              tag = "latest";
-              config = {
-                WorkingDir = "/app";
-                Cmd = [
-                  "${llm-assistant}/bin/llm-assistant"
-                  "--config"
-                  "/data/config/config.ini"
-                  "server"
-                ];
-                ExposedPorts = {
-                  "8080/tcp" = { };
-                };
-                Volumes = {
-                  "/data/config" = { };
-                };
-                Env = [
-                  "CONFIG=/data/config/config.ini"
-                  "PORT=8080"
-                ];
+          docker-llm-assistant = pkgs.dockerTools.buildLayeredImage {
+            name = "ghcr.io/ofalvai/homecooked-llm-assistant";
+            tag = "latest";
+            config = {
+              WorkingDir = "/app";
+              Cmd = [
+                "${llm-assistant}/bin/llm-assistant"
+                "--config"
+                "/data/config/config.ini"
+                "server"
+              ];
+              ExposedPorts = {
+                "8080/tcp" = { };
               };
+              Volumes = {
+                "/data/config" = { };
+              };
+              Env = [
+                "CONFIG=/data/config/config.ini"
+                "PORT=8080"
+              ];
             };
           };
         };
@@ -260,7 +269,7 @@
         };
 
         # nix fmt
-        formatter = flake-utils.lib.eachDefaultSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
+        formatter = flake-utils.lib.eachDefaultSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
       }
     );
 }

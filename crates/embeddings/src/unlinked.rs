@@ -9,8 +9,8 @@ use rayon::prelude::*;
 use crate::common::{collect_notes, load_embeddings};
 use crate::config::Config;
 use crate::graph::{LinkGraph, PathPair};
-use crate::search::cosine_similarity;
 use crate::prompt::unlinked_selector;
+use crate::search::cosine_similarity;
 
 pub struct UnlinkedPair {
     pub path_a: PathBuf,
@@ -27,19 +27,33 @@ fn is_excluded(path: &Path, exclude_prefixes: &[PathBuf]) -> bool {
     false
 }
 
-pub async fn find_unlinked(config: &Config, threshold: f32, exclude_patterns: &[String]) -> anyhow::Result<Vec<UnlinkedPair>> {
+pub async fn find_unlinked(
+    config: &Config,
+    threshold: f32,
+    exclude_patterns: &[String],
+) -> anyhow::Result<Vec<UnlinkedPair>> {
     let load_start = Instant::now();
     let embeddings = load_embeddings(config)?;
     let notes = collect_notes(&config.notes_root);
-    println!("Loaded {} embeddings and {} notes in {:?}", embeddings.len(), notes.len(), load_start.elapsed().green());
+    println!(
+        "Loaded {} embeddings and {} notes in {:?}",
+        embeddings.len(),
+        notes.len(),
+        load_start.elapsed().green()
+    );
 
     let filter_start = Instant::now();
     let exclude_prefixes: Vec<PathBuf> = exclude_patterns.iter().map(PathBuf::from).collect();
     let original_count = embeddings.len();
-    let filtered_embeddings: Vec<_> = embeddings.into_iter()
+    let filtered_embeddings: Vec<_> = embeddings
+        .into_iter()
         .filter(|e| !is_excluded(&e.note_path, &exclude_prefixes))
         .collect();
-    println!("Filtered to {} embeddings (excluded {} by pattern)", filtered_embeddings.len(), original_count - filtered_embeddings.len());
+    println!(
+        "Filtered to {} embeddings (excluded {} by pattern)",
+        filtered_embeddings.len(),
+        original_count - filtered_embeddings.len()
+    );
     println!("Filtering took {:?}", filter_start.elapsed().green());
 
     let graph_start = Instant::now();
@@ -48,7 +62,11 @@ pub async fn find_unlinked(config: &Config, threshold: f32, exclude_patterns: &[
 
     let linked_set_start = Instant::now();
     let linked_pairs = graph.all_linked_pairs();
-    println!("Pre-computed {} linked pairs in {:?}", linked_pairs.len(), linked_set_start.elapsed().green());
+    println!(
+        "Pre-computed {} linked pairs in {:?}",
+        linked_pairs.len(),
+        linked_set_start.elapsed().green()
+    );
 
     let compare_start = Instant::now();
     let total_comparisons = (filtered_embeddings.len() * (filtered_embeddings.len() - 1)) / 2;
@@ -80,7 +98,8 @@ pub async fn find_unlinked(config: &Config, threshold: f32, exclude_patterns: &[
                     continue;
                 }
 
-                let similarity = cosine_similarity(&embeddings_ref[i].embedding, &embeddings_ref[j].embedding);
+                let similarity =
+                    cosine_similarity(&embeddings_ref[i].embedding, &embeddings_ref[j].embedding);
                 if similarity >= threshold {
                     local_pairs.push(UnlinkedPair {
                         path_a: path_a.clone(),
@@ -94,7 +113,11 @@ pub async fn find_unlinked(config: &Config, threshold: f32, exclude_patterns: &[
         })
         .collect();
 
-    println!("Compared {} pairs in {:?}", total_comparisons, compare_start.elapsed().green());
+    println!(
+        "Compared {} pairs in {:?}",
+        total_comparisons,
+        compare_start.elapsed().green()
+    );
     println!("Found {} unlinked similar pairs", all_pairs.len());
 
     let mut pairs = all_pairs;
@@ -102,12 +125,20 @@ pub async fn find_unlinked(config: &Config, threshold: f32, exclude_patterns: &[
     Ok(pairs)
 }
 
-pub async fn handle_unlinked(config: &Config, output: Option<&str>, threshold: u8, exclude_patterns: &[String]) -> anyhow::Result<()> {
+pub async fn handle_unlinked(
+    config: &Config,
+    output: Option<&str>,
+    threshold: u8,
+    exclude_patterns: &[String],
+) -> anyhow::Result<()> {
     let threshold_val = threshold as f32 / 100.0;
     let pairs = find_unlinked(config, threshold_val, exclude_patterns).await?;
 
     if pairs.is_empty() {
-        println!("No unlinked similar note pairs found above {}% threshold", threshold);
+        println!(
+            "No unlinked similar note pairs found above {}% threshold",
+            threshold
+        );
         return Ok(());
     }
 
@@ -121,12 +152,24 @@ pub async fn handle_unlinked(config: &Config, output: Option<&str>, threshold: u
     Ok(())
 }
 
-fn write_unlinked_markdown(path: &str, pairs: &[UnlinkedPair], threshold: u8) -> anyhow::Result<()> {
+fn write_unlinked_markdown(
+    path: &str,
+    pairs: &[UnlinkedPair],
+    threshold: u8,
+) -> anyhow::Result<()> {
     let mut content = format!("# Unlinked but similar note pairs\n\nFound {} unlinked similar note pairs (similarity > {}%)\n\n", pairs.len(), threshold);
 
     for pair in pairs {
-        let title_a = pair.path_a.file_stem().unwrap_or_default().to_string_lossy();
-        let title_b = pair.path_b.file_stem().unwrap_or_default().to_string_lossy();
+        let title_a = pair
+            .path_a
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy();
+        let title_b = pair
+            .path_b
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy();
         let similarity_pct = (pair.similarity * 100.0).round() as u8;
 
         let display_a = if title_a == title_b {
@@ -140,7 +183,10 @@ fn write_unlinked_markdown(path: &str, pairs: &[UnlinkedPair], threshold: u8) ->
             title_b.to_string()
         };
 
-        content.push_str(&format!("- [[{}]] <-> [[{}]] ({}%)\n", display_a, display_b, similarity_pct));
+        content.push_str(&format!(
+            "- [[{}]] <-> [[{}]] ({}%)\n",
+            display_a, display_b, similarity_pct
+        ));
     }
 
     fs::write(path, content)?;
@@ -186,9 +232,18 @@ mod tests {
             PathBuf::from("/Notes/Templates"),
         ];
 
-        assert!(is_excluded(&PathBuf::from("/Notes/Archive/old.md"), &excludes));
-        assert!(is_excluded(&PathBuf::from("/Notes/Templates/template.md"), &excludes));
-        assert!(!is_excluded(&PathBuf::from("/Notes/Projects/foo.md"), &excludes));
+        assert!(is_excluded(
+            &PathBuf::from("/Notes/Archive/old.md"),
+            &excludes
+        ));
+        assert!(is_excluded(
+            &PathBuf::from("/Notes/Templates/template.md"),
+            &excludes
+        ));
+        assert!(!is_excluded(
+            &PathBuf::from("/Notes/Projects/foo.md"),
+            &excludes
+        ));
     }
 
     #[test]
