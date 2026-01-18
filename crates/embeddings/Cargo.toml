@@ -38,5 +38,5 @@ tracing-subscriber = { version = "0.3.18", features = [
   "ansi",
 ], default-features = false }
 bhtsne = { version = "0.5.2", default-features = false }
-plotly = "0.13.0"
+plotly = "0.14.0"
 thiserror = "2.0.18"
