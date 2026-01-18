@@ -13,7 +13,7 @@ serde = { workspace = true }
 futures = { workspace = true }
 async-openai = "0.17.1"
 async-trait = "0.1.74"
-thiserror = "1.0.51"
+thiserror = "2.0.0"
 article_scraper = "2.0.0"
 url = { workspace = true }
 tinytemplate = "1.2.1"
