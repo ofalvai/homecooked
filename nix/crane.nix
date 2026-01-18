@@ -24,15 +24,9 @@ let
   # Build *just* the cargo dependencies (of the entire workspace),
   # so we can reuse all of that work (e.g. via cachix) when running in CI
   cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-  # Build *just* the cargo dependencies (of the entire workspace),
-  # so we can reuse all of that work (e.g. via cachix) when running in CI
-  # It is *highly* recommended to use something like cargo-hakari to avoid
-  # cache misses when building individual top-level-crates
-  workspaceDeps = craneLib.buildDepsOnly commonArgs;
 in
 {
-  inherit craneLib;
+  inherit craneLib cargoArtifacts;
 
   individualCrateArgs = commonArgs // {
     inherit cargoArtifacts;
@@ -60,18 +54,15 @@ in
       src
       commonArgs
       cargoArtifacts
-      workspaceDeps
       advisory-db
       ;
   };
 
   packages = {
-    inherit workspaceDeps;
-
     workspaceAll = craneLib.cargoBuild (
       commonArgs
       // {
-        cargoArtifacts = workspaceDeps;
+        inherit cargoArtifacts;
         doCheck = true;
       }
     );

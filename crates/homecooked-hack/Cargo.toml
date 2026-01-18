@@ -34,17 +34,17 @@ libc = { version = "0.2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
 mime_guess = { version = "2" }
-minimal-lexical = { version = "0.2", default-features = false, features = ["std"] }
 mio = { version = "1", features = ["net", "os-ext"] }
 nom = { version = "7" }
 num-traits = { version = "0.2", features = ["i128", "libm"] }
 percent-encoding = { version = "2" }
 regex = { version = "1" }
-regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
+regex-automata = { version = "0.4", default-features = false, features = ["dfa", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
 reqwest = { version = "0.11", features = ["json", "multipart", "native-tls-alpn", "rustls-tls", "rustls-tls-native-roots", "stream"] }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 serde_core = { version = "1", features = ["alloc", "rc"] }
+serde_json = { version = "1", features = ["alloc"] }
 tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "parking_lot", "rt-multi-thread", "signal", "sync", "time"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-core = { version = "0.1", default-features = false, features = ["std"] }
@@ -59,11 +59,9 @@ either = { version = "1", features = ["use_std"] }
 libc = { version = "0.2" }
 log = { version = "0.4", default-features = false, features = ["std"] }
 memchr = { version = "2" }
-mime_guess = { version = "2" }
-minimal-lexical = { version = "0.2", default-features = false, features = ["std"] }
 nom = { version = "7" }
 regex = { version = "1" }
-regex-automata = { version = "0.4", default-features = false, features = ["dfa-build", "dfa-onepass", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
+regex-automata = { version = "0.4", default-features = false, features = ["dfa", "hybrid", "meta", "nfa", "perf", "std", "unicode"] }
 regex-syntax = { version = "0.8" }
 serde = { version = "1", features = ["alloc", "derive", "rc"] }
 serde_core = { version = "1", features = ["alloc", "rc"] }

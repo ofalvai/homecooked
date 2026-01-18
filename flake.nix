@@ -89,7 +89,7 @@
             speedtest-to-influx
             ;
 
-          deps = crane.packages.workspaceDeps;
+          deps = crane.cargoArtifacts;
           ci = crane.packages.workspaceAll;
 
           docker-llm-assistant = import ./crates/llm-assistant/docker.nix {

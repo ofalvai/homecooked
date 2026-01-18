@@ -86,7 +86,7 @@ fn show_plot(notes: &[Note], color_map: &HashMap<String, String>) {
 
     let mut plot = Plot::new();
     let layout = Layout::new()
-        .title(Title::new("Note similarity (t-SNE)"))
+        .title(Title::with_text("Note similarity (t-SNE)"))
         .auto_size(true)
         .height(1000);
     plot.set_layout(layout);

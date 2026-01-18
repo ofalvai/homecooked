@@ -2,7 +2,6 @@
   pkgs,
   advisory-db,
   src,
-  workspaceDeps,
   craneLib,
   commonArgs,
   cargoArtifacts,
@@ -33,7 +32,7 @@
   test = craneLib.cargoNextest (
     commonArgs
     // {
-      cargoArtifacts = workspaceDeps;
+      inherit cargoArtifacts;
       partitions = 1;
       partitionType = "count";
     }
