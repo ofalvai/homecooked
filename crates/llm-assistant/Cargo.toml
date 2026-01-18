@@ -20,7 +20,7 @@ actix-web = { version = "4.4.0", default-features = false, features = [
   "macros",
   "compress-gzip",
 ] }
-actix-web-lab = "0.20.1"
+actix-web-lab = "0.24.0"
 uuid = { version = "1.6.1", features = ["v4"] }
 serde_json = { workspace = true }
 actix-files = "0.6.2"
