@@ -3,7 +3,7 @@ target/
 .vscode/
 .git/
 docker/
-gardener/output/
+crates/gardener/output/
 llm-ui/.next/
 llm-ui/node_modules/
 renovate.json

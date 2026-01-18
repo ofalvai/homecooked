@@ -1,0 +1,25 @@
+[package]
+name = "llm-toolkit"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+llama-cpp = ["dep:rs-llama-cpp"]
+
+[dependencies]
+homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
+reqwest = { workspace = true }
+serde = { workspace = true }
+futures = { workspace = true }
+async-openai = "0.17.1"
+async-trait = "0.1.74"
+thiserror = "1.0.51"
+article_scraper = "2.0.0"
+url = { workspace = true }
+tinytemplate = "1.2.1"
+rs-llama-cpp = { version = "0.1.67", optional = true }
+lazy_static = { workspace = true }
+log = "0.4.20"
+anthropic = { git = "https://github.com/ofalvai/anthropic-rs.git", branch = "main" }
+youtube-transcript = { git = "https://github.com/akhildevelops/summarizer", branch = "main" }
+html-escape = "0.2.13"
