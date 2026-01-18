@@ -16,5 +16,6 @@ craneLib.devShell {
   packages = [
     pkgs.cargo-hakari
     pkgs.cargo-outdated
+    pkgs.cargo-edit
   ];
 }

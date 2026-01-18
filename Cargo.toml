@@ -11,19 +11,20 @@ package.version = "0.1.0"
 # lto = true  # Enable link-time optimization.
 
 [workspace.dependencies]
-anyhow = "1.0.75"
-clap = { version = "4.4.11", features = ["derive"] }
-serde = { version = "1.0.193", features = ["derive"] }
+anyhow = "1.0.100"
+clap = { version = "4.5.54", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.108"
-owo-colors = "3.5.0"
+owo-colors = "4.2.3"
 ignore = "0.4.21"
 
 futures = "0.3.29"
 directories = "5.0.1"
 configparser = "3.0.3"
-reqwest = { version = "0.11.22", default-features = false, features = [
-  "rustls-tls",
+reqwest = { version = "0.13.1", default-features = false, features = [
+  "rustls",
   "json",
+  "query",
 ] }
 lazy_static = "1.4.0"
 regex = "1.10"
