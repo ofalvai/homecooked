@@ -27,6 +27,7 @@ either = { version = "1", features = ["use_std"] }
 futures-channel = { version = "0.3", default-features = false, features = ["sink", "std"] }
 futures-core = { version = "0.3" }
 futures-sink = { version = "0.3" }
+futures-task = { version = "0.3", default-features = false, features = ["std"] }
 futures-util = { version = "0.3", features = ["channel", "io", "sink"] }
 getrandom-468e82937335b1c9 = { package = "getrandom", version = "0.3", default-features = false, features = ["std"] }
 libc = { version = "0.2" }
@@ -75,13 +76,18 @@ tracing-core = { version = "0.1", default-features = false, features = ["std"] }
 errno = { version = "0.3" }
 futures-channel = { version = "0.3" }
 getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
+hyper = { version = "1", features = ["client", "http1", "http2"] }
+hyper-rustls = { version = "0.27", default-features = false, features = ["aws-lc-rs", "http1", "http2", "native-tokio", "ring", "tls12"] }
+hyper-util = { version = "0.1", features = ["client-legacy", "client-proxy", "client-proxy-system", "http1", "http2"] }
 libc = { version = "0.2", default-features = false, features = ["extra_traits"] }
 native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
+rustls = { version = "0.23", default-features = false, features = ["aws-lc-rs", "aws_lc_rs", "ring", "std", "tls12"] }
+rustls-webpki = { version = "0.103", default-features = false, features = ["aws-lc-rs", "ring", "std"] }
 security-framework = { version = "2", features = ["alpn"] }
 security-framework-sys = { version = "2" }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["aws-lc-rs", "ring", "tls12"] }
 tokio-util = { version = "0.7", features = ["codec", "io-util"] }
-zeroize = { version = "1" }
 
 [target.aarch64-apple-darwin.build-dependencies]
 cc = { version = "1", default-features = false, features = ["parallel"] }
@@ -91,10 +97,15 @@ libc = { version = "0.2", default-features = false, features = ["extra_traits"] 
 [target.aarch64-unknown-linux-gnu.dependencies]
 futures-channel = { version = "0.3" }
 getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
+hyper = { version = "1", features = ["client", "http1", "http2"] }
+hyper-rustls = { version = "0.27", default-features = false, features = ["aws-lc-rs", "http1", "http2", "native-tokio", "ring", "tls12"] }
+hyper-util = { version = "0.1", features = ["client-legacy", "client-proxy", "client-proxy-system", "http1", "http2"] }
 native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
+rustls = { version = "0.23", default-features = false, features = ["aws-lc-rs", "aws_lc_rs", "ring", "std", "tls12"] }
+rustls-webpki = { version = "0.103", default-features = false, features = ["aws-lc-rs", "ring", "std"] }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["aws-lc-rs", "ring", "tls12"] }
 tokio-util = { version = "0.7", features = ["codec", "io-util"] }
-zeroize = { version = "1" }
 
 [target.aarch64-unknown-linux-gnu.build-dependencies]
 cc = { version = "1", default-features = false, features = ["parallel"] }
@@ -102,10 +113,15 @@ cc = { version = "1", default-features = false, features = ["parallel"] }
 [target.x86_64-unknown-linux-gnu.dependencies]
 futures-channel = { version = "0.3" }
 getrandom-6f8ce4dd05d13bba = { package = "getrandom", version = "0.2", default-features = false, features = ["std"] }
+hyper = { version = "1", features = ["client", "http1", "http2"] }
+hyper-rustls = { version = "0.27", default-features = false, features = ["aws-lc-rs", "http1", "http2", "native-tokio", "ring", "tls12"] }
+hyper-util = { version = "0.1", features = ["client-legacy", "client-proxy", "client-proxy-system", "http1", "http2"] }
 native-tls = { version = "0.2", default-features = false, features = ["alpn"] }
+rustls = { version = "0.23", default-features = false, features = ["aws-lc-rs", "aws_lc_rs", "ring", "std", "tls12"] }
+rustls-webpki = { version = "0.103", default-features = false, features = ["aws-lc-rs", "ring", "std"] }
 smallvec = { version = "1", default-features = false, features = ["const_new"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["aws-lc-rs", "ring", "tls12"] }
 tokio-util = { version = "0.7", features = ["codec", "io-util"] }
-zeroize = { version = "1" }
 
 [target.x86_64-unknown-linux-gnu.build-dependencies]
 cc = { version = "1", default-features = false, features = ["parallel"] }

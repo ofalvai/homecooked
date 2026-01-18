@@ -3,7 +3,7 @@ use std::{path::PathBuf, str::FromStr, time::Instant};
 use anyhow::Context;
 use owo_colors::OwoColorize;
 
-use async_openai::{config::OpenAIConfig, types::CreateEmbeddingRequestArgs, Client};
+use async_openai::{config::OpenAIConfig, types::embeddings::CreateEmbeddingRequestArgs, Client};
 use try_partialord::TrySort;
 
 use crate::{

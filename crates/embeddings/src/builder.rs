@@ -1,6 +1,7 @@
 use anyhow::Context;
 use async_openai::config::OpenAIConfig;
-use async_openai::{types::CreateEmbeddingRequestArgs, Client};
+use async_openai::types::embeddings::CreateEmbeddingRequestArgs;
+use async_openai::Client;
 use owo_colors::OwoColorize;
 use std::collections::HashMap;
 use std::path::PathBuf;
