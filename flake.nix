@@ -22,199 +22,60 @@
   outputs =
     {
       self,
-      nixpkgs,
-      crane,
-      rust-overlay,
-      flake-utils,
-      advisory-db,
       ...
-    }:
-    flake-utils.lib.eachDefaultSystem (
+    }@inputs:
+    inputs.flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs {
+        pkgs = import inputs.nixpkgs {
           inherit system;
-          overlays = [ rust-overlay.overlays.default ];
+          overlays = [ inputs.rust-overlay.overlays.default ];
         };
-
         inherit (pkgs) lib;
 
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
-        craneLib = (crane.mkLib nixpkgs.legacyPackages.${system}).overrideToolchain toolchain;
-
-        src = craneLib.cleanCargoSource (craneLib.path ./.);
-
-        # Common arguments can be set here to avoid repeating them later
-        commonArgs = {
-          inherit src;
-          strictDeps = true;
-
-          buildInputs = [
-            pkgs.libxml2
-          ];
-          nativeBuildInputs = [ pkgs.pkg-config ];
+        crane = import ./nix/crane.nix {
+          inherit
+            pkgs
+            lib
+            toolchain
+            ;
+          crane = inputs.crane;
+          advisory-db = inputs.advisory-db;
         };
 
-        # Build *just* the cargo dependencies (of the entire workspace),
-        # so we can reuse all of that work (e.g. via cachix) when running in CI
-        cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
-        individualCrateArgs = commonArgs // {
-          inherit cargoArtifacts;
-          inherit (craneLib.crateNameFromCargoToml { inherit src; }) version;
-          # NB: we disable tests since we'll run them all via cargo-nextest
-          doCheck = false;
+        embeddings = import ./crates/embeddings {
+          inherit (crane) craneLib individualCrateArgs fileSetForCrate;
+        };
+        focus = import ./crates/focus {
+          inherit (crane) craneLib individualCrateArgs fileSetForCrate;
+        };
+        gardener = import ./crates/gardener {
+          inherit (crane) craneLib individualCrateArgs fileSetForCrate;
+        };
+        llm-assistant = import ./crates/llm-assistant {
+          inherit lib;
+          inherit (crane) craneLib individualCrateArgs;
+        };
+        llm-toolkit = import ./crates/llm-toolkit {
+          inherit (crane) craneLib individualCrateArgs fileSetForCrate;
+        };
+        speedtest-to-influx = import ./crates/speedtest-to-influx {
+          inherit (crane) craneLib individualCrateArgs fileSetForCrate;
         };
 
-        fileSetForCrate =
-          crate:
-          lib.fileset.toSource {
-            root = ./.;
-            fileset = lib.fileset.unions [
-              ./Cargo.toml
-              ./Cargo.lock
-              (craneLib.fileset.commonCargoSources ./crates/homecooked-hack)
-              (craneLib.fileset.commonCargoSources crate)
-            ];
-          };
-
-        # Build *just* the cargo dependencies (of the entire workspace),
-        # so we can reuse all of that work (e.g. via cachix) when running in CI
-        # It is *highly* recommended to use something like cargo-hakari to avoid
-        # cache misses when building individual top-level-crates
-        workspaceDeps = craneLib.buildDepsOnly commonArgs;
-
-        workspaceAll = craneLib.cargoBuild (
-          commonArgs
-          // {
-            cargoArtifacts = workspaceDeps;
-            doCheck = true;
-          }
-        );
-
-        embeddings = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "embeddings";
-            cargoExtraArgs = "-p embeddings";
-            src = fileSetForCrate ./crates/embeddings;
-          }
-        );
-        focus = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "focus";
-            cargoExtraArgs = "-p focus";
-            src = fileSetForCrate ./crates/focus;
-          }
-        );
-        gardener = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "gardener";
-            cargoExtraArgs = "-p gardener";
-            src = fileSetForCrate ./crates/gardener;
-          }
-        );
-        llm-assistant = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "llm-assistant";
-            cargoExtraArgs = "-p llm-assistant";
-            src = lib.fileset.toSource {
-              root = ./.;
-              fileset = lib.fileset.unions [
-                ./Cargo.toml
-                ./Cargo.lock
-                (craneLib.fileset.commonCargoSources ./crates/homecooked-hack)
-                (craneLib.fileset.commonCargoSources ./crates/llm-assistant)
-                (craneLib.fileset.commonCargoSources ./crates/llm-toolkit)
-              ];
-            };
-          }
-        );
-        llm-toolkit = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "llm-toolkit";
-            cargoExtraArgs = "-p llm-toolkit";
-            src = fileSetForCrate ./crates/llm-toolkit;
-          }
-        );
-        speedtest-to-influx = craneLib.buildPackage (
-          individualCrateArgs
-          // {
-            pname = "speedtest-to-influx";
-            cargoExtraArgs = "-p speedtest-to-influx";
-            src = fileSetForCrate ./crates/speedtest-to-influx;
-          }
-        );
       in
       {
-        # Executed by `nix flake check`
-        # Hint: run individual checks with `nix build .#checks.<name>`
-        checks = {
-          # Build the crates as part of `nix flake check` for convenience
+        # nix develop
+        devShells.default = import ./nix/devshell.nix {
           inherit
-            embeddings
-            focus
-            gardener
-            llm-assistant
-            llm-toolkit
-            speedtest-to-influx
+            self
+            pkgs
+            system
+            toolchain
             ;
-
-          # Run clippy (and deny all warnings) on the workspace source,
-          # again, reusing the dependency artifacts from above.
-          #
-          # Note that this is done as a separate derivation so that
-          # we can block the CI if there are issues here, but not
-          # prevent downstream consumers from building our crate by itself.
-          clippy = craneLib.cargoClippy (
-            commonArgs
-            // {
-              inherit cargoArtifacts;
-              cargoClippyExtraArgs = "--all-targets -- --deny warnings";
-            }
-          );
-
-          toml-fmt = craneLib.taploFmt {
-            src = pkgs.lib.sources.sourceFilesBySuffices src [ ".toml" ];
-          };
-
-          # Check formatting
-          fmt = craneLib.cargoFmt { inherit src; };
-
-          # Run tests with cargo-nextest
-          test = craneLib.cargoNextest (
-            commonArgs
-            // {
-              cargoArtifacts = workspaceDeps;
-              partitions = 1;
-              partitionType = "count";
-            }
-          );
-
-          audit = craneLib.cargoAudit {
-            inherit src advisory-db;
-          };
-
-          # Ensure that cargo-hakari is up to date
-          hakari = craneLib.mkCargoDerivation {
-            inherit src;
-            pname = "homecooked-hakari";
-            cargoArtifacts = null;
-            doInstallCargoArtifacts = false;
-
-            buildPhaseCargoCommand = ''
-              cargo hakari generate --diff  # workspace-hack Cargo.toml is up-to-date
-              cargo hakari manage-deps --dry-run  # all workspace crates depend on workspace-hack
-              cargo hakari verify
-            '';
-
-            nativeBuildInputs = [ pkgs.cargo-hakari ];
-          };
+          craneLib = crane.craneLib;
         };
 
         # nix build .#<name>
@@ -227,56 +88,37 @@
             llm-toolkit
             speedtest-to-influx
             ;
-          deps = workspaceDeps;
-          ci = workspaceAll;
 
-          docker-llm-assistant = pkgs.dockerTools.buildLayeredImage {
-            name = "ghcr.io/ofalvai/homecooked-llm-assistant";
-            tag = "latest";
-            config = {
-              WorkingDir = "/app";
-              Cmd = [
-                "${llm-assistant}/bin/llm-assistant"
-                "--config"
-                "/data/config/config.ini"
-                "server"
-              ];
-              ExposedPorts = {
-                "8080/tcp" = { };
-              };
-              Volumes = {
-                "/data/config" = { };
-              };
-              Env = [
-                "CONFIG=/data/config/config.ini"
-                "PORT=8080"
-              ];
-            };
+          deps = crane.packages.workspaceDeps;
+          ci = crane.packages.workspaceAll;
+
+          docker-llm-assistant = import ./crates/llm-assistant/docker.nix {
+            inherit pkgs llm-assistant;
           };
+        };
+
+        # Executed by `nix flake check`
+        # Hint: run individual checks with `nix build .#checks.<name>`
+        checks = crane.checks // {
+          # Build the crates as part of `nix flake check` for convenience
+          inherit
+            embeddings
+            focus
+            gardener
+            llm-assistant
+            llm-toolkit
+            speedtest-to-influx
+            ;
         };
 
         # nix run .#<name>
         apps = {
-          embeddings = flake-utils.lib.mkApp { drv = embeddings; };
-          llm-assistant = flake-utils.lib.mkApp { drv = llm-assistant; };
-        };
-
-        # nix develop
-        devShells.default = craneLib.devShell {
-          # Inherit inputs from checks.
-          checks = self.checks.${system};
-
-          # rust-analyzer needs the rust-src component from the toolchain we defined above
-          RUST_SRC_PATH = "${toolchain}/lib/rustlib/src/rust/library";
-
-          # Extra inputs can be added here; cargo and rustc are provided by default.
-          packages = [
-            pkgs.cargo-hakari
-          ];
+          embeddings = inputs.flake-utils.lib.mkApp { drv = embeddings; };
+          llm-assistant = inputs.flake-utils.lib.mkApp { drv = llm-assistant; };
         };
 
         # nix fmt
-        formatter = flake-utils.lib.eachDefaultSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
+        formatter = pkgs.nixfmt;
       }
     );
 }
