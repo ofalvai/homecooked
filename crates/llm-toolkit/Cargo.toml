@@ -11,7 +11,7 @@ homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
 reqwest = { workspace = true }
 serde = { workspace = true }
 futures = { workspace = true }
-async-openai = "0.17.1"
+async-openai = "0.32.0"
 async-trait = "0.1.74"
 thiserror = "1.0.51"
 article_scraper = "2.0.0"
