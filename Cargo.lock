@@ -2116,7 +2116,6 @@ dependencies = [
  "serde_core",
  "serde_json",
  "smallvec",
- "syn 1.0.109",
  "syn 2.0.114",
  "tokio",
  "tokio-rustls 0.26.4",
