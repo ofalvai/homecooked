@@ -2101,7 +2101,7 @@ dependencies = [
  "mime_guess",
  "mio",
  "native-tls",
- "nom 7.1.3",
+ "nom 8.0.0",
  "num-traits",
  "percent-encoding",
  "regex",
