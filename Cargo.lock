@@ -2110,7 +2110,7 @@ dependencies = [
  "reqwest 0.11.27",
  "rustls 0.23.36",
  "rustls-webpki 0.103.9",
- "security-framework 2.11.1",
+ "security-framework 3.5.1",
  "security-framework-sys",
  "serde",
  "serde_core",
