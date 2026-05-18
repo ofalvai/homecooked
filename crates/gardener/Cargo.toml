@@ -10,7 +10,7 @@ homecooked-hack = { version = "0.1", path = "../homecooked-hack" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 ignore = { workspace = true }
-obsidian-export = "23.12.0"
+obsidian-export = "25.0.0"
 percent-encoding = { default-features = false, version = "2.3.1" }
 pulldown-cmark = { default-features = false, version = "0.9.3" }
 regex = { version = "1.10.2", default-features = false }
