@@ -707,9 +707,9 @@ dependencies = [
 
 [[package]]
 name = "bhtsne"
-version = "0.5.4"
+version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7546d227df76fa0c6494d6ebdb4d6aa0be71030f581fc70a89e1bf0bf3fa02e"
+checksum = "2039d265dab032aee1964a4b0ed1f9504a64b3568a949159a1272434b4e076c9"
 dependencies = [
  "crossbeam",
  "num-traits",
