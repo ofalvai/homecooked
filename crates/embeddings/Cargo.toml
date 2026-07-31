@@ -19,7 +19,7 @@ regex = { workspace = true }
 rayon = { workspace = true }
 lazy_static = { workspace = true }
 tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
-async-openai = { version = "0.32.3", features = [
+async-openai = { version = "0.41.0", features = [
   "embedding",
   "chat-completion",
 ] }
