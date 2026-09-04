@@ -14,7 +14,7 @@
     "format:check": "prettier --check \"{app,lib,components}**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
-    "@next/bundle-analyzer": "^14.0.3",
+    "@next/bundle-analyzer": "^16.0.0",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -62,7 +62,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.53.0",
-    "eslint-config-next": "^14.0.3",
+    "eslint-config-next": "^16.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-tailwindcss": "^3.12.0",
     "postcss": "^8.4.21",
