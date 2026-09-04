@@ -2117,7 +2117,7 @@ dependencies = [
  "serde_json",
  "smallvec",
  "syn 1.0.109",
- "syn 2.0.114",
+ "syn 3.0.5",
  "tokio",
  "tokio-rustls 0.26.4",
  "tokio-util",
@@ -4665,6 +4665,17 @@ name = "syn"
 version = "2.0.114"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4d107df263a3013ef9b1879b0df87d706ff80f65a86ea879bd9c31f9b307c2a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
+]
+
+[[package]]
+name = "syn"
+version = "3.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12df2e0110f65b775f769bb17ef989067a1d931b2eb822bd4346631eeada89f9"
 dependencies = [
  "proc-macro2",
  "quote",
