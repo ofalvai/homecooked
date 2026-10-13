@@ -32,7 +32,7 @@
     "ai": "^2.2.24",
     "class-variance-authority": "^0.7.0",
     "clsx": "^1.2.1",
-    "cmdk": "^0.2.0",
+    "cmdk": "^1.0.0",
     "eventsource-parser": "^1.1.1",
     "lucide-react": "^0.298.0",
     "nanoid": "^5.0.0",
